@@ -77,6 +77,12 @@ sequences_train = read_CoNNL(fn_test) # load documents as sentences, each contai
 
 indexer = Indexer()
 
+indexer.load_embeddings(emb_fn=emb_fn,
+                        delimiter=delimiter,
+                        caseless=caseless)
+
+print('The end 1.')
+
 exit()
 
 print('len(sequences_train)=', len(sequences_train))

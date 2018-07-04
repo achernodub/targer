@@ -10,12 +10,21 @@ class Indexer():
     def __init__(self):
         print('Hello Indexer!')
         self.embeddings_loaded = False
+        self.embeddings_list = list()
+        self.tokens_list = list()
+        self.tags_dict = list()
         pass
 
-    def load_embeddings(self):
+    def load_embeddings(self, emb_fn, delimiter, caseless=True):
         if self.embeddings_loaded:
             raise ValueError('Embeddings are already loaded!')
-        pass
+
+        for line in open(emb_fn, 'r'):
+            values = line.split(delimiter)
+            token = values[0].lower() if caseless else values[0]
+            emb_vector = list(map(lambda t: float(t), filter(lambda n: n and not n.isspace(), values[1:])))
+            self.embeddings_list.append(emb_vector)
+        self.embeddings_dim = len(emb_vector)
 
     def add_sequences(self):
         if not self.embeddings_loaded:
