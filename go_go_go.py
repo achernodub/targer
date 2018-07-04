@@ -73,31 +73,22 @@ else:
 
 
 # Load CoNNL data as sequences of strings
-sequences_train = read_CoNNL(fn_test) # load documents as sentences, each contain a list of words
+tokens_sequences_train, tags_sequences_train = read_CoNNL(fn_train)
+tokens_sequences_dev, tags_sequences_dev = read_CoNNL(fn_dev)
+tokens_sequences_test, tags_sequences_test = read_CoNNL(fn_test)
 
+# Indexer is a class to convert tokens and tags as strings to integer indices and back
 indexer = Indexer()
+indexer.load_embeddings(emb_fn=emb_fn, delimiter=delimiter, caseless=caseless)
 
-indexer.load_embeddings(emb_fn=emb_fn,
-                        delimiter=delimiter,
-                        caseless=caseless)
+indexer.add_tokens_sequences()
 
-print('The end 1.')
 
-exit()
 
-print('len(sequences_train)=', len(sequences_train))
-tokens_train = []
-for seq in sequences_train:
-    for token in seq:
-        tokens_train.append(seq)
-print('len(tokens)=', len(tokens_train))
 
-print('finish')
 
-exit()
 
-sequences_dev = read_CoNNL(fn_dev) # load documents as sentences, each contain a list of words
-sequences_test = read_CoNNL(fn_test) # load documents as sentences, each contain a list of words
+
 sequences_all = sequences_train + sequences_dev + sequences_test
 
 _, _, feature_str_unique_list, label_str_map = generate_corpus(sequences_all, caseless)

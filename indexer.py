@@ -18,7 +18,6 @@ class Indexer():
     def load_embeddings(self, emb_fn, delimiter, caseless=True):
         if self.embeddings_loaded:
             raise ValueError('Embeddings are already loaded!')
-
         for line in open(emb_fn, 'r'):
             values = line.split(delimiter)
             token = values[0].lower() if caseless else values[0]
@@ -26,10 +25,16 @@ class Indexer():
             self.embeddings_list.append(emb_vector)
         self.embeddings_dim = len(emb_vector)
 
-    def add_sequences(self):
+    def add_tokens_sequences(self, sequences):
         if not self.embeddings_loaded:
             raise ValueError('Embeddings were not loaded, please, load them first!')
         pass
+
+    def add_tags_sequences(self, tags_sequences):
+        if not self.embeddings_loaded:
+            raise ValueError('Embeddings were not loaded, please, load them first!')
+        pass
+
 
 
 

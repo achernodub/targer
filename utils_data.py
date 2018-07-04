@@ -15,25 +15,31 @@ import torch.nn as nn
 import torch.optim as optim
 
 
-def read_CoNNL(fn):
+def read_CoNNL(fn, column_no=-1):
+    tokens_sequences = list()
+    tags_sequences = list()
     with codecs.open(fn, 'r', 'utf-8') as f:
         lines = f.readlines()
-    sequences = list()
-    curr_seq = list()
+    curr_tokens = list()
+    curr_tags = list()
     for k in range(len(lines)):
         line = lines[k].strip()
         if len(line) == 0 or line.startswith('-DOCSTART-'): # new sentence or new document
-            if len(curr_seq) > 0:
-                sequences.append(curr_seq)
-                curr_seq = list()
+            if len(curr_tokens) > 0:
+                tokens_sequences.append(curr_tokens)
+                tags_sequences.append(curr_tags)
+                curr_tokens = list()
+                curr_tags = list()
             continue
         strings = line.split(' ')
-        word = strings[0]
-        tag = strings[-1]
-        curr_seq.append([word, tag])
+        token = strings[0]
+        tag = strings[column_no] # be default, we take the last tag
+        curr_tokens.append(token)
+        curr_tags.append(tag)
         if k == len(lines) - 1:
-            sequences.append(curr_seq)
-    return sequences
+            tokens_sequences.append(curr_tokens)
+            tags_sequences.append(curr_tags)
+    return tokens_sequences, tags_sequences
 
 
 def generate_corpus(sequences, caseless=True):
