@@ -112,9 +112,3 @@ class SequencesIndexer():
 
     def get_embeddings_tensor(self):
         return torch.FloatTensor(np.asarray(self.embeddings_list))
-
-
-
-
-
-
