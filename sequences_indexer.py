@@ -11,9 +11,9 @@ class SequencesIndexer():
      of integer indices and back.
     """
 
-    def __init__(self, caseless=True, unk='<UNK>'):
-        print('SequencesIndexer has been started.')
+    def __init__(self, caseless=True, verbose=False, unk='<UNK>'):
         self.caseless = caseless
+        self.verbose = verbose
         self.unk = unk
         self.embeddings_loaded = False
         self.embeddings_list = list()
@@ -25,6 +25,10 @@ class SequencesIndexer():
         self.tokens_num = 0
         self.embeddings_dim = 0
         self.tags_num = 0
+        self.tokens_out_of_vocabulary_list = list()
+        if self.verbose:
+            print('SequencesIndexer has been started.')
+
 
     def load_embeddings(self, emb_fn, delimiter):
         if self.embeddings_loaded:
@@ -37,9 +41,10 @@ class SequencesIndexer():
         self.tokens_num = len(self.embeddings_list)
         self.embeddings_dim = len(emb_vector)
         self.embeddings_loaded = True
-        print('%s embeddings file was loaded, %d vectors, dim = %d.' % (emb_fn, len(self.embeddings_list), self.embeddings_dim))
         # Generate random embedding for 'unknown' token
         self.add_emb_vector(self.unk, self.get_random_emb_vector())
+        if self.verbose:
+            print('%s embeddings file was loaded, %d vectors, dim = %d.' % (emb_fn, len(self.embeddings_list), self.embeddings_dim))
 
     def get_random_emb_vector(self):
         if self.embeddings_dim == 0:
@@ -61,7 +66,12 @@ class SequencesIndexer():
                     token = token.lower()
                 if token not in self.token2idx_dict:
                     self.add_emb_vector(token, self.get_random_emb_vector())
+                    self.tokens_out_of_vocabulary_list.append(token)
         self.tokens_num = len(self.embeddings_list)
+        if self.verbose:
+            print('%d tokens not found, random embeddings were generated:' % len(self.tokens_out_of_vocabulary_list))
+            for k, out_of_vocabulary_token in enumerate(self.tokens_out_of_vocabulary_list):
+                print(' -= %d/%d out of vocabulary token: %s' % (k, len(self.tokens_out_of_vocabulary_list), out_of_vocabulary_token))
 
     def add_tag_sequences(self, tag_sequences):
         for tags in tag_sequences:

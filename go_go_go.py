@@ -26,7 +26,6 @@ import torch.nn as nn
 import torch.optim as optim
 
 from utils_data import *
-from utils_embeddings import *
 from sequences_indexer import SequencesIndexer
 
 seed_num = 42
@@ -56,6 +55,7 @@ momentum = 0.9
 batch_size = 10
 
 debug_mode = False
+verbose = True
 
 
 # Select data
@@ -78,12 +78,11 @@ token_sequences_dev, tag_sequences_dev = read_CoNNL(fn_dev)
 token_sequences_test, tag_sequences_test = read_CoNNL(fn_test)
 
 # Indexer is a class to convert tokens and tags as strings to integer indices and back
-sequences_indexer = SequencesIndexer(caseless=caseless)
-
+sequences_indexer = SequencesIndexer(caseless=caseless, verbose=verbose)
 sequences_indexer.load_embeddings(emb_fn=emb_fn, delimiter=delimiter)
-
-
 sequences_indexer.add_token_sequences(token_sequences_train)
+sequences_indexer.add_token_sequences(token_sequences_dev)
+sequences_indexer.add_token_sequences(token_sequences_test)
 sequences_indexer.add_tag_sequences(tag_sequences_train) # Surely, all necessarily tags exists in train data
 
 inputs_train = sequences_indexer.token2idx(token_sequences_train)
