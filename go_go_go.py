@@ -79,14 +79,35 @@ token_sequences_test, tag_sequences_test = read_CoNNL(fn_test)
 
 # Indexer is a class to convert tokens and tags as strings to integer indices and back
 sequences_indexer = SequencesIndexer(caseless=caseless)
+
 sequences_indexer.load_embeddings(emb_fn=emb_fn, delimiter=delimiter)
 
-sequences_indexer.embeddings_loaded = True
+
 sequences_indexer.add_token_sequences(token_sequences_train)
 sequences_indexer.add_tag_sequences(tag_sequences_train) # Surely, all necessarily tags exists in train data
 
 inputs_train = sequences_indexer.token2idx(token_sequences_train)
 outputs_train = sequences_indexer.tag2idx(tag_sequences_train)
+
+print(sequences_indexer.token2idx_dict['<UNK>'])
+print('------------------')
+print(len(sequences_indexer.embeddings_list))
+print(len(sequences_indexer.get_tags_list()))
+print(len(sequences_indexer.get_token_list()))
+print('====================')
+print(len(sequences_indexer.token2idx_dict))
+print(len(sequences_indexer.idx2token_dict))
+print('/////////////////////')
+print(len(sequences_indexer.tag2idx_dict))
+print(len(sequences_indexer.idx2tag_dict))
+
+embeddings_tensor = sequences_indexer.get_embeddings_tensor()
+
+token_sequences_train2 = sequences_indexer.idx2token(inputs_train)
+
+
+
+print('The end.')
 
 
 exit()
