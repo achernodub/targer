@@ -27,11 +27,7 @@ import torch.optim as optim
 
 from utils_data import *
 from sequences_indexer import SequencesIndexer
-
-seed_num = 42
-np.random.seed(seed_num)
-torch.manual_seed(seed_num)
-torch.cuda.manual_seed(seed_num)
+from masker import Masker
 
 print('Hello, train/dev/test script!')
 
@@ -57,6 +53,13 @@ batch_size = 10
 debug_mode = False
 verbose = True
 
+seed_num = 42
+np.random.seed(seed_num)
+torch.manual_seed(seed_num)
+
+if gpu >= 0:
+    torch.cuda.manual_seed(seed_num)
+
 
 # Select data
 
@@ -77,17 +80,18 @@ token_sequences_train, tag_sequences_train = read_CoNNL(fn_train)
 token_sequences_dev, tag_sequences_dev = read_CoNNL(fn_dev)
 token_sequences_test, tag_sequences_test = read_CoNNL(fn_test)
 
-# Indexer is a class to convert tokens and tags as strings to integer indices and back
+# SequenceIndexer is a class to convert tokens and tags as strings to integer indices and back
 sequences_indexer = SequencesIndexer(caseless=caseless, verbose=verbose)
 sequences_indexer.load_embeddings(emb_fn=emb_fn, delimiter=delimiter)
 sequences_indexer.add_token_sequences(token_sequences_train)
 sequences_indexer.add_token_sequences(token_sequences_dev)
 sequences_indexer.add_token_sequences(token_sequences_test)
-sequences_indexer.add_tag_sequences(tag_sequences_train) # Surely, all necessarily tags exists in train data
+sequences_indexer.add_tag_sequences(tag_sequences_train) # Surely, all necessarily tags must be into train data
 
-inputs_train = sequences_indexer.token2idx(token_sequences_train)
-outputs_train = sequences_indexer.tag2idx(tag_sequences_train)
+inputs_idx_train = sequences_indexer.token2idx(token_sequences_train)
+outputs_idx_train = sequences_indexer.tag2idx(tag_sequences_train)
 
+'''
 print(sequences_indexer.token2idx_dict['<UNK>'])
 print('------------------')
 print(len(sequences_indexer.embeddings_list))
@@ -99,11 +103,33 @@ print(len(sequences_indexer.idx2token_dict))
 print('/////////////////////')
 print(len(sequences_indexer.tag2idx_dict))
 print(len(sequences_indexer.idx2tag_dict))
-
 embeddings_tensor = sequences_indexer.get_embeddings_tensor()
+token_sequences_train2 = sequences_indexer.idx2token(inputs_idx_train)
+'''
 
-token_sequences_train2 = sequences_indexer.idx2token(inputs_train)
+batch_indices = random.sample(range(0, len(inputs_idx_train)), 5)
+inputs_idx_train_batch = [inputs_idx_train[k] for k in batch_indices]
+targets_idx_train_batch = [outputs_idx_train[k] for k in batch_indices]
 
+print(batch_indices)
+print('='*40)
+for k, inp in enumerate(inputs_idx_train_batch):
+    otp = targets_idx_train_batch[k]
+    #print(inp)
+    #print(otp)
+    print(len(inp))
+    #print(len(otp))
+    #print('--------------')
+
+
+masker = Masker()
+inputs_train_batch, targets_train_batch, masks_train_batch = masker.indices2tensors(inputs_idx_train_batch,
+                                                                                    targets_idx_train_batch)
+
+
+inputs_idx_train_batch2, targets_idx_train_batch2 = masker.tensors2indices(inputs_train_batch,
+                                                                         targets_train_batch,
+                                                                         masks_train_batch)
 
 
 print('The end.')
