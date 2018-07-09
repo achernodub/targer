@@ -41,22 +41,5 @@ def read_CoNNL(fn, column_no=-1):
             tag_sequences.append(curr_tags)
     return token_sequences, tag_sequences
 
-
-def generate_corpus(sequences, caseless=True):
-    feature_str_seq_list = list()
-    label_str_seq_list = list()
-    feature_str_unique_list = list()
-    label_str_map = dict()
-    for doc in sequences:
-        curr_feature_str_seq_list = []
-        curr_label_str_seq_list = []
-        for token in doc:
-            fs, ls = token[0], token[1]
-            if caseless: fs = fs.lower()
-            curr_feature_str_seq_list.append(fs)
-            curr_label_str_seq_list.append(ls)
-            if fs not in feature_str_unique_list: feature_str_unique_list.append(fs)
-            if ls not in label_str_map: label_str_map[ls] = len(label_str_map)
-        feature_str_seq_list.append(curr_feature_str_seq_list)
-        label_str_seq_list.append(curr_label_str_seq_list)
-    return feature_str_seq_list, label_str_seq_list, feature_str_unique_list, label_str_map
+def info(name, t):
+    print(name, '|', t.type(), '|', t.shape)
