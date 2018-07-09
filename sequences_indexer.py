@@ -22,9 +22,7 @@ class SequencesIndexer():
         self.tag2idx_dict = dict()
         self.idx2token_dict = dict()
         self.idx2tag_dict = dict()
-        self.tokens_num = 0
         self.embeddings_dim = 0
-        self.tags_num = 0
         self.tokens_out_of_vocabulary_list = list()
         if self.verbose:
             print('SequencesIndexer has been started.')
@@ -38,7 +36,6 @@ class SequencesIndexer():
             token = values[0].lower() if self.caseless else values[0]
             emb_vector = list(map(lambda t: float(t), filter(lambda n: n and not n.isspace(), values[1:])))
             self.add_emb_vector(token, emb_vector)
-        self.tokens_num = len(self.embeddings_list)
         self.embeddings_dim = len(emb_vector)
         self.embeddings_loaded = True
         # Generate random embedding for 'unknown' token
@@ -67,7 +64,6 @@ class SequencesIndexer():
                 if token not in self.token2idx_dict:
                     self.add_emb_vector(token, self.get_random_emb_vector())
                     self.tokens_out_of_vocabulary_list.append(token)
-        self.tokens_num = len(self.embeddings_list)
         if self.verbose:
             print('%d tokens not found, random embeddings were generated:' % len(self.tokens_out_of_vocabulary_list))
             for k, out_of_vocabulary_token in enumerate(self.tokens_out_of_vocabulary_list):
@@ -122,3 +118,9 @@ class SequencesIndexer():
 
     def get_embeddings_tensor(self):
         return torch.FloatTensor(np.asarray(self.embeddings_list))
+
+    def get_tokens_num(self):
+        return len(self.embeddings_list)
+
+    def get_tags_num(self):
+        return len(self.tags_list)

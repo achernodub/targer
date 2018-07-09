@@ -28,6 +28,7 @@ import torch.optim as optim
 from utils_data import *
 from sequences_indexer import SequencesIndexer
 from masker import Masker
+from tagger_birnn import TaggerBiRNN
 
 print('Hello, train/dev/test script!')
 
@@ -48,7 +49,7 @@ opt_method = 'sgd'
 
 lr = 0.015
 momentum = 0.9
-batch_size = 10
+batch_size = 5
 
 debug_mode = False
 verbose = True
@@ -57,8 +58,14 @@ seed_num = 42
 np.random.seed(seed_num)
 torch.manual_seed(seed_num)
 
+freeze_embeddings = False
+
 if gpu >= 0:
     torch.cuda.manual_seed(seed_num)
+
+
+def info(name, t):
+    print(name, '|', t.type(), '|', t.shape)
 
 
 # Select data
@@ -107,7 +114,7 @@ embeddings_tensor = sequences_indexer.get_embeddings_tensor()
 token_sequences_train2 = sequences_indexer.idx2token(inputs_idx_train)
 '''
 
-batch_indices = random.sample(range(0, len(inputs_idx_train)), 5)
+batch_indices = random.sample(range(0, len(inputs_idx_train)), batch_size)
 inputs_idx_train_batch = [inputs_idx_train[k] for k in batch_indices]
 targets_idx_train_batch = [outputs_idx_train[k] for k in batch_indices]
 
@@ -126,18 +133,87 @@ masker = Masker()
 inputs_train_batch, targets_train_batch, masks_train_batch = masker.indices2tensors(inputs_idx_train_batch,
                                                                                     targets_idx_train_batch)
 
+print('start...\n\n')
 
-inputs_idx_train_batch2, targets_idx_train_batch2 = masker.tensors2indices(inputs_train_batch,
-                                                                         targets_train_batch,
-                                                                         masks_train_batch)
+rnn_hidden_size = 100
+class_num = sequences_indexer.get_tags_num()
 
 
-print('The end.')
+'''BBBBBatch_size, seq_len = inputs_train_batch.size()
+
+print(BBBBBatch_size, seq_len)
+
+embeddings = torch.nn.Embedding.from_pretrained(embeddings=sequences_indexer.get_embeddings_tensor(),
+                                                freeze=freeze_embeddings)
+dropout1 = torch.nn.Dropout(p=dropout_ratio)
+dropout2 = torch.nn.Dropout(p=dropout_ratio)
+
+z_embed = embeddings(inputs_train_batch)
+z_embed_d = dropout1(z_embed)
+rnn_layer = nn.GRUCell(input_size=embeddings.embedding_dim,
+                       hidden_size=rnn_hidden_size,
+                       bias=True)
+lin_layer = nn.Linear(in_features=rnn_hidden_size,
+                      out_features=class_num)
+log_softmax_layer = nn.LogSoftmax(dim=1)
+
+nll_loss = nn.NLLLoss()
+
+optimizer = optim.SGD(list(rnn_layer.parameters()), lr=lr, momentum=momentum)
+
+# curr_rnn_input || batch_size x seq_len x dim
+
+for i in range(100):
+    rnn_layer.zero_grad()
+    lin_layer.zero_grad()
+    outputs_train_batch = torch.zeros(batch_size, class_num, seq_len)
+    rnn_forward_hidden_state = torch.zeros(batch_size, rnn_hidden_size)
+    for k in range(seq_len):
+        curr_rnn_input = z_embed_d[:, k, :]
+        rnn_forward_hidden_state = rnn_layer(curr_rnn_input, rnn_forward_hidden_state)
+        rnn_forward_hidden_state_d = dropout2(rnn_forward_hidden_state)
+        z = lin_layer(rnn_forward_hidden_state_d)
+        y = log_softmax_layer(z)
+        outputs_train_batch[:, :, k] = y
+'''
+
+    loss = nll_loss(outputs_train_batch, targets_train_batch)
+
+    print('i=', i, ' loss=', loss.data)
+
+    loss.backward(retain_graph=True)
+
+    optimizer.step()
+
+
+print('the end!')
+
+exit()
+
+
+
+
+'''
+GRUCell(input_size, hidden_size, bias=True)
+rnn = nn.GRUCell(input_size=10, hidden_size=20)
+input = torch.randn(6, 3, 10) # seq_len x batch_size? x input_size
+hx = torch.randn(3, 20) # batch_size x hidden_size
+output = []
+for i in range(6):
+    curr_input = input[i] # 3x10   batch_size x input_size
+    hx = rnn(curr_input, hx) # 3x20 batch_size x hidden_size
+    output.append(hx)
+'''
+print('The end!')
+
+
+
+
+
 
 
 exit()
 
-#indexer.add_tokens_sequences()
 
 
 

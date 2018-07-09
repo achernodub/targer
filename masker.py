@@ -15,7 +15,7 @@ class Masker():
     def indices2tensors(self, inputs_idx, targets_idx):
         data_num = len(inputs_idx)
         max_seq_len = max([len(seq) for seq in inputs_idx])
-        inputs = torch.zeros(data_num, max_seq_len).float()
+        inputs = torch.zeros(data_num, max_seq_len).long()
         targets = torch.zeros(data_num, max_seq_len).long()
         masks = torch.zeros(data_num, max_seq_len).byte()
         for k, curr_input_idx in enumerate(inputs_idx):
