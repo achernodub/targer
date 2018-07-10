@@ -61,4 +61,6 @@ class TaggerBiRNN(nn.Module):
             outputs_batch[:, :, k] = y
         return outputs_batch
 
+    #def predict(self, inputs_batch):
+
 

@@ -97,8 +97,10 @@ batch_indices = random.sample(range(0, len(inputs_idx_train)), batch_size)
 inputs_idx_train_batch = [inputs_idx_train[k] for k in batch_indices]
 targets_idx_train_batch = [outputs_idx_train[k] for k in batch_indices]
 
-tensors_indexer = TensorsIndexer()
-inputs_train_batch, targets_train_batch = tensors_indexer.indices2tensors(inputs_idx_train_batch, targets_idx_train_batch)
+inputs_train_batch = sequences_indexer.idx2tensor(inputs_idx_train_batch)
+targets_train_batch = sequences_indexer.idx2tensor(targets_idx_train_batch)
+
+
 print('Start...\n\n')
 
 tagger = TaggerBiRNN(embeddings_tensor=sequences_indexer.get_embeddings_tensor(),
@@ -112,17 +114,15 @@ nll_loss = nn.NLLLoss(ignore_index=0) # we suppose that target values "0" are ze
                                       # don't include them for calculating the derivatives for the loss function
 optimizer = optim.SGD(list(tagger.parameters()), lr=lr, momentum=momentum)
 
-
-
-for i in range(100):
+for i in range(1):
     tagger.zero_grad()
     outputs_train_batch = tagger(inputs_train_batch)
-    info('outputs_train_batch', outputs_train_batch)
-    info('targets_train_batch', targets_train_batch)
     loss = nll_loss(outputs_train_batch, targets_train_batch)
-    print('i = ', i, ' loss = ', loss.item() )
+    print('i = %d, loss = %1.4f' % (i, loss.item()))
     loss.backward()
     optimizer.step()
-    exit()
+
+targets_train_batch111 = sequences_indexer.tensor2idx(targets_train_batch)
+
 
 print('The end!')

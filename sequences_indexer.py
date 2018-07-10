@@ -124,3 +124,24 @@ class SequencesIndexer():
 
     def get_tags_num(self):
         return len(self.tags_list)
+
+    def idx2tensor(self, list_idx):
+        data_num = len(list_idx)
+        max_seq_len = max([len(seq) for seq in list_idx])
+        tensor = torch.zeros(data_num, max_seq_len, dtype=torch.long)
+        for k, curr_input_idx in enumerate(list_idx):
+            curr_seq_len = len(curr_input_idx)
+            tensor[k, :curr_seq_len] = torch.FloatTensor(np.asarray(curr_input_idx))
+        return tensor
+
+    def tensor2idx(self, tensor):
+        list_idx = list()
+        data_num = tensor.shape[0]
+        for k in range(data_num):
+            curr_row = tensor[k, :]
+            nonzerrro = curr_row.nonzero()
+            print('curr_row.nonzero()', curr_row.nonzero())
+            curr_row_nonzero = curr_row[curr_row.nonzero()]
+            curr_seq_len = curr_row_nonzero.shape[0]
+            list_idx.append([int(curr_row_nonzero[k]) for k in range(curr_seq_len)])
+        return list_idx
