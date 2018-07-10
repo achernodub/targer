@@ -1,8 +1,10 @@
 from models.tagger_base import TaggerBase
 from utils import *
 
-
 class TaggerBiRNN(TaggerBase):
+    """
+    TaggerBiRNN is a basic pure recurrent network model for sequences tagging.
+    """
     def __init__(self, embeddings_tensor, class_num, rnn_hidden_size=100, freeze_embeddings=False, dropout_ratio=0.5,
                  rnn_type='GRU'):
         super(TaggerBiRNN, self).__init__()

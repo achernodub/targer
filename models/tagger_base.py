@@ -7,8 +7,13 @@ import torch.optim as optim
 
 from utils import *
 
-
 class TaggerBase(nn.Module):
+    """
+    TaggerBase is a base class for tagger models. It implements the tagging functionality for different types of
+     inputs (sequences of tokens, sequences of integer indices, tensors). Auxiliary class SequencesIndexer is used
+     for input and output data formats conversions. Abstract method `forward` is used in order to make these predictions,
+     it have to be implemented in ancestors.
+    """
     def predict_idx_from_tensor(self, inputs_tensor):# inputs_tensor: batch_size x max_seq_len
         self.eval()
         outputs_tensor = self.forward(inputs_tensor) # batch_size x num_class+1 x max_seq_len
@@ -36,15 +41,3 @@ class TaggerBase(nn.Module):
     def predict_tags_from_tokens(self, token_sequences, sequences_indexer):
         inputs_idx = sequences_indexer.token2idx(token_sequences)
         return self.predict_tags_from_idx(inputs_idx, sequences_indexer)
-
-
-
-
-
-
-
-
-
-
-
-
