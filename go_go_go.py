@@ -1,33 +1,10 @@
 from __future__ import print_function
 
-import argparse
-import codecs
-import copy
-import datetime
-import functools
-import json
-import itertools
-import os
 import random
-import sys
-import time
-
-import numpy as np
-from os import system
-from os.path import isfile, join, exists
-from random import randint, shuffle
-from sklearn.metrics import f1_score, precision_score, recall_score
-from sys import exit
-from tqdm import tqdm
-
-import torch
-import torch.autograd as autograd
-import torch.nn as nn
-import torch.optim as optim
 
 from sequences_indexer import SequencesIndexer
-from tagger_birnn import TaggerBiRNN
-from utils_data import *
+from models.tagger_birnn import TaggerBiRNN
+from utils import *
 
 print('Hello, train/dev/test script!')
 
