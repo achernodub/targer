@@ -25,10 +25,9 @@ import torch.autograd as autograd
 import torch.nn as nn
 import torch.optim as optim
 
-from utils_data import *
 from sequences_indexer import SequencesIndexer
-from tensors_indexer import TensorsIndexer
 from tagger_birnn import TaggerBiRNN
+from utils_data import *
 
 print('Hello, train/dev/test script!')
 
@@ -97,8 +96,8 @@ batch_indices = random.sample(range(0, len(inputs_idx_train)), batch_size)
 inputs_idx_train_batch = [inputs_idx_train[k] for k in batch_indices]
 targets_idx_train_batch = [outputs_idx_train[k] for k in batch_indices]
 
-inputs_train_batch = sequences_indexer.idx2tensor(inputs_idx_train_batch)
-targets_train_batch = sequences_indexer.idx2tensor(targets_idx_train_batch)
+inputs_tensor_train_batch = sequences_indexer.idx2tensor(inputs_idx_train_batch)
+targets_tensor_train_batch = sequences_indexer.idx2tensor(targets_idx_train_batch)
 
 
 print('Start...\n\n')
@@ -116,13 +115,22 @@ optimizer = optim.SGD(list(tagger.parameters()), lr=lr, momentum=momentum)
 
 for i in range(1):
     tagger.zero_grad()
-    outputs_train_batch = tagger(inputs_train_batch)
-    loss = nll_loss(outputs_train_batch, targets_train_batch)
+    outputs_train_batch = tagger(inputs_tensor_train_batch)
+    loss = nll_loss(outputs_train_batch, targets_tensor_train_batch)
     print('i = %d, loss = %1.4f' % (i, loss.item()))
     loss.backward()
     optimizer.step()
 
-targets_train_batch111 = sequences_indexer.tensor2idx(targets_train_batch)
+outputs_idx_train_batch = tagger.predict_idx_from_tensor(inputs_tensor_train_batch)
 
+tags1 = tagger.predict_tags_from_tensor(inputs_tensor_train_batch, sequences_indexer)
+tags2 = tagger.predict_tags_from_idx(inputs_idx_train_batch, sequences_indexer)
+tags3 = tagger.predict_tags_from_tokens(token_sequences_train, sequences_indexer)
+
+print(tags1)
+print(tags2)
+print(tags3)
+
+#targets_idx_train_batch
 
 print('The end!')

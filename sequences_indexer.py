@@ -27,7 +27,6 @@ class SequencesIndexer():
         if self.verbose:
             print('SequencesIndexer has been started.')
 
-
     def load_embeddings(self, emb_fn, delimiter):
         if self.embeddings_loaded:
             raise ValueError('Embeddings are already loaded!')
@@ -109,6 +108,15 @@ class SequencesIndexer():
                     curr_idx_seq.append(self.tag2idx_dict[self.unk])
             idx_sequences.append(curr_idx_seq)
         return idx_sequences
+
+    def idx2tag(self, idx_sequences):
+        tag_sequences = list()
+        for indices in idx_sequences:
+            curr_tag_seq = list()
+            for idx in indices:
+                curr_tag_seq.append(self.idx2tag_dict[idx])
+            tag_sequences.append(curr_tag_seq)
+        return tag_sequences
 
     def get_token_list(self):
         return self.token2idx_dict.keys()

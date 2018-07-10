@@ -10,7 +10,7 @@ from utils_data import *
 
 class TaggerBiRNN(nn.Module):
     def __init__(self, embeddings_tensor, class_num, rnn_hidden_size=100, freeze_embeddings=False, dropout_ratio=0.5,
-                 rnn_type='LSTM'):
+                 rnn_type='GRU'):
         super(TaggerBiRNN, self).__init__()
         self.class_num = class_num
         self.rnn_hidden_size = rnn_hidden_size
@@ -35,32 +35,68 @@ class TaggerBiRNN(nn.Module):
         self.lin_layer = nn.Linear(in_features=rnn_hidden_size*2, out_features=self.class_num + 1)
         self.log_softmax_layer = nn.LogSoftmax(dim=1)
 
-    def forward(self, inputs_batch):
-        batch_size, seq_len = inputs_batch.size()
-        z_embed = self.embeddings(inputs_batch)
+    def forward(self, inputs_tensor):
+        batch_size, max_seq_len = inputs_tensor.size()
+        z_embed = self.embeddings(inputs_tensor)
         z_embed_d = self.dropout1(z_embed)
         rnn_forward_hidden_state = torch.zeros(batch_size, self.rnn_hidden_size)
         rnn_backward_hidden_state = torch.zeros(batch_size, self.rnn_hidden_size)
-        rnn_forward_hidden_states_d = torch.zeros(batch_size, self.rnn_hidden_size, seq_len)
-        rnn_backward_hidden_states_d = torch.zeros(batch_size, self.rnn_hidden_size, seq_len)
-        for k in range(seq_len):
-            n = seq_len - k - 1
-            curr_rnn_input_forward = z_embed_d[:, k, :]
+        rnn_forward_hidden_states_d = torch.zeros(batch_size, self.rnn_hidden_size, max_seq_len)
+        rnn_backward_hidden_states_d = torch.zeros(batch_size, self.rnn_hidden_size, max_seq_len)
+        for l in range(max_seq_len):
+            n = max_seq_len - l - 1
+            curr_rnn_input_forward = z_embed_d[:, l, :]
             curr_rnn_input_backward = z_embed_d[:, n, :]
             rnn_forward_hidden_state = self.rnn_forward_layer(curr_rnn_input_forward, rnn_forward_hidden_state)
             rnn_backward_hidden_state = self.rnn_backward_layer(curr_rnn_input_backward, rnn_backward_hidden_state)
-            rnn_forward_hidden_states_d[:, :, k] = self.dropout2(rnn_forward_hidden_state)
+            rnn_forward_hidden_states_d[:, :, l] = self.dropout2(rnn_forward_hidden_state)
             rnn_backward_hidden_states_d[:, :, n] = self.dropout2(rnn_backward_hidden_state)
-        outputs_batch = torch.zeros(batch_size, self.class_num+1, seq_len)
-        for k in range(seq_len):
-            rnn_forward_hidden_state_d = rnn_forward_hidden_states_d[:, :, k]
-            rnn_backward_hidden_state_d = rnn_backward_hidden_states_d[:, :, k]
+        outputs_tensor = torch.zeros(batch_size, self.class_num+1, max_seq_len)
+        for l in range(max_seq_len):
+            rnn_forward_hidden_state_d = rnn_forward_hidden_states_d[:, :, l]
+            rnn_backward_hidden_state_d = rnn_backward_hidden_states_d[:, :, l]
             rnn_hidden_state_d = torch.cat((rnn_forward_hidden_state_d, rnn_backward_hidden_state_d), 1)
             z = self.lin_layer(rnn_hidden_state_d)
             y = self.log_softmax_layer(z)
-            outputs_batch[:, :, k] = y
-        return outputs_batch
+            outputs_tensor[:, :, l] = y
+        return outputs_tensor
 
-    #def predict(self, inputs_batch):
+    def predict_idx_from_tensor(self, inputs_tensor):# inputs_tensor: batch_size x max_seq_len
+        self.eval()
+        outputs_tensor = self.forward(inputs_tensor) # batch_size x num_class+1 x max_seq_len
+        outputs_idx = list()
+        batch_size, max_seq_len = inputs_tensor.size()
+        for k in range(batch_size):
+            list_idx = list()
+            for l in range(max_seq_len):
+                curr_input = inputs_tensor[k, l].item()
+                if curr_input > 0: # ignore zero-padded inputs of sequence
+                    curr_output = outputs_tensor[k, 1:, l]
+                    _, max_no = curr_output.max(0)
+                    list_idx.append(max_no.item() + 1)
+            outputs_idx.append(list_idx)
+        return outputs_idx
+
+    def predict_tags_from_tensor(self, inputs_tensor, sequences_indexer):
+        outputs_idx = self.predict_idx_from_tensor(inputs_tensor)
+        return sequences_indexer.idx2tag(outputs_idx)
+
+    def predict_tags_from_idx(self, inputs_idx, sequences_indexer):
+        inputs_tensor = sequences_indexer.idx2tensor(inputs_idx)
+        return self.predict_tags_from_tensor(inputs_tensor, sequences_indexer)
+
+    def predict_tags_from_tokens(self, token_sequences, sequences_indexer):
+        inputs_idx = sequences_indexer.token2idx(token_sequences)
+        return self.predict_tags_from_idx(inputs_idx, sequences_indexer)
+
+
+
+
+
+
+
+
+
+
 
 
