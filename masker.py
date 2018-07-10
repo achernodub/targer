@@ -48,5 +48,3 @@ class Masker():
         return inputs_idx, targets_idx
 
 
-
-
