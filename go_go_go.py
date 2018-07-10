@@ -27,7 +27,7 @@ import torch.optim as optim
 
 from utils_data import *
 from sequences_indexer import SequencesIndexer
-from masker import Masker
+from tensors_indexer import TensorsIndexer
 from tagger_birnn import TaggerBiRNN
 
 print('Hello, train/dev/test script!')
@@ -97,30 +97,32 @@ batch_indices = random.sample(range(0, len(inputs_idx_train)), batch_size)
 inputs_idx_train_batch = [inputs_idx_train[k] for k in batch_indices]
 targets_idx_train_batch = [outputs_idx_train[k] for k in batch_indices]
 
-masker = Masker()
-inputs_train_batch, targets_train_batch, masks_train_batch = masker.indices2tensors(inputs_idx_train_batch,
-                                                                                    targets_idx_train_batch)
+tensors_indexer = TensorsIndexer()
+inputs_train_batch, targets_train_batch = tensors_indexer.indices2tensors(inputs_idx_train_batch, targets_idx_train_batch)
 print('Start...\n\n')
 
 tagger = TaggerBiRNN(embeddings_tensor=sequences_indexer.get_embeddings_tensor(),
-                     class_num= sequences_indexer.get_tags_num(),
+                     class_num=sequences_indexer.get_tags_num(),
                      rnn_hidden_size=rnn_hidden_size,
                      freeze_embeddings=freeze_embeddings,
                      dropout_ratio=dropout_ratio,
                      rnn_type='GRU')
 
-nll_loss = nn.NLLLoss()
+nll_loss = nn.NLLLoss(ignore_index=0) # we suppose that target values "0" are zero-padded parts of sequences and
+                                      # don't include them for calculating the derivatives for the loss function
 optimizer = optim.SGD(list(tagger.parameters()), lr=lr, momentum=momentum)
+
+
 
 for i in range(100):
     tagger.zero_grad()
     outputs_train_batch = tagger(inputs_train_batch)
+    info('outputs_train_batch', outputs_train_batch)
+    info('targets_train_batch', targets_train_batch)
     loss = nll_loss(outputs_train_batch, targets_train_batch)
     print('i = ', i, ' loss = ', loss.item() )
     loss.backward()
     optimizer.step()
-    #info('inputs_train_batch', inputs_train_batch)
-    #info('targets_train_batch', targets_train_batch)
-    #info('outputs_train_batch', outputs_train_batch)
+    exit()
 
 print('The end!')

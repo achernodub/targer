@@ -8,7 +8,7 @@ class SequencesIndexer():
       1) tokens - uses dataset's input sequences and embeddings
       2) tags - uses dataset's outputs
     When dictionaries were created, sequences of tokens or tags can be converted to the sequences
-     of integer indices and back.
+     of integer indices and back. Minimum value for any index is "1".
     """
 
     def __init__(self, caseless=True, verbose=False, unk='<UNK>'):
@@ -49,7 +49,7 @@ class SequencesIndexer():
         return np.random.uniform(-np.sqrt(3.0 / self.embeddings_dim), np.sqrt(3.0 / self.embeddings_dim), self.embeddings_dim).tolist()
 
     def add_emb_vector(self, token, emb_vector):
-        idx = len(self.token2idx_dict)
+        idx = len(self.token2idx_dict) + 1
         self.token2idx_dict[token] = idx
         self.idx2token_dict[idx] = token
         self.embeddings_list.append(emb_vector)
@@ -74,7 +74,7 @@ class SequencesIndexer():
             for tag in tags:
                 if tag not in self.tags_list:
                     self.tags_list.append(tag)
-                    idx = len(self.tag2idx_dict)
+                    idx = len(self.tag2idx_dict) + 1
                     self.tag2idx_dict[tag] = idx
                     self.idx2tag_dict[idx] = tag
 

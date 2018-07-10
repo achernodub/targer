@@ -31,7 +31,8 @@ class TaggerBiRNN(nn.Module):
             self.rnn_backward_layer = nn.GRUCell(input_size=self.embeddings.embedding_dim, hidden_size=rnn_hidden_size)
         else:
             raise ValueError('Unknown RNN type! Currently support "Vanilla", "LSTM", "GRU" only.')
-        self.lin_layer = nn.Linear(in_features=rnn_hidden_size*2, out_features=class_num)
+        # We add an additional class that corresponds to the zero-padded values not to be included to the loss function
+        self.lin_layer = nn.Linear(in_features=rnn_hidden_size*2, out_features=self.class_num + 1)
         self.log_softmax_layer = nn.LogSoftmax(dim=1)
 
     def forward(self, inputs_batch):
@@ -50,7 +51,7 @@ class TaggerBiRNN(nn.Module):
             rnn_backward_hidden_state = self.rnn_backward_layer(curr_rnn_input_backward, rnn_backward_hidden_state)
             rnn_forward_hidden_states_d[:, :, k] = self.dropout2(rnn_forward_hidden_state)
             rnn_backward_hidden_states_d[:, :, n] = self.dropout2(rnn_backward_hidden_state)
-        outputs_batch = torch.zeros(batch_size, self.class_num, seq_len)
+        outputs_batch = torch.zeros(batch_size, self.class_num+1, seq_len)
         for k in range(seq_len):
             rnn_forward_hidden_state_d = rnn_forward_hidden_states_d[:, :, k]
             rnn_backward_hidden_state_d = rnn_backward_hidden_states_d[:, :, k]

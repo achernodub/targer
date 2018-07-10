@@ -1,36 +1,32 @@
 import numpy as np
 import torch
 
+from utils_data import *
 
-class Masker():
+
+class TensorsIndexer():
     """
-    Masker converts input and output sequences (lists of lists of integer indices) to the Torch tensors and back.
-    Sequences usually have different length, so shorter sequences are zero-padded, mask tensor is used to indicate
-    these zero-padded values in order not to include them to the loss & other operations.
+    TensorsIndexer converts input and output sequences (lists of lists of integer indices) to the Torch tensors and back.
+    Sequences usually have different length, so shorter sequences are zero-padded, zero values indicates not to include
+    them for calculating derivatives in the loss function.
     """
 
-    def __init__(self):
-        pass
+    def vec2idx(self, vec, seq_len):
+        return [int(vec[k]) for k in range(seq_len)]
 
     def indices2tensors(self, inputs_idx, targets_idx):
         data_num = len(inputs_idx)
         max_seq_len = max([len(seq) for seq in inputs_idx])
-        inputs = torch.zeros(data_num, max_seq_len).long()
-        targets = torch.zeros(data_num, max_seq_len).long()
-        masks = torch.zeros(data_num, max_seq_len).byte()
+        inputs = torch.zeros(data_num, max_seq_len, dtype=torch.long)
+        targets = torch.zeros(data_num, max_seq_len, dtype=torch.long)
         for k, curr_input_idx in enumerate(inputs_idx):
             curr_target_idx = targets_idx[k]
             curr_seq_len = len(curr_input_idx)
             curr_input = torch.FloatTensor(np.asarray(curr_input_idx))
             curr_target = torch.LongTensor(np.asarray(curr_target_idx))
-            curr_mask = torch.ones(1, curr_seq_len).byte()
             inputs[k, :curr_seq_len] = curr_input
             targets[k, :curr_seq_len] = curr_target
-            masks[k, :curr_seq_len] = curr_mask
-        return inputs, targets, masks
-
-    def vec2idx(self, vec, seq_len):
-        return [int(vec[k]) for k in range(seq_len)]
+        return inputs, targets
 
     def tensors2indices(self, inputs, targets, masks):
         inputs_idx = list()
