@@ -3,6 +3,7 @@ from __future__ import print_function
 import random
 
 from sequences_indexer import SequencesIndexer
+from evaluator import Evaluator
 from models.tagger_birnn import TaggerBiRNN
 from utils import *
 
@@ -79,6 +80,8 @@ targets_tensor_train_batch = sequences_indexer.idx2tensor(targets_idx_train_batc
 
 print('Start...\n\n')
 
+evaluator = Evaluator()
+
 tagger = TaggerBiRNN(embeddings_tensor=sequences_indexer.get_embeddings_tensor(),
                      class_num=sequences_indexer.get_tags_num(),
                      rnn_hidden_size=rnn_hidden_size,
@@ -90,24 +93,22 @@ nll_loss = nn.NLLLoss(ignore_index=0) # we suppose that target values "0" are ze
                                       # don't include them for calculating the derivatives for the loss function
 optimizer = optim.SGD(list(tagger.parameters()), lr=lr, momentum=momentum)
 
-for i in range(1):
+for i in range(200):
+    tagger.train()
     tagger.zero_grad()
     outputs_train_batch = tagger(inputs_tensor_train_batch)
     loss = nll_loss(outputs_train_batch, targets_tensor_train_batch)
-    print('i = %d, loss = %1.4f' % (i, loss.item()))
     loss.backward()
     optimizer.step()
+    f1, precision, recall = evaluator.get_macro_scores_from_inputs_tensor(tagger=tagger,
+                                                                          inputs_tensor=inputs_tensor_train_batch,
+                                                                          targets_idx=targets_idx_train_batch)
+    print('i = %d, loss = %1.4f, F1 = %1.3f, Precision = %1.3f, Recall = %1.3f' % (i, loss.item(), f1, precision, recall))
 
-outputs_idx_train_batch = tagger.predict_idx_from_tensor(inputs_tensor_train_batch)
+curr_target_tags = sequences_indexer.idx2tag(targets_idx_train_batch)
+curr_output_tags = tagger.predict_tags_from_tensor(inputs_tensor_train_batch, sequences_indexer)
 
-tags1 = tagger.predict_tags_from_tensor(inputs_tensor_train_batch, sequences_indexer)
-tags2 = tagger.predict_tags_from_idx(inputs_idx_train_batch, sequences_indexer)
-tags3 = tagger.predict_tags_from_tokens(token_sequences_train, sequences_indexer)
-
-print(tags1)
-print(tags2)
-print(tags3)
-
-#targets_idx_train_batch
+print('curr_target_tags', curr_target_tags)
+print('curr_output_tags', curr_output_tags)
 
 print('The end!')
