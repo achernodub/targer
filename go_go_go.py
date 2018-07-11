@@ -85,25 +85,27 @@ tagger = TaggerBiRNN(embeddings_tensor=sequences_indexer.get_embeddings_tensor()
 
 nll_loss = nn.NLLLoss(ignore_index=0) # "0" target values actually are zero-padded parts of sequences
 optimizer = optim.SGD(list(tagger.parameters()), lr=lr, momentum=momentum)
-inputs_tensor_train_batch, targets_tensor_train_batch = datasets_bank.get_batch(dataset_subset='train',
-                                                                                batch_size=batch_size)
+
+ntries = datasets_bank.train_data_num / batch_size
+print('ntries', ntries)
+
 time_start = time.time()
 for i in range(200):
     tagger.train()
     tagger.zero_grad()
+    inputs_tensor_train_batch, targets_tensor_train_batch = datasets_bank.get_train_batch(batch_size)
     outputs_train_batch = tagger(inputs_tensor_train_batch)
     loss = nll_loss(outputs_train_batch, targets_tensor_train_batch)
     loss.backward()
-    nn.utils.clip_grad_norm_(tagger.parameters(), clip_grad)
+    tagger.clip_gradients(clip_grad)
     optimizer.step()
-    f1, precision, recall = evaluator.get_macro_scores_inputs_tensor_targets_tensor(tagger=tagger,
-                                                                                    inputs_tensor=inputs_tensor_train_batch,
-                                                                                    targets_tensor=targets_tensor_train_batch)
+    f1, precision, recall = evaluator.get_macro_scores(tagger, inputs_tensor_train_batch, targets_tensor_train_batch)
+
     print('i = %d, loss = %1.4f, F1 = %1.3f, Precision = %1.3f, Recall = %1.3f' % (i, loss.item(), f1, precision, recall))
 
 
 time_finish = time.time()
-print('Time elapsed: %d seconds' % (time_finish - time_start))
+print('Time elapsed: %d seconds.' % (time_finish - time_start))
 
 
 print('The end!')

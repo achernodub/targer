@@ -41,3 +41,6 @@ class TaggerBase(nn.Module):
     def predict_tags_from_tokens(self, token_sequences, sequences_indexer):
         inputs_idx = sequences_indexer.token2idx(token_sequences)
         return self.predict_tags_from_idx(inputs_idx, sequences_indexer)
+
+    def clip_gradients(self, clip_grad):
+        nn.utils.clip_grad_norm_(self.parameters(), clip_grad)

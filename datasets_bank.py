@@ -14,6 +14,7 @@ class DatasetsBank():
         self.sequences_indexer = sequences_indexer
 
     def add_train_sequences(self, token_sequences_train, tag_sequences_train):
+        self.train_data_num = len(token_sequences_train)
         self.token_sequences_train = token_sequences_train
         self.tag_sequences_train = tag_sequences_train
         self.inputs_idx_train = self.sequences_indexer.token2idx(token_sequences_train)
@@ -37,22 +38,8 @@ class DatasetsBank():
         self.inputs_tensor_test = self.sequences_indexer.idx2tensor(self.inputs_idx_test)
         self.targets_tensor_test = self.sequences_indexer.idx2tensor(self.targets_idx_test)
 
-    def get_batch(self, dataset_subset, batch_size=0):
-        if dataset_subset == 'train':
-            inputs_tensor = self.inputs_tensor_train
-            targets_tensor = self.targets_tensor_train
-        elif dataset_subset == 'dev':
-            inputs_tensor = self.inputs_tensor_dev
-            targets_tensor = self.targets_tensor_dev
-        elif dataset_subset == 'dev':
-            inputs_tensor = self.inputs_tensor_test
-            targets_tensor = self.targets_tensor_test
-        else:
-            raise ValueError('Unknown dataset_part parameter, should be "train", "dev" or "test"')
+    def get_train_batch(self, batch_size=0):
         if batch_size == 0:
-            return inputs_tensor, targets_tensor
-        data_num = inputs_tensor.shape[0]
-        print('data_num', data_num)
-        #batch_indices = random.sample(range(0, len(inputs_idx_train)), batch_size)
-        batch_indices = random.sample(range(0, data_num), batch_size)
-        return inputs_tensor[batch_indices, :], targets_tensor[batch_indices, :]
+            return self.inputs_tensor_train, self.targets_tensor_train
+        batch_indices = random.sample(range(0, self.train_data_num), batch_size)
+        return self.inputs_tensor_train[batch_indices, :], self.targets_tensor_train[batch_indices, :]

@@ -1,11 +1,33 @@
 import numpy as np
 from sklearn.metrics import f1_score, precision_score, recall_score
+import torch
 
 from utils import *
 
 class Evaluator():
     def __init__(self, sequences_indexer=None):
         self.sequences_indexer = sequences_indexer
+
+    def is_tensor(self, X):
+        return isinstance(X[0][0], torch.Tensor)
+
+    def is_idx(self, X):
+        return isinstance(X[0][0], int)
+
+    def is_str(self, X):
+        return isinstance(X[0][0], str)
+
+    def get_macro_scores(self, tagger, inputs, targets):
+        if self.is_tensor(inputs) and self.is_tensor(targets):
+            return self.get_macro_scores_inputs_tensor_targets_tensor(tagger, inputs, targets)
+        elif self.is_tensor(inputs) and self.is_idx(targets):
+            return self.get_macro_scores_inputs_tensor_targets_idx(tagger, inputs, targets)
+        elif self.is_idx(inputs) and self.is_idx(targets):
+            return self.get_macro_scores_inputs_idx_targets_idx(tagger, inputs, targets)
+        elif self.is_str(inputs) and self.is_str(targets):
+            return self.get_macro_scores_tokens_tags(tagger, inputs, targets)
+        else:
+            raise ValueError('Unknown combination of inputs and targets')
 
     def get_macro_scores_inputs_tensor_targets_idx(self, tagger, inputs_tensor, targets_idx):
         outputs_idx = tagger.predict_idx_from_tensor(inputs_tensor)
