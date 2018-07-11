@@ -18,7 +18,7 @@ caseless = True
 shrink_to_train = False
 unk = None
 delimiter = ' '
-epoch_num = 5
+epoch_num = 3
 
 rnn_hidden_size = 101
 dropout_ratio = 0.5
@@ -87,8 +87,11 @@ nll_loss = nn.NLLLoss(ignore_index=0) # "0" target values actually are zero-padd
 optimizer = optim.SGD(list(tagger.parameters()), lr=lr, momentum=momentum)
 
 iterations_num = int(datasets_bank.train_data_num / batch_size)
-time_start = time.time()
+best_f1_dev = -1
+
 for epoch in range(epoch_num):
+    time_start = time.time()
+    best_epoch_msg = ''
     for i in range(iterations_num):
         tagger.train()
         tagger.zero_grad()
@@ -98,12 +101,19 @@ for epoch in range(epoch_num):
         loss.backward()
         tagger.clip_gradients(clip_grad)
         optimizer.step()
-        if i % 10 == 0:
+        if i % 100 == 0:
             print('-- epoch = %d, i = %d/%d, loss = %1.4f' % (epoch, i, iterations_num, loss.item()))
-    f1_dev, precision_dev, recall_dev = evaluator.get_macro_scores(tagger, datasets_bank.inputs_tensor_dev, datasets_bank.targets_tensor_dev)
-    print('\nEPOCH %d/%d, DEV: F1 = %1.3f, Precision = %1.3f, Recall = %1.3f\n' % (epoch, epoch_num, f1_dev, precision_dev, recall_dev))
-
-time_finish = time.time()
-print('Time elapsed: %d seconds.' % (time_finish - time_start))
-
+    time_finish = time.time()
+    f1_dev, precision_dev, recall_dev = evaluator.get_macro_scores(tagger, datasets_bank.inputs_tensor_dev,
+                                                                   datasets_bank.targets_tensor_dev)
+    if f1_dev > best_f1_dev:
+        best_epoch_msg = '[BEST]'
+        best_epoch = epoch
+        best_f1_dev = f1_dev
+        best_tagger = tagger
+    print('\nEPOCH %d/%d, DEV: F1 = %1.3f, Precision = %1.3f, Recall = %1.3f,%s %d seconds.\n' % (epoch, epoch_num,
+                                                                                                  f1_dev, precision_dev,
+                                                                                                  recall_dev,
+                                                                                                  best_epoch_msg,
+                                                                                                  time.time() - time_start))
 print('The end!')
