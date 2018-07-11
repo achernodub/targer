@@ -4,7 +4,10 @@ from sklearn.metrics import f1_score, precision_score, recall_score
 from utils import *
 
 class Evaluator():
-    def get_macro_scores_from_inputs_tensor(self, tagger, inputs_tensor, targets_idx):
+    def __init__(self, sequences_indexer=None):
+        self.sequences_indexer = sequences_indexer
+
+    def get_macro_scores_inputs_tensor_targets_idx(self, tagger, inputs_tensor, targets_idx):
         outputs_idx = tagger.predict_idx_from_tensor(inputs_tensor)
         if len(targets_idx) != len(outputs_idx):
             raise ValueError('len(targets_idx) != len(len(outputs_idx))')
@@ -22,3 +25,17 @@ class Evaluator():
         precision = precision_sum / batch_size
         recall = recall_sum / batch_size
         return f1, precision, recall
+
+    def get_macro_scores_inputs_tensor_targets_tensor(self, tagger, inputs_tensor, targets_tensor):
+        targets_idx = self.sequences_indexer.tensor2idx(targets_tensor)
+        return self.get_macro_scores_inputs_tensor_targets_idx(tagger, inputs_tensor, targets_idx)
+
+    def get_macro_scores_inputs_idx_targets_idx(self, tagger, inputs_idx, targets_idx):
+        inputs_tensor = self.sequences_indexer.idx2tensor(inputs_idx)
+        return self.get_macro_scores_inputs_tensor_targets_idx(tagger, inputs_tensor, targets_idx)
+
+    def get_macro_scores_tokens_tags(self, tagger, token_sequences, tag_sequences):
+        inputs_idx = self.sequences_indexer.token2idx(token_sequences)
+        targets_idx = self.sequences_indexer.tag2idx(tag_sequences)
+        return self.get_macro_scores_inputs_idx_targets_idx(tagger, inputs_idx, targets_idx)
+

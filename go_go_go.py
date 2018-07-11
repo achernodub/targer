@@ -4,6 +4,7 @@ import random
 import time
 
 from sequences_indexer import SequencesIndexer
+from datasets_bank import DatasetsBank
 from evaluator import Evaluator
 from models.tagger_birnn import TaggerBiRNN
 from utils import *
@@ -11,7 +12,7 @@ from utils import *
 print('Hello, train/dev/test script!')
 
 emb_fn = 'embeddings/glove.6B.100d.txt'
-gpu = -1 # "-1" means for CPU
+gpu = 0 # "-1" means for CPU
 
 caseless = True
 shrink_to_train = False
@@ -53,7 +54,7 @@ else:
     fn_dev = 'data/NER/CoNNL_2003_shared_task/dev.txt'
     fn_test = 'data/NER/CoNNL_2003_shared_task/test.txt'
 
-# Load CoNNL data as sequences of strings
+# Load CoNNL data as sequences of strings of tokens and corresponding tags
 token_sequences_train, tag_sequences_train = read_CoNNL(fn_train)
 token_sequences_dev, tag_sequences_dev = read_CoNNL(fn_dev)
 token_sequences_test, tag_sequences_test = read_CoNNL(fn_test)
@@ -66,19 +67,13 @@ sequences_indexer.add_token_sequences(token_sequences_dev)
 sequences_indexer.add_token_sequences(token_sequences_test)
 sequences_indexer.add_tag_sequences(tag_sequences_train) # Surely, all necessarily tags must be into train data
 
-inputs_idx_train = sequences_indexer.token2idx(token_sequences_train)
-outputs_idx_train = sequences_indexer.tag2idx(tag_sequences_train)
+# DatasetsBank provides storing the different dataset subsets (train/dev/test) and sampling batches from them
+datasets_bank = DatasetsBank(sequences_indexer)
+datasets_bank.add_train_sequences(token_sequences_train, tag_sequences_train)
+datasets_bank.add_dev_sequences(token_sequences_dev, tag_sequences_dev)
+datasets_bank.add_test_sequences(token_sequences_test, tag_sequences_test)
 
-batch_indices = random.sample(range(0, len(inputs_idx_train)), batch_size)
-inputs_idx_train_batch = [inputs_idx_train[k] for k in batch_indices]
-targets_idx_train_batch = [outputs_idx_train[k] for k in batch_indices]
-
-inputs_tensor_train_batch = sequences_indexer.idx2tensor(inputs_idx_train_batch)
-targets_tensor_train_batch = sequences_indexer.idx2tensor(targets_idx_train_batch)
-
-print('Start...\n\n')
-
-evaluator = Evaluator()
+evaluator = Evaluator(sequences_indexer)
 
 tagger = TaggerBiRNN(embeddings_tensor=sequences_indexer.get_embeddings_tensor(),
                      class_num=sequences_indexer.get_tags_num(),
@@ -88,13 +83,10 @@ tagger = TaggerBiRNN(embeddings_tensor=sequences_indexer.get_embeddings_tensor()
                      rnn_type='GRU',
                      gpu=gpu)
 
-nll_loss = nn.NLLLoss(ignore_index=0) # we suppose that target values "0" are zero-padded parts of sequences and
-                                      # don't include them for calculating the derivatives for the loss function
+nll_loss = nn.NLLLoss(ignore_index=0) # "0" target values actually are zero-padded parts of sequences
 optimizer = optim.SGD(list(tagger.parameters()), lr=lr, momentum=momentum)
-
-#inputs_tensor_train_batch = inputs_tensor_train_batch.cuda(device=gpu)
-#targets_tensor_train_batch = targets_tensor_train_batch.cuda(device=gpu)
-
+inputs_tensor_train_batch, targets_tensor_train_batch = datasets_bank.get_batch(dataset_subset='train',
+                                                                                batch_size=batch_size)
 time_start = time.time()
 for i in range(200):
     tagger.train()
@@ -104,20 +96,14 @@ for i in range(200):
     loss.backward()
     nn.utils.clip_grad_norm_(tagger.parameters(), clip_grad)
     optimizer.step()
-    f1, precision, recall = evaluator.get_macro_scores_from_inputs_tensor(tagger=tagger,
-                                                                          inputs_tensor=inputs_tensor_train_batch,
-                                                                          targets_idx=targets_idx_train_batch)
+    f1, precision, recall = evaluator.get_macro_scores_inputs_tensor_targets_tensor(tagger=tagger,
+                                                                                    inputs_tensor=inputs_tensor_train_batch,
+                                                                                    targets_tensor=targets_tensor_train_batch)
     print('i = %d, loss = %1.4f, F1 = %1.3f, Precision = %1.3f, Recall = %1.3f' % (i, loss.item(), f1, precision, recall))
 
 
-time_end = time.time()
-print('Time elapsed:', time_end - time_start)
+time_finish = time.time()
+print('Time elapsed: %d seconds' % (time_finish - time_start))
 
-
-curr_target_tags = sequences_indexer.idx2tag(targets_idx_train_batch)
-curr_output_tags = tagger.predict_tags_from_tensor(inputs_tensor_train_batch, sequences_indexer)
-
-print('curr_target_tags', curr_target_tags)
-print('curr_output_tags', curr_output_tags)
 
 print('The end!')

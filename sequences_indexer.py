@@ -128,11 +128,6 @@ class SequencesIndexer():
 
     def get_embeddings_tensor(self):
         return torch.FloatTensor(np.asarray(self.embeddings_list))
-        #embeddings_tensor = torch.FloatTensor(np.asarray(self.embeddings_list))
-        #if self.gpu >= 0:
-        #    embeddings_tensor = embeddings_tensor.cuda(device=self.gpu)
-        #return embeddings_tensor
-
 
     def get_tokens_num(self):
         return len(self.embeddings_list)
