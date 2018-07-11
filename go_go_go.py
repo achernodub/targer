@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 import random
+import time
 
 from sequences_indexer import SequencesIndexer
 from evaluator import Evaluator
@@ -10,7 +11,7 @@ from utils import *
 print('Hello, train/dev/test script!')
 
 emb_fn = 'embeddings/glove.6B.100d.txt'
-gpu = -1 # current version is for CPU only!
+gpu = -1 # "-1" means for CPU
 
 caseless = True
 shrink_to_train = False
@@ -18,8 +19,6 @@ unk = None
 delimiter = ' '
 epoch_num = 50
 
-#hidden_layer_dim = 200
-#hidden_layer_num = 1
 rnn_hidden_size = 101
 dropout_ratio = 0.5
 clip_grad = 5.0
@@ -39,6 +38,7 @@ torch.manual_seed(seed_num)
 freeze_embeddings = False
 
 if gpu >= 0:
+    torch.cuda.set_device(gpu)
     torch.cuda.manual_seed(seed_num)
 
 # Select data
@@ -53,14 +53,13 @@ else:
     fn_dev = 'data/NER/CoNNL_2003_shared_task/dev.txt'
     fn_test = 'data/NER/CoNNL_2003_shared_task/test.txt'
 
-
 # Load CoNNL data as sequences of strings
 token_sequences_train, tag_sequences_train = read_CoNNL(fn_train)
 token_sequences_dev, tag_sequences_dev = read_CoNNL(fn_dev)
 token_sequences_test, tag_sequences_test = read_CoNNL(fn_test)
 
 # SequenceIndexer is a class to convert tokens and tags as strings to integer indices and back
-sequences_indexer = SequencesIndexer(caseless=caseless, verbose=verbose)
+sequences_indexer = SequencesIndexer(caseless=caseless, verbose=verbose, gpu=gpu)
 sequences_indexer.load_embeddings(emb_fn=emb_fn, delimiter=delimiter)
 sequences_indexer.add_token_sequences(token_sequences_train)
 sequences_indexer.add_token_sequences(token_sequences_dev)
@@ -77,7 +76,6 @@ targets_idx_train_batch = [outputs_idx_train[k] for k in batch_indices]
 inputs_tensor_train_batch = sequences_indexer.idx2tensor(inputs_idx_train_batch)
 targets_tensor_train_batch = sequences_indexer.idx2tensor(targets_idx_train_batch)
 
-
 print('Start...\n\n')
 
 evaluator = Evaluator()
@@ -87,23 +85,34 @@ tagger = TaggerBiRNN(embeddings_tensor=sequences_indexer.get_embeddings_tensor()
                      rnn_hidden_size=rnn_hidden_size,
                      freeze_embeddings=freeze_embeddings,
                      dropout_ratio=dropout_ratio,
-                     rnn_type='GRU')
+                     rnn_type='GRU',
+                     gpu=gpu)
 
 nll_loss = nn.NLLLoss(ignore_index=0) # we suppose that target values "0" are zero-padded parts of sequences and
                                       # don't include them for calculating the derivatives for the loss function
 optimizer = optim.SGD(list(tagger.parameters()), lr=lr, momentum=momentum)
 
+#inputs_tensor_train_batch = inputs_tensor_train_batch.cuda(device=gpu)
+#targets_tensor_train_batch = targets_tensor_train_batch.cuda(device=gpu)
+
+time_start = time.time()
 for i in range(200):
     tagger.train()
     tagger.zero_grad()
     outputs_train_batch = tagger(inputs_tensor_train_batch)
     loss = nll_loss(outputs_train_batch, targets_tensor_train_batch)
     loss.backward()
+    nn.utils.clip_grad_norm_(tagger.parameters(), clip_grad)
     optimizer.step()
     f1, precision, recall = evaluator.get_macro_scores_from_inputs_tensor(tagger=tagger,
                                                                           inputs_tensor=inputs_tensor_train_batch,
                                                                           targets_idx=targets_idx_train_batch)
     print('i = %d, loss = %1.4f, F1 = %1.3f, Precision = %1.3f, Recall = %1.3f' % (i, loss.item(), f1, precision, recall))
+
+
+time_end = time.time()
+print('Time elapsed:', time_end - time_start)
+
 
 curr_target_tags = sequences_indexer.idx2tag(targets_idx_train_batch)
 curr_output_tags = tagger.predict_tags_from_tensor(inputs_tensor_train_batch, sequences_indexer)

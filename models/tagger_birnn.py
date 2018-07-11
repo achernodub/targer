@@ -6,13 +6,14 @@ class TaggerBiRNN(TaggerBase):
     TaggerBiRNN is a basic pure recurrent network model for sequences tagging.
     """
     def __init__(self, embeddings_tensor, class_num, rnn_hidden_size=100, freeze_embeddings=False, dropout_ratio=0.5,
-                 rnn_type='GRU'):
+                 rnn_type='GRU',gpu=-1):
         super(TaggerBiRNN, self).__init__()
         self.class_num = class_num
         self.rnn_hidden_size = rnn_hidden_size
         self.freeze_embeddings = freeze_embeddings
         self.dropout_ratio = dropout_ratio
         self.rnn_type = rnn_type
+        self.gpu = gpu
         self.embeddings = torch.nn.Embedding.from_pretrained(embeddings=embeddings_tensor, freeze=freeze_embeddings)
         self.dropout1 = torch.nn.Dropout(p=dropout_ratio)
         self.dropout2 = torch.nn.Dropout(p=dropout_ratio)
@@ -30,6 +31,8 @@ class TaggerBiRNN(TaggerBase):
         # We add an additional class that corresponds to the zero-padded values not to be included to the loss function
         self.lin_layer = nn.Linear(in_features=rnn_hidden_size*2, out_features=self.class_num + 1)
         self.log_softmax_layer = nn.LogSoftmax(dim=1)
+        if gpu >= 0:
+            self.cuda(device=self.gpu)
 
     def forward(self, inputs_tensor):
         batch_size, max_seq_len = inputs_tensor.size()
@@ -39,6 +42,11 @@ class TaggerBiRNN(TaggerBase):
         rnn_backward_hidden_state = torch.zeros(batch_size, self.rnn_hidden_size)
         rnn_forward_hidden_states_d = torch.zeros(batch_size, self.rnn_hidden_size, max_seq_len)
         rnn_backward_hidden_states_d = torch.zeros(batch_size, self.rnn_hidden_size, max_seq_len)
+        if self.gpu >= 0:
+            rnn_forward_hidden_state = rnn_forward_hidden_state.cuda(device=self.gpu)
+            rnn_backward_hidden_state = rnn_backward_hidden_state.cuda(device=self.gpu)
+            rnn_forward_hidden_states_d = rnn_forward_hidden_states_d.cuda(device=self.gpu)
+            rnn_backward_hidden_states_d = rnn_backward_hidden_states_d.cuda(device=self.gpu)
         for l in range(max_seq_len):
             n = max_seq_len - l - 1
             curr_rnn_input_forward = z_embed_d[:, l, :]
@@ -48,6 +56,8 @@ class TaggerBiRNN(TaggerBase):
             rnn_forward_hidden_states_d[:, :, l] = self.dropout2(rnn_forward_hidden_state)
             rnn_backward_hidden_states_d[:, :, n] = self.dropout2(rnn_backward_hidden_state)
         outputs_tensor = torch.zeros(batch_size, self.class_num+1, max_seq_len)
+        if self.gpu >= 0:
+            outputs_tensor = outputs_tensor.cuda(device=self.gpu)
         for l in range(max_seq_len):
             rnn_forward_hidden_state_d = rnn_forward_hidden_states_d[:, :, l]
             rnn_backward_hidden_state_d = rnn_backward_hidden_states_d[:, :, l]

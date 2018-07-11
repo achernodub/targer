@@ -11,9 +11,10 @@ class SequencesIndexer():
      of integer indices and back. Minimum value for any index is "1".
     """
 
-    def __init__(self, caseless=True, verbose=False, unk='<UNK>'):
+    def __init__(self, caseless=True, verbose=False, gpu=-1, unk='<UNK>'):
         self.caseless = caseless
         self.verbose = verbose
+        self.gpu = gpu
         self.unk = unk
         self.embeddings_loaded = False
         self.embeddings_list = list()
@@ -26,6 +27,7 @@ class SequencesIndexer():
         self.tokens_out_of_vocabulary_list = list()
         if self.verbose:
             print('SequencesIndexer has been started.')
+
 
     def load_embeddings(self, emb_fn, delimiter):
         if self.embeddings_loaded:
@@ -126,6 +128,11 @@ class SequencesIndexer():
 
     def get_embeddings_tensor(self):
         return torch.FloatTensor(np.asarray(self.embeddings_list))
+        #embeddings_tensor = torch.FloatTensor(np.asarray(self.embeddings_list))
+        #if self.gpu >= 0:
+        #    embeddings_tensor = embeddings_tensor.cuda(device=self.gpu)
+        #return embeddings_tensor
+
 
     def get_tokens_num(self):
         return len(self.embeddings_list)
@@ -140,6 +147,8 @@ class SequencesIndexer():
         for k, curr_input_idx in enumerate(list_idx):
             curr_seq_len = len(curr_input_idx)
             tensor[k, :curr_seq_len] = torch.FloatTensor(np.asarray(curr_input_idx))
+        if self.gpu >= 0:
+            tensor = tensor.cuda(device=self.gpu)
         return tensor
 
     def tensor2idx(self, tensor):
@@ -147,8 +156,6 @@ class SequencesIndexer():
         batch_size = tensor.shape[0]
         for k in range(batch_size):
             curr_row = tensor[k, :]
-            nonzerrro = curr_row.nonzero()
-            print('curr_row.nonzero()', curr_row.nonzero())
             curr_row_nonzero = curr_row[curr_row.nonzero()]
             curr_seq_len = curr_row_nonzero.shape[0]
             list_idx.append([int(curr_row_nonzero[k]) for k in range(curr_seq_len)])
