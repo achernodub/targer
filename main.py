@@ -89,7 +89,7 @@ optimizer = optim.SGD(list(tagger.parameters()), lr=lr, momentum=momentum)
 iterations_num = int(datasets_bank.train_data_num / batch_size)
 best_f1_dev = -1
 
-for epoch in range(epoch_num):
+for epoch in range(1, epoch_num+1):
     time_start = time.time()
     best_epoch_msg = ''
     for i in range(iterations_num):
@@ -102,18 +102,18 @@ for epoch in range(epoch_num):
         tagger.clip_gradients(clip_grad)
         optimizer.step()
         if i % 100 == 0:
-            print('-- epoch = %d, i = %d/%d, loss = %1.4f' % (epoch, i, iterations_num, loss.item()))
+            print('-- epoch %d, i = %d/%d, loss = %1.4f' % (epoch, i, iterations_num, loss.item()))
     time_finish = time.time()
     f1_dev, precision_dev, recall_dev = evaluator.get_macro_scores(tagger, datasets_bank.inputs_tensor_dev,
                                                                    datasets_bank.targets_tensor_dev)
     if f1_dev > best_f1_dev:
-        best_epoch_msg = '[BEST]'
+        best_epoch_msg = '[BEST] '
         best_epoch = epoch
         best_f1_dev = f1_dev
         best_tagger = tagger
-    print('\nEPOCH %d/%d, DEV: F1 = %1.3f, Precision = %1.3f, Recall = %1.3f,%s %d seconds.\n' % (epoch, epoch_num,
-                                                                                                  f1_dev, precision_dev,
+    print('\n%sEPOCH %d/%d, DEV: F1 = %1.3f, Precision = %1.3f, Recall = %1.3f, %d seconds.\n' % (best_epoch_msg, epoch,
+                                                                                                  epoch_num, f1_dev,
+                                                                                                  precision_dev,
                                                                                                   recall_dev,
-                                                                                                  best_epoch_msg,
                                                                                                   time.time() - time_start))
 print('The end!')
