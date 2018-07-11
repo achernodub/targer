@@ -18,7 +18,7 @@ caseless = True
 shrink_to_train = False
 unk = None
 delimiter = ' '
-epoch_num = 50
+epoch_num = 5
 
 rnn_hidden_size = 101
 dropout_ratio = 0.5
@@ -86,26 +86,24 @@ tagger = TaggerBiRNN(embeddings_tensor=sequences_indexer.get_embeddings_tensor()
 nll_loss = nn.NLLLoss(ignore_index=0) # "0" target values actually are zero-padded parts of sequences
 optimizer = optim.SGD(list(tagger.parameters()), lr=lr, momentum=momentum)
 
-ntries = datasets_bank.train_data_num / batch_size
-print('ntries', ntries)
-
+iterations_num = int(datasets_bank.train_data_num / batch_size)
 time_start = time.time()
-for i in range(200):
-    tagger.train()
-    tagger.zero_grad()
-    inputs_tensor_train_batch, targets_tensor_train_batch = datasets_bank.get_train_batch(batch_size)
-    outputs_train_batch = tagger(inputs_tensor_train_batch)
-    loss = nll_loss(outputs_train_batch, targets_tensor_train_batch)
-    loss.backward()
-    tagger.clip_gradients(clip_grad)
-    optimizer.step()
-    f1, precision, recall = evaluator.get_macro_scores(tagger, inputs_tensor_train_batch, targets_tensor_train_batch)
-
-    print('i = %d, loss = %1.4f, F1 = %1.3f, Precision = %1.3f, Recall = %1.3f' % (i, loss.item(), f1, precision, recall))
-
+for epoch in range(epoch_num):
+    for i in range(iterations_num):
+        tagger.train()
+        tagger.zero_grad()
+        inputs_tensor_train_batch, targets_tensor_train_batch = datasets_bank.get_train_batch(batch_size)
+        outputs_train_batch = tagger(inputs_tensor_train_batch)
+        loss = nll_loss(outputs_train_batch, targets_tensor_train_batch)
+        loss.backward()
+        tagger.clip_gradients(clip_grad)
+        optimizer.step()
+        if i % 10 == 0:
+            print('-- epoch = %d, i = %d/%d, loss = %1.4f' % (epoch, i, iterations_num, loss.item()))
+    f1_dev, precision_dev, recall_dev = evaluator.get_macro_scores(tagger, datasets_bank.inputs_tensor_dev, datasets_bank.targets_tensor_dev)
+    print('\nEPOCH %d/%d, DEV: F1 = %1.3f, Precision = %1.3f, Recall = %1.3f\n' % (epoch, epoch_num, f1_dev, precision_dev, recall_dev))
 
 time_finish = time.time()
 print('Time elapsed: %d seconds.' % (time_finish - time_start))
-
 
 print('The end!')
