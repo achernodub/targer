@@ -14,6 +14,9 @@ class TaggerBase(nn.Module):
      for input and output data formats conversions. Abstract method `forward` is used in order to make these predictions,
      it have to be implemented in ancestors.
     """
+    def clip_gradients(self, clip_grad):
+        nn.utils.clip_grad_norm_(self.parameters(), clip_grad)
+
     def predict_idx_from_tensor(self, inputs_tensor):# inputs_tensor: batch_size x max_seq_len
         self.eval()
         outputs_tensor = self.forward(inputs_tensor) # batch_size x num_class+1 x max_seq_len
@@ -41,6 +44,3 @@ class TaggerBase(nn.Module):
     def predict_tags_from_tokens(self, token_sequences, sequences_indexer):
         inputs_idx = sequences_indexer.token2idx(token_sequences)
         return self.predict_tags_from_idx(inputs_idx, sequences_indexer)
-
-    def clip_gradients(self, clip_grad):
-        nn.utils.clip_grad_norm_(self.parameters(), clip_grad)
