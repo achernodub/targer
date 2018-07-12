@@ -12,13 +12,13 @@ from utils import *
 print('Hello, train/dev/test script!')
 
 emb_fn = 'embeddings/glove.6B.100d.txt'
-gpu = 0 # "-1" means for CPU
+gpu = 0 # "-1" stands for CPU
 
 caseless = True
 shrink_to_train = False
 unk = None
 delimiter = ' '
-epoch_num = 3
+epoch_num = 2
 
 rnn_hidden_size = 101
 dropout_ratio = 0.5
@@ -85,14 +85,12 @@ tagger = TaggerBiRNN(embeddings_tensor=sequences_indexer.get_embeddings_tensor()
 
 nll_loss = nn.NLLLoss(ignore_index=0) # "0" target values actually are zero-padded parts of sequences
 optimizer = optim.SGD(list(tagger.parameters()), lr=lr, momentum=momentum)
-
 iterations_num = int(datasets_bank.train_data_num / batch_size)
 best_f1_dev = -1
-
-for epoch in range(1, epoch_num+1):
+for epoch in range(1, epoch_num + 1):
     time_start = time.time()
     best_epoch_msg = ''
-    for i in range(iterations_num):
+    for i in range(iterations_num + 1):
         tagger.train()
         tagger.zero_grad()
         inputs_tensor_train_batch, targets_tensor_train_batch = datasets_bank.get_train_batch(batch_size)
@@ -104,16 +102,30 @@ for epoch in range(1, epoch_num+1):
         if i % 100 == 0:
             print('-- epoch %d, i = %d/%d, loss = %1.4f' % (epoch, i, iterations_num, loss.item()))
     time_finish = time.time()
-    f1_dev, precision_dev, recall_dev = evaluator.get_macro_scores(tagger, datasets_bank.inputs_tensor_dev,
-                                                                   datasets_bank.targets_tensor_dev)
+    f1_dev, precision_dev, recall_dev = evaluator.get_macro_scores(tagger=tagger,
+                                                                   inputs=datasets_bank.inputs_tensor_dev,
+                                                                   targets=datasets_bank.targets_tensor_dev)
     if f1_dev > best_f1_dev:
         best_epoch_msg = '[BEST] '
         best_epoch = epoch
         best_f1_dev = f1_dev
         best_tagger = tagger
-    print('\n%sEPOCH %d/%d, DEV: F1 = %1.3f, Precision = %1.3f, Recall = %1.3f, %d seconds.\n' % (best_epoch_msg, epoch,
-                                                                                                  epoch_num, f1_dev,
-                                                                                                  precision_dev,
-                                                                                                  recall_dev,
-                                                                                                  time.time() - time_start))
+    print('\n%sEPOCH %d/%d, DEV: F1 = %1.3f, Precision = %1.3f, Recall = %1.3f, %d sec.\n' % (best_epoch_msg,
+                                                                                              epoch,
+                                                                                              epoch_num,
+                                                                                              f1_dev,
+                                                                                              precision_dev,
+                                                                                              recall_dev,
+                                                                                              time.time() - time_start))
+
+
+f1_test, precision_test, recall_test = evaluator.get_macro_scores(tagger=tagger,
+                                                                  inputs=datasets_bank.inputs_tensor_test,
+                                                                  targets=datasets_bank.targets_tensor_test)
+
+print('Results on TEST (for best on DEV tagger, best epoch = %d): F1 = %1.3f, Precision = %1.3f, Recall = %1.3f.\n' % (best_epoch,
+                                                                                                            f1_test,
+                                                                                                            precision_test,
+                                                                                                            recall_test))
+
 print('The end!')

@@ -32,12 +32,20 @@ class SequencesIndexer():
     def load_embeddings(self, emb_fn, delimiter):
         if self.embeddings_loaded:
             raise ValueError('Embeddings are already loaded!')
+        # Get dimensionality of embeddings
         for line in open(emb_fn, 'r'):
             values = line.split(delimiter)
-            token = values[0].lower() if self.caseless else values[0]
             emb_vector = list(map(lambda t: float(t), filter(lambda n: n and not n.isspace(), values[1:])))
+            self.embeddings_dim = len(emb_vector)
+            break
+        # Generate random embedding which will be correspond to the index 0 that in used in the batches instead of mask.
+        self.add_emb_vector('_INPUT_TOKEN_FOR_INDEX_0_THAT_NEVER_EXISTED_AND_NEVER_WILL_BE_USED_', self.get_random_emb_vector())
+        # Add embeddings from file
+        for line in open(emb_fn, 'r'):
+            values = line.split(delimiter)
+            emb_vector = list(map(lambda t: float(t), filter(lambda n: n and not n.isspace(), values[1:])))
+            token = values[0].lower() if self.caseless else values[0]
             self.add_emb_vector(token, emb_vector)
-        self.embeddings_dim = len(emb_vector)
         self.embeddings_loaded = True
         # Generate random embedding for 'unknown' token
         self.add_emb_vector(self.unk, self.get_random_emb_vector())
@@ -50,7 +58,7 @@ class SequencesIndexer():
         return np.random.uniform(-np.sqrt(3.0 / self.embeddings_dim), np.sqrt(3.0 / self.embeddings_dim), self.embeddings_dim).tolist()
 
     def add_emb_vector(self, token, emb_vector):
-        idx = len(self.token2idx_dict) + 1
+        idx = len(self.token2idx_dict)
         self.token2idx_dict[token] = idx
         self.idx2token_dict[idx] = token
         self.embeddings_list.append(emb_vector)
@@ -75,7 +83,7 @@ class SequencesIndexer():
             for tag in tags:
                 if tag not in self.tags_list:
                     self.tags_list.append(tag)
-                    idx = len(self.tag2idx_dict) + 1
+                    idx = len(self.tag2idx_dict) + 1 # tags are starting from 1 because 0 is reserved
                     self.tag2idx_dict[tag] = idx
                     self.idx2tag_dict[idx] = tag
 

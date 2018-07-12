@@ -35,7 +35,7 @@ class TaggerBiRNN(TaggerBase):
             self.cuda(device=self.gpu)
 
     def forward(self, inputs_tensor):
-        batch_size, max_seq_len = inputs_tensor.size()
+        batch_size, max_seq_len = inputs_tensor.shape
         z_embed = self.embeddings(inputs_tensor)
         z_embed_d = self.dropout1(z_embed)
         rnn_forward_hidden_state = torch.zeros(batch_size, self.rnn_hidden_size)
