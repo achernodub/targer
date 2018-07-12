@@ -18,7 +18,7 @@ caseless = True
 shrink_to_train = False
 unk = None
 delimiter = ' '
-epoch_num = 2
+epoch_num = 50
 
 rnn_hidden_size = 101
 dropout_ratio = 0.5
