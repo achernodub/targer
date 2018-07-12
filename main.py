@@ -10,9 +10,12 @@ from utils import *
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Learning tagging problem using neural networks')
-    parser.add_argument('--fn_train', default='data/argument_mining/persuasive_essays/es_paragraph_level_train.txt.', help='Train data in CoNNL-2003 format')
-    parser.add_argument('--fn_dev', default='data/argument_mining/persuasive_essays/es_paragraph_level_dev.txt.', help='Dev data in CoNNL-2003 format, it is used to find best model during the training.')
-    parser.add_argument('--fn_test', default='data/argument_mining/persuasive_essays/es_paragraph_level_test.txt.', help='Test data in CoNNL-2003 format, it is used to obtain the final accuracy/F1 score')
+    parser.add_argument('--fn_train', default='data/argument_mining/persuasive_essays/es_paragraph_level_train.txt',
+                        help='Train data in CoNNL-2003 format.')
+    parser.add_argument('--fn_dev', default='data/argument_mining/persuasive_essays/es_paragraph_level_dev.txt',
+                        help='Dev data in CoNNL-2003 format, it is used to find best model during the training.')
+    parser.add_argument('--fn_test', default='data/argument_mining/persuasive_essays/es_paragraph_level_test.txt',
+                        help='Test data in CoNNL-2003 format, it is used to obtain the final accuracy/F1 score.')
     parser.add_argument('--emb_fn', default='embeddings/glove.6B.100d.txt', help='Path to embeddings file.')
     parser.add_argument('--emb_delimiter', default=' ', help='Delimiter for embeddings file.')
     parser.add_argument('--freeze_embeddings', type=bool, default=False, help='To continue training the embedding or not.')
@@ -37,12 +40,13 @@ if __name__ == "__main__":
         torch.cuda.set_device(args.gpu)
         torch.cuda.manual_seed(args.seed_num)
 
-    # Add custom params here
+    # Add custom params here to replace the defaults, if you want
     #args.fn_train = 'data/NER/CoNNL_2003_shared_task/train.txt'
     #args.fn_dev = 'data/NER/CoNNL_2003_shared_task/dev.txt'
     #args.fn_test = 'data/NER/CoNNL_2003_shared_task/test.txt'
     args.gpu = 0
-    args.epoch_num = 3
+    args.epoch_num = 10
+    args.rnn_type = 'GRU'
 
     # Load CoNNL data as sequences of strings of tokens and corresponding tags
     token_sequences_train, tag_sequences_train = read_CoNNL(args.fn_train)
