@@ -43,7 +43,7 @@ if gpu >= 0:
     torch.cuda.manual_seed(seed_num)
 
 # Select data
-if (1 == 1):
+if (2 == 1):
     # Essays
     fn_train = 'data/argument_mining/persuasive_essays/es_paragraph_level_train.txt'
     fn_dev = 'data/argument_mining/persuasive_essays/es_paragraph_level_dev.txt'
