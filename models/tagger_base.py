@@ -27,8 +27,8 @@ class TaggerBase(nn.Module):
             for l in range(max_seq_len):
                 curr_input = inputs_tensor[k, l].item()
                 if curr_input > 0: # ignore zero-padded inputs of sequence
-                    curr_output = outputs_tensor[k, 1:, l]
-                    _, max_no = curr_output.max(0)
+                    curr_output = outputs_tensor[k, 1:, l] # ignore the first output, reason is the same
+                    _, max_no = curr_output.max(0) # argmax
                     list_idx.append(max_no.item() + 1)
             outputs_idx.append(list_idx)
         return outputs_idx
