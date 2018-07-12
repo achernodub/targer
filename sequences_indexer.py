@@ -29,12 +29,12 @@ class SequencesIndexer():
             print('SequencesIndexer has been started.')
 
 
-    def load_embeddings(self, emb_fn, delimiter):
+    def load_embeddings(self, emb_fn, emb_delimiter):
         if self.embeddings_loaded:
             raise ValueError('Embeddings are already loaded!')
         # Get dimensionality of embeddings
         for line in open(emb_fn, 'r'):
-            values = line.split(delimiter)
+            values = line.split(emb_delimiter)
             emb_vector = list(map(lambda t: float(t), filter(lambda n: n and not n.isspace(), values[1:])))
             self.embeddings_dim = len(emb_vector)
             break
@@ -42,7 +42,7 @@ class SequencesIndexer():
         self.add_emb_vector('_INPUT_TOKEN_FOR_INDEX_0_THAT_NEVER_EXISTED_AND_NEVER_WILL_BE_USED_', self.get_random_emb_vector())
         # Add embeddings from file
         for line in open(emb_fn, 'r'):
-            values = line.split(delimiter)
+            values = line.split(emb_delimiter)
             emb_vector = list(map(lambda t: float(t), filter(lambda n: n and not n.isspace(), values[1:])))
             token = values[0].lower() if self.caseless else values[0]
             self.add_emb_vector(token, emb_vector)
