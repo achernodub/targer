@@ -30,7 +30,7 @@ if __name__ == "__main__":
     parser.add_argument('--clip_grad', type=float, default=5.0, help='Clipping gradients maximum L2 norm.')
     parser.add_argument('--opt_method', default='sgd', help='Optimization method: "sgd", "adam".')
     parser.add_argument('--lr', type=float, default=0.015, help='Learning rate.')
-    parser.add_argument('--lr_decay', type=float, default=0.05, help='Learning decay rate.')
+    parser.add_argument('--lr_decay', type=float, default=0.0, help='Learning decay rate.')
     parser.add_argument('--momentum', type=float, default=0.9, help='Learning momentum rate.')
     parser.add_argument('--batch_size', type=int, default=10, help='Batch size, samples.')
     parser.add_argument('--verbose', type=bool, default=True, help='Show additional information.')
