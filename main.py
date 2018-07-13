@@ -48,7 +48,8 @@ if __name__ == "__main__":
     #args.fn_dev = 'data/NER/CoNNL_2003_shared_task/dev.txt'
     #args.fn_test = 'data/NER/CoNNL_2003_shared_task/test.txt'
     args.gpu = 0
-    args.epoch_num = 10
+    args.epoch_num = 50
+    args.lr_decay = 0
     #args.rnn_type = 'LSTM'
 
     # Load CoNNL data as sequences of strings of tokens and corresponding tags
@@ -86,7 +87,8 @@ if __name__ == "__main__":
     iterations_num = int(datasets_bank.train_data_num / args.batch_size)
     best_f1_dev = -1
     for epoch in range(1, args.epoch_num + 1):
-        scheduler.step()
+        if args.lr_decay > 0:
+            scheduler.step()
         time_start = time.time()
         best_epoch_msg = ''
         for i in range(iterations_num + 1):
