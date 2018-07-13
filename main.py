@@ -8,6 +8,8 @@ from evaluator import Evaluator
 from models.tagger_birnn import TaggerBiRNN
 from utils import *
 
+from torch.optim.lr_scheduler import LambdaLR
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Learning tagging problem using neural networks')
     parser.add_argument('--fn_train', default='data/argument_mining/persuasive_essays/es_paragraph_level_train.txt',
@@ -28,6 +30,7 @@ if __name__ == "__main__":
     parser.add_argument('--clip_grad', type=float, default=5.0, help='Clipping gradients maximum L2 norm.')
     parser.add_argument('--opt_method', default='sgd', help='Optimization method: "sgd", "adam".')
     parser.add_argument('--lr', type=float, default=0.015, help='Learning rate.')
+    parser.add_argument('--lr_decay', type=float, default=0.05, help='Learning decay rate.')
     parser.add_argument('--momentum', type=float, default=0.9, help='Learning momentum rate.')
     parser.add_argument('--batch_size', type=int, default=10, help='Batch size, samples.')
     parser.add_argument('--verbose', type=bool, default=True, help='Show additional information.')
@@ -46,7 +49,7 @@ if __name__ == "__main__":
     #args.fn_test = 'data/NER/CoNNL_2003_shared_task/test.txt'
     args.gpu = 0
     args.epoch_num = 10
-    args.rnn_type = 'GRU'
+    #args.rnn_type = 'LSTM'
 
     # Load CoNNL data as sequences of strings of tokens and corresponding tags
     token_sequences_train, tag_sequences_train = read_CoNNL(args.fn_train)
@@ -79,9 +82,11 @@ if __name__ == "__main__":
 
     nll_loss = nn.NLLLoss(ignore_index=0) # "0" target values actually are zero-padded parts of sequences
     optimizer = optim.SGD(list(tagger.parameters()), lr=args.lr, momentum=args.momentum)
+    scheduler = LambdaLR(optimizer, lr_lambda=lambda epoch: 1/(1 + args.lr_decay*epoch))
     iterations_num = int(datasets_bank.train_data_num / args.batch_size)
     best_f1_dev = -1
     for epoch in range(1, args.epoch_num + 1):
+        scheduler.step()
         time_start = time.time()
         best_epoch_msg = ''
         for i in range(iterations_num + 1):
