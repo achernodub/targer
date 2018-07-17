@@ -48,7 +48,7 @@ if __name__ == "__main__":
     #args.fn_dev = 'data/NER/CoNNL_2003_shared_task/dev.txt'
     #args.fn_test = 'data/NER/CoNNL_2003_shared_task/test.txt'
     args.gpu = 0
-    args.epoch_num = 50
+    args.epoch_num = 1
     args.lr_decay = 0
     #args.rnn_type = 'LSTM'
 
@@ -120,7 +120,7 @@ if __name__ == "__main__":
                                                                                                   time.time() - time_start))
 
 
-    f1_test, precision_test, recall_test = evaluator.get_macro_scores(tagger=tagger,
+    f1_test, precision_test, recall_test = evaluator.get_macro_scores(tagger=best_tagger,
                                                                       inputs=datasets_bank.inputs_tensor_test,
                                                                       targets=datasets_bank.targets_tensor_test)
 
@@ -128,5 +128,7 @@ if __name__ == "__main__":
                                                                                                                 f1_test,
                                                                                                                 precision_test,
                                                                                                                 recall_test))
+
+    
 
     print('The end!')
