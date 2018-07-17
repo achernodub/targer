@@ -1,8 +1,6 @@
-import numpy as np
-from sklearn.metrics import f1_score, precision_score, recall_score
 import torch
+from sklearn.metrics import f1_score, precision_score, recall_score
 
-from utils import *
 
 class Evaluator():
     def __init__(self, sequences_indexer=None):

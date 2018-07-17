@@ -2,13 +2,13 @@ from __future__ import print_function
 
 import time
 
-from sequences_indexer import SequencesIndexer
 from datasets_bank import DatasetsBank
-from evaluator import Evaluator
-from models.tagger_birnn import TaggerBiRNN
+from sequences_indexer import SequencesIndexer
+from torch.optim.lr_scheduler import LambdaLR
 from utils import *
 
-from torch.optim.lr_scheduler import LambdaLR
+from classes.evaluator import Evaluator
+from models.tagger_birnn import TaggerBiRNN
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Learning tagging problem using neural networks')

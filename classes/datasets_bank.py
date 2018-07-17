@@ -1,8 +1,5 @@
 import random
-import numpy as np
-import torch
 
-from sequences_indexer import SequencesIndexer
 
 class DatasetsBank():
     """

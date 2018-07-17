@@ -1,19 +1,16 @@
 from __future__ import print_function
 
 import torch
-
-from sequences_indexer import SequencesIndexer
-from datasets_bank import DatasetsBank
-from evaluator import Evaluator
-from models.tagger_birnn import TaggerBiRNN
 from utils import read_CoNNL, write_CoNNL
+
+from classes.evaluator import Evaluator
 
 print('Start!')
 
 gpu = 0
 
 # Load tagger model
-tagger = torch.load('tagger_model.txt')
+tagger = torch.load('tagger_model_pe_e50.txt')
 
 if gpu >= 0:
     tagger = tagger.cuda(device=0)
@@ -36,6 +33,7 @@ f1, precision, recall = evaluator.get_macro_scores_tokens_tags(tagger, token_seq
 
 print('MACRO F1 = %1.3f, Precision = %1.3f, Recall = %1.3f.\n' % (f1, precision, recall))
 
+# Write results to text file
 write_CoNNL('out.txt', token_sequences, tag_sequences, output_tag_sequences)
 
 print('The end.')

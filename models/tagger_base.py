@@ -1,13 +1,5 @@
-import numpy as np
-
-import torch
-import torch.autograd as autograd
 import torch.nn as nn
-import torch.optim as optim
 
-from sequences_indexer import SequencesIndexer
-
-from utils import *
 
 class TaggerBase(nn.Module):
     """

@@ -1,7 +1,7 @@
 import torch
 
 from models.tagger_base import TaggerBase
-from utils import *
+
 
 class TaggerBiRNN(TaggerBase):
     """
