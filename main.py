@@ -58,7 +58,7 @@ if __name__ == "__main__":
     #args.epoch_num = 2
     #args.lr_decay = 0
     #args.rnn_type = 'LSTM'
-    args.save_best_path = 'tagger_model.txt'
+    #args.save_best_path = 'tagger_model.txt'
 
     # Load CoNNL data as sequences of strings of tokens and corresponding tags
     token_sequences_train, tag_sequences_train = read_CoNNL(args.fn_train)

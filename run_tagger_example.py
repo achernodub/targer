@@ -8,7 +8,7 @@ from classes.evaluator import Evaluator
 print('Start!')
 
 # Load tagger model
-fn_checkpoint = 'tagger_model.txt'
+fn_checkpoint = 'tagger_model_e50.txt'
 if os.path.isfile(fn_checkpoint):
     tagger = torch.load(fn_checkpoint)
 else:
