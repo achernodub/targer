@@ -54,11 +54,11 @@ if __name__ == "__main__":
     #args.fn_train = 'data/NER/CoNNL_2003_shared_task/train.txt'
     #args.fn_dev = 'data/NER/CoNNL_2003_shared_task/dev.txt'
     #args.fn_test = 'data/NER/CoNNL_2003_shared_task/test.txt'
-    args.gpu = 0
-    args.epoch_num = 1
-    args.lr_decay = 0
+    #args.gpu = 0
+    #args.epoch_num = 1
+    #args.lr_decay = 0
     #args.rnn_type = 'LSTM'
-    args.save_best_path = 'tagger_model.txt'
+    args.save_best_path = 'tagger_model_e50.txt'
 
     # Load CoNNL data as sequences of strings of tokens and corresponding tags
     token_sequences_train, tag_sequences_train = read_CoNNL(args.fn_train)
