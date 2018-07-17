@@ -1,16 +1,22 @@
 from __future__ import print_function
 
+import os.path
 import torch
-from utils import read_CoNNL, write_CoNNL
-
+from classes.utils import read_CoNNL, write_CoNNL
 from classes.evaluator import Evaluator
 
 print('Start!')
 
+# GPU device number, -1 by default (CPU)
 gpu = 0
 
 # Load tagger model
-tagger = torch.load('tagger_model_pe_e50.txt')
+fn_checkpoint = 'tagger_model_pe_e501.txt'
+
+if os.path.isfile(fn_checkpoint):
+    tagger = torch.load(fn_checkpoint)
+else:
+    raise ValueError('Can''t find stored tagger %s. Please, run the main script with non-empty --save_best_path param to create it.')
 
 if gpu >= 0:
     tagger = tagger.cuda(device=0)

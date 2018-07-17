@@ -1,7 +1,6 @@
 import numpy as np
 import torch
 
-
 class SequencesIndexer():
     """
     SequencesIndexer creates dictionaries of integer indices for:

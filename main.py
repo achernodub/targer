@@ -1,12 +1,13 @@
 from __future__ import print_function
 
+import argparse
 import time
-
-from datasets_bank import DatasetsBank
-from sequences_indexer import SequencesIndexer
+import torch
 from torch.optim.lr_scheduler import LambdaLR
-from utils import *
 
+from classes.datasets_bank import DatasetsBank
+from classes.sequences_indexer import SequencesIndexer
+from classes.utils import *
 from classes.evaluator import Evaluator
 from models.tagger_birnn import TaggerBiRNN
 
