@@ -50,15 +50,15 @@ if __name__ == "__main__":
         torch.cuda.set_device(args.gpu)
         torch.cuda.manual_seed(args.seed_num)
 
-    # Add custom params here to replace the defaults, if you want
+    # Custom params here to replace the defaults, if you want
     #args.fn_train = 'data/NER/CoNNL_2003_shared_task/train.txt'
     #args.fn_dev = 'data/NER/CoNNL_2003_shared_task/dev.txt'
     #args.fn_test = 'data/NER/CoNNL_2003_shared_task/test.txt'
-    #args.gpu = 0
-    #args.epoch_num = 1
+    args.gpu = 0
+    #args.epoch_num = 2
     #args.lr_decay = 0
     #args.rnn_type = 'LSTM'
-    args.save_best_path = 'tagger_model_e50.txt'
+    args.save_best_path = 'tagger_model.txt'
 
     # Load CoNNL data as sequences of strings of tokens and corresponding tags
     token_sequences_train, tag_sequences_train = read_CoNNL(args.fn_train)
@@ -111,32 +111,36 @@ if __name__ == "__main__":
             if i % 100 == 0 and args.verbose:
                 print('-- epoch %d, i = %d/%d, loss = %1.4f' % (epoch, i, iterations_num, loss.item()))
         time_finish = time.time()
-        f1_dev, precision_dev, recall_dev = evaluator.get_macro_scores(tagger=tagger,
-                                                                       inputs=datasets_bank.inputs_tensor_dev,
-                                                                       targets=datasets_bank.targets_tensor_dev)
+        acc_dev, f1_dev, precision_dev, recall_dev = evaluator.get_macro_scores(tagger=tagger,
+                                                                                inputs=datasets_bank.inputs_tensor_dev,
+                                                                                targets=datasets_bank.targets_tensor_dev)
         if f1_dev > best_f1_dev:
             best_epoch_msg = '[BEST] '
             best_epoch = epoch
             best_f1_dev = f1_dev
             best_tagger = tagger
-        print('\n%sEPOCH %d/%d, DEV: F1 = %1.3f, Precision = %1.3f, Recall = %1.3f, %d sec.\n' % (best_epoch_msg,
+        print('\n%sEPOCH %d/%d, DEV: Accuracy = %1.3f, MACRO F1 = %1.3f, Precision = %1.3f, Recall = %1.3f, %d sec.\n' %
+                                                                                                 (best_epoch_msg,
                                                                                                   epoch,
                                                                                                   args.epoch_num,
+                                                                                                  acc_dev,
                                                                                                   f1_dev,
                                                                                                   precision_dev,
                                                                                                   recall_dev,
                                                                                                   time.time() - time_start))
 
 
-    f1_test, precision_test, recall_test = evaluator.get_macro_scores(tagger=best_tagger,
-                                                                      inputs=datasets_bank.inputs_tensor_test,
-                                                                      targets=datasets_bank.targets_tensor_test)
+    acc_test, f1_test, precision_test, recall_test = evaluator.get_macro_scores(tagger=best_tagger,
+                                                                                inputs=datasets_bank.inputs_tensor_test,
+                                                                                targets=datasets_bank.targets_tensor_test)
 
-    print('Results on TEST (for best on DEV tagger, best epoch = %d): F1 = %1.3f, Precision = %1.3f, Recall = %1.3f.\n' % (best_epoch,
+    print('Results on TEST (for best on DEV tagger, best epoch = %d): Accuracy = %1.3f, MACRO F1 = %1.3f, Precision = %1.3f, Recall = %1.3f.\n' %
+                                                                                                               (best_epoch,
+                                                                                                                acc_test,
                                                                                                                 f1_test,
                                                                                                                 precision_test,
                                                                                                                 recall_test))
-    # Please, note that sequences indexer is stored in the "sequences_indexer" field of best_tagger object
+    # Please, note that SequencesIndexer object is stored in the "sequences_indexer" field
     if args.save_best_path is not None:
         torch.save(best_tagger.cpu(), args.save_best_path)
 

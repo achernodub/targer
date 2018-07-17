@@ -1,10 +1,23 @@
 import torch
-from sklearn.metrics import f1_score, precision_score, recall_score
+from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
 
 
 class Evaluator():
     def __init__(self, sequences_indexer=None):
         self.sequences_indexer = sequences_indexer
+
+    def get_macro_scores_inputs_tensor_targets_idx(self, tagger, inputs_tensor, targets_idx):
+        outputs_idx = tagger.predict_idx_from_tensor(inputs_tensor)
+        if len(targets_idx) != len(outputs_idx):
+            raise ValueError('len(targets_idx) != len(len(outputs_idx))')
+        num_data = len(targets_idx)
+        accuracy_sum, f1_sum, precision_sum, recall_sum = 0, 0, 0, 0
+        for n in range(num_data):
+            accuracy_sum += accuracy_score(y_true=targets_idx[n], y_pred=outputs_idx[n])
+            f1_sum += f1_score(y_true=targets_idx[n], y_pred=outputs_idx[n], average='macro')
+            precision_sum += precision_score(y_true=targets_idx[n], y_pred=outputs_idx[n], average='macro')
+            recall_sum += recall_score(y_true=targets_idx[n], y_pred=outputs_idx[n], average='macro')
+        return accuracy_sum / num_data, f1_sum / num_data, precision_sum / num_data, recall_sum / num_data
 
     def is_tensor(self, X):
         return isinstance(X[0][0], torch.Tensor)
@@ -26,25 +39,6 @@ class Evaluator():
             return self.get_macro_scores_tokens_tags(tagger, inputs, targets)
         else:
             raise ValueError('Unknown combination of inputs and targets')
-
-    def get_macro_scores_inputs_tensor_targets_idx(self, tagger, inputs_tensor, targets_idx):
-        outputs_idx = tagger.predict_idx_from_tensor(inputs_tensor)
-        if len(targets_idx) != len(outputs_idx):
-            raise ValueError('len(targets_idx) != len(len(outputs_idx))')
-        batch_size = len(targets_idx)
-        f1_sum = 0
-        precision_sum = 0
-        recall_sum = 0
-        for n in range(batch_size):
-            y_true = targets_idx[n]
-            y_pred = outputs_idx[n]
-            f1_sum += f1_score(y_true, y_pred, average='macro')
-            precision_sum += precision_score(y_true, y_pred, average='macro')
-            recall_sum += recall_score(y_true, y_pred, average='macro')
-        f1 = f1_sum / batch_size
-        precision = precision_sum / batch_size
-        recall = recall_sum / batch_size
-        return f1, precision, recall
 
     def get_macro_scores_inputs_tensor_targets_tensor(self, tagger, inputs_tensor, targets_tensor):
         targets_idx = self.sequences_indexer.tensor2idx(targets_tensor)

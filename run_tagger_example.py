@@ -8,7 +8,7 @@ from classes.evaluator import Evaluator
 print('Start!')
 
 # Load tagger model
-fn_checkpoint = 'tagger_model1.txt'
+fn_checkpoint = 'tagger_model.txt'
 if os.path.isfile(fn_checkpoint):
     tagger = torch.load(fn_checkpoint)
 else:
@@ -33,9 +33,9 @@ token_sequences, tag_sequences = read_CoNNL(fn)
 output_tag_sequences = tagger.predict_tags_from_tokens(token_sequences)
 
 # Get F1/Precision/Recall macro scores
-f1, precision, recall = evaluator.get_macro_scores_tokens_tags(tagger, token_sequences, tag_sequences)
+acc, f1, precision, recall = evaluator.get_macro_scores_tokens_tags(tagger, token_sequences, tag_sequences)
 
-print('MACRO F1 = %1.3f, Precision = %1.3f, Recall = %1.3f.\n' % (f1, precision, recall))
+print('Accuracy = %1.3f, MACRO F1 = %1.3f, Precision = %1.3f, Recall = %1.3f.\n' % (acc, f1, precision, recall))
 
 # Write results to text file
 write_CoNNL('out.txt', token_sequences, tag_sequences, output_tag_sequences)
