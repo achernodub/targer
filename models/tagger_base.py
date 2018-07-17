@@ -5,6 +5,8 @@ import torch.autograd as autograd
 import torch.nn as nn
 import torch.optim as optim
 
+from sequences_indexer import SequencesIndexer
+
 from utils import *
 
 class TaggerBase(nn.Module):
@@ -14,6 +16,10 @@ class TaggerBase(nn.Module):
      for input and output data formats conversions. Abstract method `forward` is used in order to make these predictions,
      it have to be implemented in ancestors.
     """
+    def __init__(self,  sequences_indexer):
+        super(TaggerBase, self).__init__()
+        self.sequences_indexer = sequences_indexer
+
     def clip_gradients(self, clip_grad):
         nn.utils.clip_grad_norm_(self.parameters(), clip_grad)
 
@@ -33,14 +39,14 @@ class TaggerBase(nn.Module):
             outputs_idx.append(list_idx)
         return outputs_idx
 
-    def predict_tags_from_tensor(self, inputs_tensor, sequences_indexer):
+    def predict_tags_from_tensor(self, inputs_tensor):
         outputs_idx = self.predict_idx_from_tensor(inputs_tensor)
-        return sequences_indexer.idx2tag(outputs_idx)
+        return self.sequences_indexer.idx2tag(outputs_idx)
 
-    def predict_tags_from_idx(self, inputs_idx, sequences_indexer):
-        inputs_tensor = sequences_indexer.idx2tensor(inputs_idx)
-        return self.predict_tags_from_tensor(inputs_tensor, sequences_indexer)
+    def predict_tags_from_idx(self, inputs_idx):
+        inputs_tensor = self.sequences_indexer.idx2tensor(inputs_idx)
+        return self.predict_tags_from_tensor(inputs_tensor)
 
-    def predict_tags_from_tokens(self, token_sequences, sequences_indexer):
-        inputs_idx = sequences_indexer.token2idx(token_sequences)
-        return self.predict_tags_from_idx(inputs_idx, sequences_indexer)
+    def predict_tags_from_tokens(self, token_sequences):
+        inputs_idx = self.sequences_indexer.token2idx(token_sequences)
+        return self.predict_tags_from_idx(inputs_idx)

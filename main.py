@@ -35,6 +35,8 @@ if __name__ == "__main__":
     parser.add_argument('--batch_size', type=int, default=10, help='Batch size, samples.')
     parser.add_argument('--verbose', type=bool, default=True, help='Show additional information.')
     parser.add_argument('--seed_num', type=int, default=42, help='Random seed number, but 42 is the best forever!')
+    parser.add_argument('--save_best_path', default=None, help='Path to save the trained model (best on DEV).')
+
     args = parser.parse_args()
 
     np.random.seed(args.seed_num)
@@ -48,9 +50,10 @@ if __name__ == "__main__":
     #args.fn_dev = 'data/NER/CoNNL_2003_shared_task/dev.txt'
     #args.fn_test = 'data/NER/CoNNL_2003_shared_task/test.txt'
     args.gpu = 0
-    args.epoch_num = 1
+    args.epoch_num = 3
     args.lr_decay = 0
     #args.rnn_type = 'LSTM'
+    args.save_best_path = 'tagger_model.txt'
 
     # Load CoNNL data as sequences of strings of tokens and corresponding tags
     token_sequences_train, tag_sequences_train = read_CoNNL(args.fn_train)
@@ -60,9 +63,9 @@ if __name__ == "__main__":
     # SequenceIndexer is a class to convert tokens and tags as strings to integer indices and back
     sequences_indexer = SequencesIndexer(caseless=args.caseless, verbose=args.verbose, gpu=args.gpu)
     sequences_indexer.load_embeddings(emb_fn=args.emb_fn, emb_delimiter=args.emb_delimiter)
-    sequences_indexer.add_token_sequences(token_sequences_train)
-    sequences_indexer.add_token_sequences(token_sequences_dev)
-    sequences_indexer.add_token_sequences(token_sequences_test)
+    sequences_indexer.add_token_sequences(token_sequences_train, verbose=False)
+    sequences_indexer.add_token_sequences(token_sequences_dev, verbose=False)
+    sequences_indexer.add_token_sequences(token_sequences_test, verbose=True)
     sequences_indexer.add_tag_sequences(tag_sequences_train) # Surely, all necessarily tags must be into train data
 
     # DatasetsBank provides storing the different dataset subsets (train/dev/test) and sampling batches from them
@@ -73,7 +76,7 @@ if __name__ == "__main__":
 
     evaluator = Evaluator(sequences_indexer)
 
-    tagger = TaggerBiRNN(embeddings_tensor=sequences_indexer.get_embeddings_tensor(),
+    tagger = TaggerBiRNN(sequences_indexer=sequences_indexer,
                          class_num=sequences_indexer.get_tags_num(),
                          rnn_hidden_size=args.rnn_hidden_size,
                          freeze_embeddings=args.freeze_embeddings,
@@ -128,7 +131,8 @@ if __name__ == "__main__":
                                                                                                                 f1_test,
                                                                                                                 precision_test,
                                                                                                                 recall_test))
-
-    
+    # Please, note that sequences indexer is stored in the "sequences_indexer" field of best_tagger object
+    if args.save_best_path is not None:
+        torch.save(best_tagger.cpu(), args.save_best_path)
 
     print('The end!')

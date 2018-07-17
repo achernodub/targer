@@ -63,7 +63,7 @@ class SequencesIndexer():
         self.idx2token_dict[idx] = token
         self.embeddings_list.append(emb_vector)
 
-    def add_token_sequences(self, token_sequences):
+    def add_token_sequences(self, token_sequences, verbose=False):
         if not self.embeddings_loaded:
             raise ValueError('Embeddings were not loaded, please, load them first!')
         for tokens in token_sequences:
@@ -73,7 +73,7 @@ class SequencesIndexer():
                 if token not in self.token2idx_dict:
                     self.add_emb_vector(token, self.get_random_emb_vector())
                     self.tokens_out_of_vocabulary_list.append(token)
-        if self.verbose:
+        if verbose:
             print('%d tokens not found, random embeddings were generated:' % len(self.tokens_out_of_vocabulary_list))
             for k, out_of_vocabulary_token in enumerate(self.tokens_out_of_vocabulary_list):
                 print(' -= %d/%d out of vocabulary token: %s' % (k, len(self.tokens_out_of_vocabulary_list), out_of_vocabulary_token))
