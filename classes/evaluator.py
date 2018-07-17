@@ -1,4 +1,5 @@
 import torch
+import numpy as np
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
 
 
@@ -8,14 +9,12 @@ class Evaluator():
 
     def get_macro_scores_inputs_tensor_targets_idx(self, tagger, inputs_tensor, targets_idx):
         outputs_idx = tagger.predict_idx_from_tensor(inputs_tensor)
-        if len(targets_idx) != len(outputs_idx):
-            raise ValueError('len(targets_idx) != len(len(outputs_idx))')
         y_true = [i for sequence in targets_idx for i in sequence]
         y_pred = [i for sequence in outputs_idx for i in sequence]
-        accuracy = accuracy_score(y_true, y_pred)
-        f1 = f1_score(y_true, y_pred, average='macro')
-        precision = precision_score(y_true, y_pred, average='macro')
-        recall = recall_score(y_true, y_pred, average='macro')
+        accuracy = accuracy_score(y_true, y_pred)*100
+        f1 = f1_score(y_true, y_pred, average='macro')*100
+        precision = precision_score(y_true, y_pred, average='macro')*100
+        recall = recall_score(y_true, y_pred, average='macro')*100
         return accuracy, f1, precision, recall
 
     def is_tensor(self, X):
@@ -51,6 +50,20 @@ class Evaluator():
         inputs_idx = self.sequences_indexer.token2idx(token_sequences)
         targets_idx = self.sequences_indexer.tag2idx(tag_sequences)
         return self.get_macro_scores_inputs_idx_targets_idx(tagger, inputs_idx, targets_idx)
+
+    def get_macro_f1_scores_details(self, tagger, token_sequences, tag_sequences):
+        outputs_idx = tagger.predict_idx_from_tokens(token_sequences)
+        targets_idx = self.sequences_indexer.tag2idx(tag_sequences)
+        y_true = [i for sequence in targets_idx for i in sequence]
+        y_pred = [i for sequence in outputs_idx for i in sequence]
+        f1_scores = f1_score(y_true, y_pred, average=None)*100
+        str = 'Tag | MACRO-F1\n--------------\n'
+        for n in range(self.sequences_indexer.get_tags_num()):
+            tag = self.sequences_indexer.idx2tag_dict[n+1]  # minumum tag no is "1"
+            str += '%003s |  %1.2f\n' % (tag, f1_scores[n])
+        str += '--------------\n'
+        str += 'F1  |  %1.2f' % np.mean(f1_scores)
+        return str
 
     '''def get_macro_scores_inputs_tensor_targets_idx(self, tagger, inputs_tensor, targets_idx):
         outputs_idx = tagger.predict_idx_from_tensor(inputs_tensor)

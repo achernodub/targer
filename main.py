@@ -26,7 +26,7 @@ if __name__ == "__main__":
     parser.add_argument('--emb_fn', default='embeddings/glove.6B.100d.txt', help='Path to embeddings file.')
     parser.add_argument('--emb_delimiter', default=' ', help='Delimiter for embeddings file.')
     parser.add_argument('--freeze_embeddings', type=bool, default=False, help='To continue training the embedding or not.')
-    parser.add_argument('--gpu', type=int, default=-1, help='GPU device number, -1 by default (CPU).')
+    parser.add_argument('--gpu', type=int, default=0, help='GPU device number, 0 by default, -1  means CPU.')
     parser.add_argument('--caseless', type=bool, default=True, help='Read tokens caseless.')
     parser.add_argument('--epoch_num', type=int, default=50, help='Number of epochs.')
     parser.add_argument('--rnn_hidden_size', type=int, default=101, help='Number hidden units in the recurrent layer.')
@@ -54,7 +54,6 @@ if __name__ == "__main__":
     #args.fn_train = 'data/NER/CoNNL_2003_shared_task/train.txt'
     #args.fn_dev = 'data/NER/CoNNL_2003_shared_task/dev.txt'
     #args.fn_test = 'data/NER/CoNNL_2003_shared_task/test.txt'
-    args.gpu = 0
     #args.epoch_num = 2
     #args.lr_decay = 0
     #args.rnn_type = 'LSTM'
@@ -119,7 +118,7 @@ if __name__ == "__main__":
             best_epoch = epoch
             best_f1_dev = f1_dev
             best_tagger = tagger
-        print('\n%sEPOCH %d/%d, DEV: Accuracy = %1.3f, MACRO F1 = %1.3f, Precision = %1.3f, Recall = %1.3f, %d sec.\n' %
+        print('\n%sEPOCH %d/%d, DEV: Accuracy = %1.2f, MACRO F1 = %1.2f, Precision = %1.2f, Recall = %1.2f, %d sec.\n' %
                                                                                                  (best_epoch_msg,
                                                                                                   epoch,
                                                                                                   args.epoch_num,
@@ -134,12 +133,16 @@ if __name__ == "__main__":
                                                                                 inputs=datasets_bank.inputs_tensor_test,
                                                                                 targets=datasets_bank.targets_tensor_test)
 
-    print('Results on TEST (for best on DEV tagger, best epoch = %d): Accuracy = %1.3f, MACRO F1 = %1.3f, Precision = %1.3f, Recall = %1.3f.\n' %
+    print('Results on TEST (for best on DEV tagger, best epoch = %d): Accuracy = %1.2f, MACRO F1 = %1.2f, Precision = %1.2f, Recall = %1.2f.\n' %
                                                                                                                (best_epoch,
                                                                                                                 acc_test,
                                                                                                                 f1_test,
                                                                                                                 precision_test,
                                                                                                                 recall_test))
+
+    # Macro-F1 for each class
+    print(evaluator.get_macro_f1_scores_details(tagger, token_sequences_test, tag_sequences_test))
+
     # Please, note that SequencesIndexer object is stored in the "sequences_indexer" field
     if args.save_best_path is not None:
         torch.save(best_tagger.cpu(), args.save_best_path)

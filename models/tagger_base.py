@@ -31,6 +31,14 @@ class TaggerBase(nn.Module):
             outputs_idx.append(list_idx)
         return outputs_idx
 
+    def predict_idx_from_idx(self, inputs_idx):
+        inputs_tensor = self.sequences_indexer.idx2tensor(inputs_idx)
+        return self.predict_idx_from_tensor(inputs_tensor)
+
+    def predict_idx_from_tokens(self, token_sequences):
+        inputs_idx = self.sequences_indexer.token2idx(token_sequences)
+        return self.predict_idx_from_idx(inputs_idx)
+
     def predict_tags_from_tensor(self, inputs_tensor):
         outputs_idx = self.predict_idx_from_tensor(inputs_tensor)
         return self.sequences_indexer.idx2tag(outputs_idx)

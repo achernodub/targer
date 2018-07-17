@@ -8,11 +8,11 @@ from classes.evaluator import Evaluator
 print('Start!')
 
 # Load tagger model
-fn_checkpoint = 'tagger_model_e50.txt'
+fn_checkpoint = 'tagger_model_pe_e50.txt'
 if os.path.isfile(fn_checkpoint):
     tagger = torch.load(fn_checkpoint)
 else:
-    raise ValueError('Can''t find stored tagger %s. Please, run the main script with non-empty --save_best_path param to create it.')
+    raise ValueError('Can''t find tagger in file "%s". Please, run the main script with non-empty "--save_best_path" param to create it.' % fn_checkpoint)
 
 # We take sequences_indexer from the tagger
 sequences_indexer = tagger.sequences_indexer
@@ -35,9 +35,12 @@ output_tag_sequences = tagger.predict_tags_from_tokens(token_sequences)
 # Get F1/Precision/Recall macro scores
 acc, f1, precision, recall = evaluator.get_macro_scores_tokens_tags(tagger, token_sequences, tag_sequences)
 
-print('Accuracy = %1.3f, MACRO F1 = %1.3f, Precision = %1.3f, Recall = %1.3f.\n' % (acc, f1, precision, recall))
+print('\nAccuracy = %1.2f, MACRO F1 = %1.2f, Precision = %1.2f, Recall = %1.2f.\n' % (acc, f1, precision, recall))
+
+# Macro-F1 for each class
+print(evaluator.get_macro_f1_scores_details(tagger, token_sequences, tag_sequences))
 
 # Write results to text file
 write_CoNNL('out.txt', token_sequences, tag_sequences, output_tag_sequences)
 
-print('The end.')
+print('\nThe end.')
