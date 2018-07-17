@@ -50,7 +50,7 @@ if __name__ == "__main__":
     #args.fn_dev = 'data/NER/CoNNL_2003_shared_task/dev.txt'
     #args.fn_test = 'data/NER/CoNNL_2003_shared_task/test.txt'
     args.gpu = 0
-    args.epoch_num = 3
+    args.epoch_num = 4
     args.lr_decay = 0
     #args.rnn_type = 'LSTM'
     args.save_best_path = 'tagger_model.txt'
