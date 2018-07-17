@@ -7,22 +7,20 @@ from classes.evaluator import Evaluator
 
 print('Start!')
 
-# GPU device number, -1 by default (CPU)
-gpu = 0
-
 # Load tagger model
-fn_checkpoint = 'tagger_model_pe_e501.txt'
-
+fn_checkpoint = 'tagger_model1.txt'
 if os.path.isfile(fn_checkpoint):
     tagger = torch.load(fn_checkpoint)
 else:
     raise ValueError('Can''t find stored tagger %s. Please, run the main script with non-empty --save_best_path param to create it.')
 
-if gpu >= 0:
-    tagger = tagger.cuda(device=0)
-
 # We take sequences_indexer from the tagger
 sequences_indexer = tagger.sequences_indexer
+
+# GPU device number, -1 by default (CPU)
+gpu = 0
+if gpu >= 0:
+    tagger = tagger.cuda(device=0)
 
 # Create evaluator module to calculate macro scores
 evaluator = Evaluator(sequences_indexer)

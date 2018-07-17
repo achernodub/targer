@@ -2,7 +2,11 @@ from __future__ import print_function
 
 import argparse
 import time
+
+import numpy as np
 import torch
+import torch.nn as nn
+import torch.optim as optim
 from torch.optim.lr_scheduler import LambdaLR
 
 from classes.datasets_bank import DatasetsBank
@@ -51,7 +55,7 @@ if __name__ == "__main__":
     #args.fn_dev = 'data/NER/CoNNL_2003_shared_task/dev.txt'
     #args.fn_test = 'data/NER/CoNNL_2003_shared_task/test.txt'
     args.gpu = 0
-    args.epoch_num = 4
+    args.epoch_num = 1
     args.lr_decay = 0
     #args.rnn_type = 'LSTM'
     args.save_best_path = 'tagger_model.txt'
