@@ -6,7 +6,7 @@ class Evaluator():
     def __init__(self, sequences_indexer=None):
         self.sequences_indexer = sequences_indexer
 
-    def get_macro_scores_inputs_tensor_targets(self, tagger, inputs_tensor, targets_idx):
+    def get_macro_scores_inputs_tensor_targets_idx(self, tagger, inputs_tensor, targets_idx):
         outputs_idx = tagger.predict_idx_from_tensor(inputs_tensor)
         if len(targets_idx) != len(outputs_idx):
             raise ValueError('len(targets_idx) != len(len(outputs_idx))')
