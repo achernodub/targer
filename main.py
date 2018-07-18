@@ -55,7 +55,7 @@ if __name__ == "__main__":
     #args.fn_train = 'data/NER/CoNNL_2003_shared_task/train.txt'
     #args.fn_dev = 'data/NER/CoNNL_2003_shared_task/dev.txt'
     #args.fn_test = 'data/NER/CoNNL_2003_shared_task/test.txt'
-    args.epoch_num = 5
+    args.epoch_num = 1
     #args.lr_decay = 0.05
     #args.rnn_type = 'LSTM'
     #args.checkpoint_fn = 'tagger_model.txt'
@@ -150,6 +150,6 @@ if __name__ == "__main__":
         torch.save(best_tagger.cpu(), args.checkpoint_fn)
     # Write report
     if args.report_fn is not None:
-        evaluator.write_report(args.report_fn, best_tagger, token_sequences_test, tag_sequences_test)
+        evaluator.write_report(args.report_fn, args, best_tagger, token_sequences_test, tag_sequences_test)
 
     print('The end!')
