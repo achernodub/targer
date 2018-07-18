@@ -65,15 +65,17 @@ class Evaluator():
         str += '%006s |  %1.2f\n' % ('F1', np.mean(f1_scores))
         return str
 
-    def write_report(self, fn, tagger, token_sequences, tag_sequences):
+    def write_report(self, fn, args, tagger, token_sequences, tag_sequences):
 
         text_file = open(fn, mode='w')
+        for hyper_param in str(args).replace('Namespace(', '').replace(')', '').split(', '):
+            text_file.write('%s\n' % hyper_param)
 
         acc_test, f1_test, precision_test, recall_test = self.get_macro_scores(tagger=tagger,
                                                                                inputs=token_sequences,
                                                                                targets=tag_sequences)
 
-        text_file.write('Results on TEST: Accuracy = %1.2f, MACRO F1 = %1.2f, Precision = %1.2f, Recall = %1.2f.\n\n' % (
+        text_file.write('\nResults on TEST: Accuracy = %1.2f, MACRO F1 = %1.2f, Precision = %1.2f, Recall = %1.2f.\n\n' % (
                                                              acc_test, f1_test, precision_test, recall_test))
         text_file.write(self.get_macro_f1_scores_details(tagger, token_sequences, tag_sequences))
         text_file.close()
