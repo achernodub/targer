@@ -57,13 +57,27 @@ class Evaluator():
         y_true = [i for sequence in targets_idx for i in sequence]
         y_pred = [i for sequence in outputs_idx for i in sequence]
         f1_scores = f1_score(y_true, y_pred, average=None)*100
-        str = 'Tag | MACRO-F1\n--------------\n'
+        str = 'Tag    | MACRO-F1\n-----------------\n'
         for n in range(self.sequences_indexer.get_tags_num()):
             tag = self.sequences_indexer.idx2tag_dict[n+1]  # minumum tag no is "1"
-            str += '%003s |  %1.2f\n' % (tag, f1_scores[n])
-        str += '--------------\n'
-        str += 'F1  |  %1.2f' % np.mean(f1_scores)
+            str += '%006s |  %1.2f\n' % (tag, f1_scores[n])
+        str += '-----------------\n'
+        str += '%006s |  %1.2f\n' % ('F1', np.mean(f1_scores))
         return str
+
+    def write_report(self, fn, tagger, token_sequences, tag_sequences):
+
+        text_file = open(fn, mode='w')
+
+        acc_test, f1_test, precision_test, recall_test = self.get_macro_scores(tagger=tagger,
+                                                                               inputs=token_sequences,
+                                                                               targets=tag_sequences)
+
+        text_file.write('Results on TEST: Accuracy = %1.2f, MACRO F1 = %1.2f, Precision = %1.2f, Recall = %1.2f.\n\n' % (
+                                                             acc_test, f1_test, precision_test, recall_test))
+        text_file.write(self.get_macro_f1_scores_details(tagger, token_sequences, tag_sequences))
+        text_file.close()
+
 
     '''def get_macro_scores_inputs_tensor_targets_idx(self, tagger, inputs_tensor, targets_idx):
         outputs_idx = tagger.predict_idx_from_tensor(inputs_tensor)

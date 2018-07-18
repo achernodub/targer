@@ -40,7 +40,8 @@ if __name__ == "__main__":
     parser.add_argument('--batch_size', type=int, default=10, help='Batch size, samples.')
     parser.add_argument('--verbose', type=bool, default=True, help='Show additional information.')
     parser.add_argument('--seed_num', type=int, default=42, help='Random seed number, but 42 is the best forever!')
-    parser.add_argument('--save_best_path', default=None, help='Path to save the trained model (best on DEV).')
+    parser.add_argument('--checkpoint_fn', default=None, help='Path to save the trained model (best on DEV).')
+    parser.add_argument('--report_fn', default=None, help='Path to report.')
 
     args = parser.parse_args()
 
@@ -54,10 +55,11 @@ if __name__ == "__main__":
     #args.fn_train = 'data/NER/CoNNL_2003_shared_task/train.txt'
     #args.fn_dev = 'data/NER/CoNNL_2003_shared_task/dev.txt'
     #args.fn_test = 'data/NER/CoNNL_2003_shared_task/test.txt'
-    #args.epoch_num = 2
-    #args.lr_decay = 0
+    args.epoch_num = 5
+    #args.lr_decay = 0.05
     #args.rnn_type = 'LSTM'
-    #args.save_best_path = 'tagger_model.txt'
+    #args.checkpoint_fn = 'tagger_model.txt'
+    args.report_fn = 'report.txt'
 
     # Load CoNNL data as sequences of strings of tokens and corresponding tags
     token_sequences_train, tag_sequences_train = read_CoNNL(args.fn_train)
@@ -141,10 +143,13 @@ if __name__ == "__main__":
                                                                                                                 recall_test))
 
     # Macro-F1 for each class
-    print(evaluator.get_macro_f1_scores_details(tagger, token_sequences_test, tag_sequences_test))
+    print(evaluator.get_macro_f1_scores_details(best_tagger, token_sequences_test, tag_sequences_test))
 
     # Please, note that SequencesIndexer object is stored in the "sequences_indexer" field
-    if args.save_best_path is not None:
-        torch.save(best_tagger.cpu(), args.save_best_path)
+    if args.checkpoint_fn is not None:
+        torch.save(best_tagger.cpu(), args.checkpoint_fn)
+    # Write report
+    if args.report_fn is not None:
+        evaluator.write_report(args.report_fn, best_tagger, token_sequences_test, tag_sequences_test)
 
     print('The end!')
