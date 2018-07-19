@@ -8,9 +8,15 @@ class TaggerBase(nn.Module):
      for input and output data formats conversions. Abstract method `forward` is used in order to make these predictions,
      it have to be implemented in ancestors.
     """
-    def __init__(self,  sequences_indexer):
+    def __init__(self,  sequences_indexer, gpu):
         super(TaggerBase, self).__init__()
         self.sequences_indexer = sequences_indexer
+
+    def make_gpu(self, tensor):
+        if self.gpu >= 0:
+            return tensor.cuda(device=self.gpu)
+        else:
+            return tensor
 
     def clip_gradients(self, clip_grad):
         nn.utils.clip_grad_norm_(self.parameters(), clip_grad)

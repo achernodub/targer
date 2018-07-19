@@ -2,6 +2,7 @@ from __future__ import print_function
 
 import argparse
 import time
+import datetime
 
 import numpy as np
 import torch
@@ -29,7 +30,7 @@ if __name__ == "__main__":
     parser.add_argument('--gpu', type=int, default=0, help='GPU device number, 0 by default, -1  means CPU.')
     parser.add_argument('--caseless', type=bool, default=True, help='Read tokens caseless.')
     parser.add_argument('--epoch_num', type=int, default=50, help='Number of epochs.')
-    parser.add_argument('--rnn_hidden_size', type=int, default=101, help='Number hidden units in the recurrent layer.')
+    parser.add_argument('--rnn_hidden_dim', type=int, default=101, help='Number hidden units in the recurrent layer.')
     parser.add_argument('--rnn_type', default='GRU', help='RNN cell units type: "Vanilla", "LSTM", "GRU".')
     parser.add_argument('--dropout_ratio', type=float, default=0.5, help='Dropout ratio.')
     parser.add_argument('--clip_grad', type=float, default=5.0, help='Clipping gradients maximum L2 norm.')
@@ -41,8 +42,9 @@ if __name__ == "__main__":
     parser.add_argument('--verbose', type=bool, default=True, help='Show additional information.')
     parser.add_argument('--seed_num', type=int, default=42, help='Random seed number, but 42 is the best forever!')
     parser.add_argument('--checkpoint_fn', default=None, help='Path to save the trained model (best on DEV).')
-    parser.add_argument('--report_fn', default=None, help='Path to report.')
-
+    parser.add_argument('--report_fn', default='report_%s_%s.txt' % (datetime.datetime.now().hour,
+                                                                     datetime.datetime.now().minute),
+                                                                     help='Path to report.')
     args = parser.parse_args()
 
     np.random.seed(args.seed_num)
@@ -52,14 +54,14 @@ if __name__ == "__main__":
         torch.cuda.manual_seed(args.seed_num)
 
     # Custom params here to replace the defaults
-    args.fn_train = 'data/NER/CoNNL_2003_shared_task/train.txt'
-    args.fn_dev = 'data/NER/CoNNL_2003_shared_task/dev.txt'
-    args.fn_test = 'data/NER/CoNNL_2003_shared_task/test.txt'
-    args.epoch_num = 50
-    args.lr_decay = 0.05
+    #args.fn_train = 'data/NER/CoNNL_2003_shared_task/train.txt'
+    #args.fn_dev = 'data/NER/CoNNL_2003_shared_task/dev.txt'
+    #args.fn_test = 'data/NER/CoNNL_2003_shared_task/test.txt'
+    #args.epoch_num = 1
+    #args.lr_decay = 0.05
     #args.rnn_type = 'LSTM'
     #args.checkpoint_fn = 'tagger_model.txt'
-    args.report_fn = 'report_ner_e50_gru_lr_decay.txt'
+    #args.report_fn = 'report_ner_e50_gru_lr_decay.txt'
 
     # Load CoNNL data as sequences of strings of tokens and corresponding tags
     token_sequences_train, tag_sequences_train = read_CoNNL(args.fn_train)
@@ -84,7 +86,7 @@ if __name__ == "__main__":
 
     tagger = TaggerBiRNN(sequences_indexer=sequences_indexer,
                          class_num=sequences_indexer.get_tags_num(),
-                         rnn_hidden_size=args.rnn_hidden_size,
+                         rnn_hidden_dim=args.rnn_hidden_dim,
                          freeze_embeddings=args.freeze_embeddings,
                          dropout_ratio=args.dropout_ratio,
                          rnn_type=args.rnn_type,
@@ -148,6 +150,7 @@ if __name__ == "__main__":
     # Please, note that SequencesIndexer object is stored in the "sequences_indexer" field
     if args.checkpoint_fn is not None:
         torch.save(best_tagger.cpu(), args.checkpoint_fn)
+
     # Write report
     if args.report_fn is not None:
         evaluator.write_report(args.report_fn, args, best_tagger, token_sequences_test, tag_sequences_test)

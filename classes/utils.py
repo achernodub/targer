@@ -56,3 +56,4 @@ def write_CoNNL_three_columns(fn, token_sequences, tag_sequences_1, tag_sequence
 
 def info(name, t):
     print(name, '|', t.type(), '|', t.shape)
+
