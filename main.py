@@ -30,12 +30,12 @@ if __name__ == "__main__":
     parser.add_argument('--gpu', type=int, default=0, help='GPU device number, 0 by default, -1  means CPU.')
     parser.add_argument('--caseless', type=bool, default=True, help='Read tokens caseless.')
     parser.add_argument('--epoch_num', type=int, default=50, help='Number of epochs.')
-    parser.add_argument('--rnn_hidden_dim', type=int, default=101, help='Number hidden units in the recurrent layer.')
+    parser.add_argument('--rnn_hidden_dim', type=int, default=200, help='Number hidden units in the recurrent layer.')
     parser.add_argument('--rnn_type', default='GRU', help='RNN cell units type: "Vanilla", "LSTM", "GRU".')
     parser.add_argument('--dropout_ratio', type=float, default=0.5, help='Dropout ratio.')
     parser.add_argument('--clip_grad', type=float, default=5.0, help='Clipping gradients maximum L2 norm.')
     parser.add_argument('--opt_method', default='sgd', help='Optimization method: "sgd", "adam".')
-    parser.add_argument('--lr', type=float, default=0.015, help='Learning rate.')
+    parser.add_argument('--lr', type=float, default=0.01, help='Learning rate.')
     parser.add_argument('--lr_decay', type=float, default=0.0, help='Learning decay rate.')
     parser.add_argument('--momentum', type=float, default=0.9, help='Learning momentum rate.')
     parser.add_argument('--batch_size', type=int, default=10, help='Batch size, samples.')
@@ -54,14 +54,14 @@ if __name__ == "__main__":
         torch.cuda.manual_seed(args.seed_num)
 
     # Custom params here to replace the defaults
-    args.fn_train = 'data/NER/CoNNL_2003_shared_task/train.txt'
-    args.fn_dev = 'data/NER/CoNNL_2003_shared_task/dev.txt'
-    args.fn_test = 'data/NER/CoNNL_2003_shared_task/test.txt'
-    #args.epoch_num = 5
-    args.lr_decay = 0.05
-    args.rnn_type = 'LSTM'
+    #args.fn_train = 'data/NER/CoNNL_2003_shared_task/train.txt'
+    #args.fn_dev = 'data/NER/CoNNL_2003_shared_task/dev.txt'
+    #args.fn_test = 'data/NER/CoNNL_2003_shared_task/test.txt'
+    args.epoch_num = 200
+    #args.lr_decay = 0.05
+    #args.rnn_type = 'LSTM'
     #args.checkpoint_fn = 'tagger_model_ner.txt'
-    args.report_fn = 'report_ner_e50_gru_lr_decay.txt'
+    #args.report_fn = 'report_ner_e50_gru_lr_decay.txt'
 
     # Load CoNNL data as sequences of strings of tokens and corresponding tags
     token_sequences_train, tag_sequences_train = read_CoNNL(args.fn_train)
