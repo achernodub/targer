@@ -7,57 +7,35 @@ class Evaluator():
     def __init__(self, sequences_indexer=None):
         self.sequences_indexer = sequences_indexer
 
-    '''def get_macro_scores_inputs_tensor_targets_idx_flat(self, tagger, inputs_tensor, targets_idx):
-        outputs_idx = tagger.predict_idx_from_tensor(inputs_tensor)
-        y_true = [i for sequence in targets_idx for i in sequence]
-        y_pred = [i for sequence in outputs_idx for i in sequence]
-        accuracy = accuracy_score(y_true, y_pred)*100
-        f1 = f1_score(y_true, y_pred, average='macro')*100
-        precision = precision_score(y_true, y_pred, average='macro')*100
-        recall = recall_score(y_true, y_pred, average='macro')*100
-        return accuracy, f1, precision, recall'''
-
     def get_macro_scores_inputs_tensor_targets_idx(self, tagger, inputs_tensor, targets_idx):
+        tags_list_idx = [i for i in range(1, self.sequences_indexer.get_tags_num() + 1)]
         outputs_idx = tagger.predict_idx_from_tensor(inputs_tensor)
-        accuracy_mean, f1_mean, precision_mean, recall_mean = 0, 0, 0, 0
+        accuracy_sum, f1_sum, precision_sum, recall_sum = 0, 0, 0, 0
         for y_true, y_pred in zip(targets_idx, outputs_idx):
-            accuracy_mean += accuracy_score(y_true, y_pred) * 100
-            f1_mean += f1_score(y_true, y_pred, average='macro') * 100
-            precision_mean += precision_score(y_true, y_pred, average='macro') * 100
-            recall_mean += recall_score(y_true, y_pred, average='macro') * 100
+            accuracy_sum += accuracy_score(y_true, y_pred) * 100
+            f1_sum += f1_score(y_true, y_pred, average='macro', labels=tags_list_idx) * 100
+            precision_sum += precision_score(y_true, y_pred, average='macro', labels=tags_list_idx) * 100
+            recall_sum += recall_score(y_true, y_pred, average='macro', labels=tags_list_idx) * 100
         data_num = len(targets_idx)
-        return accuracy_mean / data_num, f1_mean / data_num, precision_mean / data_num, recall_mean / data_num
+        return accuracy_sum / data_num, f1_sum / data_num, precision_sum / data_num, recall_sum / data_num
 
-        '''def get_macro_f1_scores_details_flat(self, tagger, token_sequences, tag_sequences):
+    def get_macro_f1_scores_details(self, tagger, token_sequences, tag_sequences):
         outputs_idx = tagger.predict_idx_from_tokens(token_sequences)
         targets_idx = self.sequences_indexer.tag2idx(tag_sequences)
-        y_true = [i for sequence in targets_idx for i in sequence]
-        y_pred = [i for sequence in outputs_idx for i in sequence]
-        f1_scores = f1_score(y_true, y_pred, average=None)*100
+        data_num = len(token_sequences)
+        tags_num =  self.sequences_indexer.get_tags_num()
+        tags_list_idx = [i for i in range(1, tags_num + 1)]
+        f1_scores_array = np.zeros([data_num, tags_num], dtype=float)
+        #f1_mean = 0
+        for k, (y_true, y_pred) in enumerate(zip(targets_idx, outputs_idx)):
+            f1_scores_array[k, :] = f1_score(y_true, y_pred, average=None, labels=tags_list_idx) * 100
+            #f1_mean += f1_score(y_true, y_pred, average='macro', labels=tags_list_idx) * 100
+        f1_scores_mean = np.mean(f1_scores_array, axis=0)
         str = 'Tag    | MACRO-F1\n-----------------\n'
-        for n in range(self.sequences_indexer.get_tags_num()):
-            tag = self.sequences_indexer.idx2tag_dict[n+1]  # minumum tag no is "1"
-            str += '%006s |  %1.2f\n' % (tag, f1_scores[n])
-        str += '-----------------\n'
-        str += '%006s |  %1.2f\n' % ('F1', np.mean(f1_scores))
-        return str'''
-
-    def get_macro_f1_scores_details(self, tagger, token_sequences, tag_sequences): # TODO
-        outputs_idx = tagger.predict_idx_from_tokens(token_sequences)
-        targets_idx = self.sequences_indexer.tag2idx(tag_sequences)
-        f1_scores_sum = None
-        for y_true, y_pred in zip(targets_idx, outputs_idx):
-            f1_scores = f1_score(y_true, y_pred, average=None) * 100
-            if f1_scores_sum is None:
-                f1_scores_sum = f1_scores
-            else:
-                f1_scores_sum += f1_scores
-        f1_scores_mean = f1_scores_sum / len(targets_idx)
-        for n in range(self.sequences_indexer.get_tags_num()):
-            tag = self.sequences_indexer.idx2tag_dict[n+1]  # minumum tag no is "1"
-            str += '%006s |  %1.2f\n' % (tag, f1_scores_mean[n])
-        str += '-----------------\n'
-        str += '%006s |  %1.2f\n' % ('F1', np.mean(f1_scores_mean))
+        for n in range(1, tags_num + 1):
+            tag = self.sequences_indexer.idx2tag_dict[n]  # minumum tag no. is "1"
+            str += '%006s |  %1.2f\n' % (tag, f1_scores_mean[n-1])
+        str += '-----------------\n%006s |  %1.2f\n' % ('F1', np.mean(f1_scores_mean))
         return str
 
     def is_tensor(self, X):
@@ -108,3 +86,27 @@ class Evaluator():
                                                              acc_test, f1_test, precision_test, recall_test))
         text_file.write(self.get_macro_f1_scores_details(tagger, token_sequences, tag_sequences))
         text_file.close()
+
+    '''def get_macro_scores_inputs_tensor_targets_idx_flat(self, tagger, inputs_tensor, targets_idx):
+        outputs_idx = tagger.predict_idx_from_tensor(inputs_tensor)
+        y_true = [i for sequence in targets_idx for i in sequence]
+        y_pred = [i for sequence in outputs_idx for i in sequence]
+        accuracy = accuracy_score(y_true, y_pred)*100
+        f1 = f1_score(y_true, y_pred, average='macro')*100
+        precision = precision_score(y_true, y_pred, average='macro')*100
+        recall = recall_score(y_true, y_pred, average='macro')*100
+        return accuracy, f1, precision, recall'''
+
+    '''def get_macro_f1_scores_details_flat(self, tagger, token_sequences, tag_sequences):
+    outputs_idx = tagger.predict_idx_from_tokens(token_sequences)
+    targets_idx = self.sequences_indexer.tag2idx(tag_sequences)
+    y_true = [i for sequence in targets_idx for i in sequence]
+    y_pred = [i for sequence in outputs_idx for i in sequence]
+    f1_scores = f1_score(y_true, y_pred, average=None)*100
+    str = 'Tag    | MACRO-F1\n-----------------\n'
+    for n in range(self.sequences_indexer.get_tags_num()):
+        tag = self.sequences_indexer.idx2tag_dict[n+1]  # minumum tag no is "1"
+        str += '%006s |  %1.2f\n' % (tag, f1_scores[n])
+    str += '-----------------\n'
+    str += '%006s |  %1.2f\n' % ('F1', np.mean(f1_scores))
+    return str'''
