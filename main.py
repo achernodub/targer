@@ -54,10 +54,10 @@ if __name__ == "__main__":
         torch.cuda.manual_seed(args.seed_num)
 
     # Custom params here to replace the defaults
-    #args.fn_train = 'data/NER/CoNNL_2003_shared_task/train.txt'
-    #args.fn_dev = 'data/NER/CoNNL_2003_shared_task/dev.txt'
-    #args.fn_test = 'data/NER/CoNNL_2003_shared_task/test.txt'
-    args.epoch_num = 200
+    args.fn_train = 'data/NER/CoNNL_2003_shared_task/train.txt'
+    args.fn_dev = 'data/NER/CoNNL_2003_shared_task/dev.txt'
+    args.fn_test = 'data/NER/CoNNL_2003_shared_task/test.txt'
+    args.epoch_num = 50
     #args.lr_decay = 0.05
     #args.rnn_type = 'LSTM'
     #args.checkpoint_fn = 'tagger_model_ner.txt'
