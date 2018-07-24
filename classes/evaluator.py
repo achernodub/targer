@@ -7,7 +7,7 @@ class Evaluator():
     def __init__(self, sequences_indexer=None):
         self.sequences_indexer = sequences_indexer
 
-    def get_macro_scores_inputs_tensor_targets_idx_flat(self, tagger, inputs_tensor, targets_idx):
+    '''def get_macro_scores_inputs_tensor_targets_idx_flat(self, tagger, inputs_tensor, targets_idx):
         outputs_idx = tagger.predict_idx_from_tensor(inputs_tensor)
         y_true = [i for sequence in targets_idx for i in sequence]
         y_pred = [i for sequence in outputs_idx for i in sequence]
@@ -15,7 +15,7 @@ class Evaluator():
         f1 = f1_score(y_true, y_pred, average='macro')*100
         precision = precision_score(y_true, y_pred, average='macro')*100
         recall = recall_score(y_true, y_pred, average='macro')*100
-        return accuracy, f1, precision, recall
+        return accuracy, f1, precision, recall'''
 
     def get_macro_scores_inputs_tensor_targets_idx(self, tagger, inputs_tensor, targets_idx):
         outputs_idx = tagger.predict_idx_from_tensor(inputs_tensor)
@@ -28,7 +28,7 @@ class Evaluator():
         data_num = len(targets_idx)
         return accuracy_mean / data_num, f1_mean / data_num, precision_mean / data_num, recall_mean / data_num
 
-    def get_macro_f1_scores_details_flat(self, tagger, token_sequences, tag_sequences):
+        '''def get_macro_f1_scores_details_flat(self, tagger, token_sequences, tag_sequences):
         outputs_idx = tagger.predict_idx_from_tokens(token_sequences)
         targets_idx = self.sequences_indexer.tag2idx(tag_sequences)
         y_true = [i for sequence in targets_idx for i in sequence]
@@ -40,20 +40,24 @@ class Evaluator():
             str += '%006s |  %1.2f\n' % (tag, f1_scores[n])
         str += '-----------------\n'
         str += '%006s |  %1.2f\n' % ('F1', np.mean(f1_scores))
-        return str
+        return str'''
 
     def get_macro_f1_scores_details(self, tagger, token_sequences, tag_sequences): # TODO
         outputs_idx = tagger.predict_idx_from_tokens(token_sequences)
         targets_idx = self.sequences_indexer.tag2idx(tag_sequences)
-        y_true = [i for sequence in targets_idx for i in sequence]
-        y_pred = [i for sequence in outputs_idx for i in sequence]
-        f1_scores = f1_score(y_true, y_pred, average=None)*100
-        str = 'Tag    | MACRO-F1\n-----------------\n'
+        f1_scores_sum = None
+        for y_true, y_pred in zip(targets_idx, outputs_idx):
+            f1_scores = f1_score(y_true, y_pred, average=None) * 100
+            if f1_scores_sum is None:
+                f1_scores_sum = f1_scores
+            else:
+                f1_scores_sum += f1_scores
+        f1_scores_mean = f1_scores_sum / len(targets_idx)
         for n in range(self.sequences_indexer.get_tags_num()):
             tag = self.sequences_indexer.idx2tag_dict[n+1]  # minumum tag no is "1"
-            str += '%006s |  %1.2f\n' % (tag, f1_scores[n])
+            str += '%006s |  %1.2f\n' % (tag, f1_scores_mean[n])
         str += '-----------------\n'
-        str += '%006s |  %1.2f\n' % ('F1', np.mean(f1_scores))
+        str += '%006s |  %1.2f\n' % ('F1', np.mean(f1_scores_mean))
         return str
 
     def is_tensor(self, X):
@@ -104,18 +108,3 @@ class Evaluator():
                                                              acc_test, f1_test, precision_test, recall_test))
         text_file.write(self.get_macro_f1_scores_details(tagger, token_sequences, tag_sequences))
         text_file.close()
-
-
-    '''def get_macro_scores_inputs_tensor_targets_idx(self, tagger, inputs_tensor, targets_idx):
-        outputs_idx = tagger.predict_idx_from_tensor(inputs_tensor)
-        if len(targets_idx) != len(outputs_idx):
-            raise ValueError('len(targets_idx) != len(len(outputs_idx))')
-        num_data = len(targets_idx)
-        accuracy_sum, f1_sum, precision_sum, recall_sum = 0, 0, 0, 0
-        for n in range(num_data):
-            accuracy_sum += accuracy_score(y_true=targets_idx[n], y_pred=outputs_idx[n])
-            f1_sum += f1_score(y_true=targets_idx[n], y_pred=outputs_idx[n], average='macro')
-            precision_sum += precision_score(y_true=targets_idx[n], y_pred=outputs_idx[n], average='macro')
-            recall_sum += recall_score(y_true=targets_idx[n], y_pred=outputs_idx[n], average='macro')
-        print("OLD style")
-        return accuracy_sum / num_data, f1_sum / num_data, precision_sum / num_data, recall_sum / num_data'''
