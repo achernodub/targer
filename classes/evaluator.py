@@ -31,7 +31,7 @@ class Evaluator():
             f1_scores_array[k, :] = f1_score(y_true, y_pred, average=None, labels=tags_list_idx) * 100
             #f1_mean += f1_score(y_true, y_pred, average='macro', labels=tags_list_idx) * 100
         f1_scores_mean = np.mean(f1_scores_array, axis=0)
-        str = 'Tag               | MACRO-F1\n-----------------\n'
+        str = 'Tag             | F1\n----------------------\n'
         for n in range(1, tags_num + 1):
             tag = self.sequences_indexer.idx2tag_dict[n]  # minumum tag no. is "1"
             str += '%015s |  %1.2f\n' % (tag, f1_scores_mean[n-1])
