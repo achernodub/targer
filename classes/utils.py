@@ -1,5 +1,8 @@
 import codecs
 
+def info(name, t):
+    print(name, '|', t.type(), '|', t.shape)
+
 def read_CoNNL(fn, column_no=-1):
     token_sequences = list()
     tag_sequences = list()
@@ -54,6 +57,33 @@ def write_CoNNL_three_columns(fn, token_sequences, tag_sequences_1, tag_sequence
             text_file.write('%s %s %s\n' % (token, tag_1, tag_2))
     text_file.close()
 
-def info(name, t):
-    print(name, '|', t.type(), '|', t.shape)
+def write_CoNNL_two_columns(fn, token_sequences, tag_sequences_1):
+    text_file = open(fn, mode='w')
+    for i, tokens in enumerate(token_sequences):
+        text_file.write('-DOCSTART- -X- -X-\n')
+        tags_1 = tag_sequences_1[i]
+        for j, token in enumerate(tokens):
+            tag_1 = tags_1[j]
+            text_file.write('%s %s\n' % (token, tag_1))
+    text_file.close()
 
+def read_CoNNL_dat_abs(fn, column_no=-1):
+    token_sequences = list()
+    tag_sequences = list()
+    curr_tokens = list()
+    curr_tags = list()
+    with codecs.open(fn, 'r', 'utf-8') as f:
+        lines = f.readlines()
+    for k, line in enumerate(lines):
+        elements = line.strip().split('\t')
+        if len(elements) < 3: # end of the document
+            token_sequences.append(curr_tokens)
+            tag_sequences.append(curr_tags)
+            curr_tokens = list()
+            curr_tags = list()
+            continue
+        token = elements[1]
+        tag = elements[2].split(':')[0]
+        curr_tokens.append(token)
+        curr_tags.append(tag)
+    return token_sequences, tag_sequences

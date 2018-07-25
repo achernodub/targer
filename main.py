@@ -57,16 +57,22 @@ if __name__ == "__main__":
     #args.fn_train = 'data/NER/CoNNL_2003_shared_task/train.txt'
     #args.fn_dev = 'data/NER/CoNNL_2003_shared_task/dev.txt'
     #args.fn_test = 'data/NER/CoNNL_2003_shared_task/test.txt'
-    #args.epoch_num = 50
+
+    args.fn_train = 'data/persuasive_essays/Paragraph_Level/train.dat.abs'
+    args.fn_dev = 'data/persuasive_essays/Paragraph_Level/dev.dat.abs'
+    args.fn_test = 'data/persuasive_essays/Paragraph_Level/test.dat.abs'
+
+    args.epoch_num = 3
     #args.lr_decay = 0.05
     #args.rnn_type = 'LSTM'
     #args.checkpoint_fn = 'tagger_model_es1.txt'
     #args.report_fn = 'report_ner_e50_gru_lr_decay.txt'
+    args.rnn_hidden_dim = 100
 
     # Load CoNNL data as sequences of strings of tokens and corresponding tags
-    token_sequences_train, tag_sequences_train = read_CoNNL(args.fn_train)
-    token_sequences_dev, tag_sequences_dev = read_CoNNL(args.fn_dev)
-    token_sequences_test, tag_sequences_test = read_CoNNL(args.fn_test)
+    token_sequences_train, tag_sequences_train = read_CoNNL_dat_abs(args.fn_train)
+    token_sequences_dev, tag_sequences_dev = read_CoNNL_dat_abs(args.fn_dev)
+    token_sequences_test, tag_sequences_test = read_CoNNL_dat_abs(args.fn_test)
 
     # SequenceIndexer is a class to convert tokens and tags as strings to integer indices and back
     sequences_indexer = SequencesIndexer(caseless=args.caseless, verbose=args.verbose, gpu=args.gpu)
