@@ -62,7 +62,7 @@ if __name__ == "__main__":
     args.fn_dev = 'data/persuasive_essays/Paragraph_Level/dev.dat.abs'
     args.fn_test = 'data/persuasive_essays/Paragraph_Level/test.dat.abs'
 
-    #args.epoch_num = 3
+    args.epoch_num = 1
     #args.lr_decay = 0.05
     #args.rnn_type = 'LSTM'
     #args.checkpoint_fn = 'tagger_model_es1.txt'
@@ -88,7 +88,8 @@ if __name__ == "__main__":
     datasets_bank.add_dev_sequences(token_sequences_dev, tag_sequences_dev)
     datasets_bank.add_test_sequences(token_sequences_test, tag_sequences_test)
 
-    evaluator = Evaluator(sequences_indexer)
+    # Evaluator calculates evaluation scores, i.e. accuracy, F1/P/R
+    evaluator = Evaluator()
 
     tagger = TaggerBiRNN(sequences_indexer=sequences_indexer,
                          class_num=sequences_indexer.get_tags_num(),
@@ -120,38 +121,35 @@ if __name__ == "__main__":
             if i % 100 == 0 and args.verbose:
                 print('-- epoch %d, i = %d/%d, loss = %1.4f' % (epoch, i, iterations_num, loss.item()))
         time_finish = time.time()
-        acc_dev, f1_dev, precision_dev, recall_dev = evaluator.get_macro_scores(tagger=tagger,
-                                                                                inputs=datasets_bank.inputs_tensor_dev,
-                                                                                targets=datasets_bank.targets_tensor_dev)
+
+        outputs_idx_dev = tagger.predict_idx_from_tensor(datasets_bank.inputs_tensor_dev)
+        acc_dev = evaluator.get_accuracy_token_level(datasets_bank.targets_idx_dev, outputs_idx_dev)
+        f1_dev = evaluator.get_f1(datasets_bank.targets_idx_dev, outputs_idx_dev)
+        precision_dev, precision_dev = 0, 0
+
         if f1_dev > best_f1_dev:
             best_epoch_msg = '[BEST] '
             best_epoch = epoch
             best_f1_dev = f1_dev
             best_tagger = tagger
-        print('\n%sEPOCH %d/%d, DEV: Accuracy = %1.2f, MACRO F1 = %1.2f, Precision = %1.2f, Recall = %1.2f, %d sec.\n' %
-                                                                                                 (best_epoch_msg,
-                                                                                                  epoch,
-                                                                                                  args.epoch_num,
-                                                                                                  acc_dev,
-                                                                                                  f1_dev,
-                                                                                                  precision_dev,
-                                                                                                  recall_dev,
-                                                                                                  time.time() - time_start))
+        print('\n%sEPOCH %d/%d, DEV: Accuracy = %1.2f, F1 = %1.2f, %d sec.\n' % (best_epoch_msg,
+                                                                                 epoch,
+                                                                                 args.epoch_num,
+                                                                                 acc_dev,
+                                                                                 f1_dev,
+                                                                                 time.time() - time_start))
 
+    # After all epochs
+    outputs_idx_test = best_tagger.predict_idx_from_tensor(datasets_bank.inputs_tensor_test)
+    acc_test = evaluator.get_accuracy_token_level(datasets_bank.targets_idx_test, outputs_idx_test)
+    f1_test = evaluator.get_f1(datasets_bank.targets_idx_test, outputs_idx_test)
 
-    acc_test, f1_test, precision_test, recall_test = evaluator.get_macro_scores(tagger=best_tagger,
-                                                                                inputs=datasets_bank.inputs_tensor_test,
-                                                                                targets=datasets_bank.targets_tensor_test)
+    print('Results on TEST (for best on DEV tagger, best epoch = %d): Accuracy = %1.2f, F1 = %1.2f.\n' %  (best_epoch,
+                                                                                                           acc_test,
+                                                                                                           f1_test))
 
-    print('Results on TEST (for best on DEV tagger, best epoch = %d): Accuracy = %1.2f, MACRO F1 = %1.2f, Precision = %1.2f, Recall = %1.2f.\n' %
-                                                                                                               (best_epoch,
-                                                                                                                acc_test,
-                                                                                                                f1_test,
-                                                                                                                precision_test,
-                                                                                                                recall_test))
-
-    # Macro-F1 for each class
-    print(evaluator.get_macro_f1_scores_details(best_tagger, token_sequences_test, tag_sequences_test))
+    # F1 for each class
+    print(evaluator.get_f1_scores_details(best_tagger, token_sequences_test, tag_sequences_test))
 
     # Write report
     if args.report_fn is not None:

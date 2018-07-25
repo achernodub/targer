@@ -2,13 +2,17 @@ from __future__ import print_function
 
 import os.path
 import torch
-from classes.utils import read_CoNNL, write_CoNNL
+from classes.utils import read_CoNNL, write_CoNNL, read_CoNNL_dat_abs, write_CoNNL_dat_abs
 from classes.evaluator import Evaluator
 
 print('Start!')
 
+# Read data in CoNNL-2003 dat.abs format (Eger, 2017)
+fn = 'data/persuasive_essays/Paragraph_Level/test.dat.abs'
+token_sequences, tag_sequences = read_CoNNL_dat_abs(fn)
+
 # Load tagger model
-fn_checkpoint = 'tagger_model_pe_e50.txt'
+fn_checkpoint = 'tagger_model_es3_50ep.txt'
 if os.path.isfile(fn_checkpoint):
     tagger = torch.load(fn_checkpoint)
 else:
@@ -17,30 +21,30 @@ else:
 # We take sequences_indexer from the tagger
 sequences_indexer = tagger.sequences_indexer
 
-# GPU device number, -1 by default (CPU)
+# GPU device number, -1  means CPU
 gpu = 0
 if gpu >= 0:
     tagger = tagger.cuda(device=0)
 
 # Create evaluator module to calculate macro scores
-evaluator = Evaluator(sequences_indexer)
-
-# Read data in CoNNL-2003 formar
-fn = 'data/argument_mining/persuasive_essays/es_paragraph_level_test.txt'
-token_sequences, tag_sequences = read_CoNNL(fn)
+evaluator = Evaluator()
 
 # Get tags as sequences of strings
 output_tag_sequences = tagger.predict_tags_from_tokens(token_sequences)
 
-# Get F1/Precision/Recall macro scores
-acc, f1, precision, recall = evaluator.get_macro_scores_tokens_tags(tagger, token_sequences, tag_sequences)
-
-print('\nAccuracy = %1.2f, MACRO F1 = %1.2f, Precision = %1.2f, Recall = %1.2f.\n' % (acc, f1, precision, recall))
+# Get scores
+targets_idx = sequences_indexer.tag2idx(tag_sequences)
+outputs_idx = sequences_indexer.tag2idx(output_tag_sequences)
+acc = evaluator.get_accuracy_token_level(targets_idx, outputs_idx)
+f1 = evaluator.get_f1(targets_idx, outputs_idx)
+print('\nAccuracy = %1.2f, F1 = %1.2f.\n' % (acc, f1))
 
 # Macro-F1 for each class
-print(evaluator.get_macro_f1_scores_details(tagger, token_sequences, tag_sequences))
+print(evaluator.get_f1_scores_details(tagger, token_sequences, tag_sequences))
 
 # Write results to text file
-write_CoNNL('out.txt', token_sequences, tag_sequences, output_tag_sequences)
+#write_CoNNL('out.txt', token_sequences, tag_sequences, output_tag_sequences)
+#write_CoNNL_dat_abs('oo.txt', token_sequences, output_tag_sequences)
+#write_CoNNL_dat_abs('oo1.txt', token_sequences, tag_sequences)
 
 print('\nThe end.')
