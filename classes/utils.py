@@ -87,3 +87,10 @@ def read_CoNNL_dat_abs(fn, column_no=-1):
         curr_tokens.append(token)
         curr_tags.append(tag)
     return token_sequences, tag_sequences
+
+def write_CoNNL_dat_abs(fn, token_sequences, tag_sequences):
+    with open(fn, mode='w') as text_file:
+        for tokens, tags in zip(token_sequences, tag_sequences):
+            for i, (token, tag) in enumerate(zip(tokens, tags)):
+                text_file.write('%d\t%s\t%s\n' % (i+1, token, tag))
+            text_file.write('\n')
