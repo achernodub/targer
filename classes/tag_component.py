@@ -13,7 +13,7 @@ class TagComponent():
         self.tokens.append(token)
         self.pos_end += 1
 
-    def is_equal(self, tc, match_ratio=0.999):
+    def is_equal(self, tc, match_ratio=0.5):
         return TagComponent.match(self, tc, match_ratio)
 
     def print(self):
@@ -37,7 +37,7 @@ class TagComponent():
         return TagComponent.get_tag_class_name(tag)
 
     @staticmethod
-    def match(tc1, tc2, match_ratio=0.999):
+    def match(tc1, tc2, match_ratio):
         if tc1.tag_class_name != tc2.tag_class_name:
             return False
         tc1_positions = set(range(tc1.pos_begin, tc1.pos_end + 1))
