@@ -4,6 +4,7 @@ import os.path
 import torch
 from classes.utils import read_CoNNL, write_CoNNL, read_CoNNL_dat_abs, write_CoNNL_dat_abs
 from classes.evaluator import Evaluator
+from classes.tag_component import TagComponent
 
 print('Start!')
 
@@ -26,21 +27,23 @@ gpu = 0
 if gpu >= 0:
     tagger = tagger.cuda(device=0)
 
-# Create evaluator module to calculate macro scores
-evaluator = Evaluator()
-
 # Get tags as sequences of strings
 output_tag_sequences = tagger.predict_tags_from_tokens(token_sequences)
 
 # Get scores
 targets_idx = sequences_indexer.tag2idx(tag_sequences)
 outputs_idx = sequences_indexer.tag2idx(output_tag_sequences)
-acc = evaluator.get_accuracy_token_level(targets_idx, outputs_idx)
-f1 = evaluator.get_f1(targets_idx, outputs_idx)
+acc = Evaluator.get_accuracy_token_level(targets_idx, outputs_idx)
+
+#tag_components_test = TagComponent.extract_tag_components_sequences(token_sequences_test, tag_sequences_test)
+target_tag_components_sequences_test = TagComponent.extract_tag_components_sequences(token_sequences, tag_sequences)
+output_tag_components_sequences_test = TagComponent.extract_tag_components_sequences(token_sequences, output_tag_sequences)
+
+f1 = Evaluator.get_f1(target_tag_components_sequences_test, output_tag_components_sequences_test)
 print('\nAccuracy = %1.2f, F1 = %1.2f.\n' % (acc, f1))
 
 # Macro-F1 for each class
-print(evaluator.get_f1_scores_details(tagger, token_sequences, tag_sequences))
+print(Evaluator.get_f1_scores_details(tagger, token_sequences, tag_sequences))
 
 # Write results to text file
 #write_CoNNL('out.txt', token_sequences, tag_sequences, output_tag_sequences)
