@@ -62,7 +62,7 @@ if __name__ == "__main__":
     args.fn_dev = 'data/persuasive_essays/Paragraph_Level/dev.dat.abs'
     args.fn_test = 'data/persuasive_essays/Paragraph_Level/test.dat.abs'
 
-    args.epoch_num = 3
+    #args.epoch_num = 3
     #args.lr_decay = 0.05
     #args.rnn_type = 'LSTM'
     #args.checkpoint_fn = 'tagger_model_es1.txt'
