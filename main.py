@@ -10,10 +10,12 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.optim.lr_scheduler import LambdaLR
 
+from classes.evaluator import Evaluator
 from classes.datasets_bank import DatasetsBank
 from classes.sequences_indexer import SequencesIndexer
+from classes.tag_component import TagComponent
 from classes.utils import *
-from classes.evaluator import Evaluator
+
 from models.tagger_birnn import TaggerBiRNN
 
 if __name__ == "__main__":
@@ -88,9 +90,6 @@ if __name__ == "__main__":
     datasets_bank.add_dev_sequences(token_sequences_dev, tag_sequences_dev)
     datasets_bank.add_test_sequences(token_sequences_test, tag_sequences_test)
 
-    # Evaluator calculates evaluation scores, i.e. accuracy, F1/P/R
-    evaluator = Evaluator()
-
     tagger = TaggerBiRNN(sequences_indexer=sequences_indexer,
                          class_num=sequences_indexer.get_tags_num(),
                          rnn_hidden_dim=args.rnn_hidden_dim,
@@ -123,8 +122,9 @@ if __name__ == "__main__":
         time_finish = time.time()
 
         outputs_idx_dev = tagger.predict_idx_from_tensor(datasets_bank.inputs_tensor_dev)
-        acc_dev = evaluator.get_accuracy_token_level(datasets_bank.targets_idx_dev, outputs_idx_dev)
-        f1_dev = evaluator.get_f1(datasets_bank.targets_idx_dev, outputs_idx_dev)
+        acc_dev = Evaluator.get_accuracy_token_level(datasets_bank.targets_idx_dev, outputs_idx_dev)
+        f1_dev = Evaluator.get_f1_idx(datasets_bank.targets_idx_dev, outputs_idx_dev)
+        #f1 = Evaluator.get_f1(target_tag_components_sequences_test, output_tag_components_sequences_test)git add
         precision_dev, precision_dev = 0, 0
 
         if f1_dev > best_f1_dev:
@@ -141,19 +141,19 @@ if __name__ == "__main__":
 
     # After all epochs
     outputs_idx_test = best_tagger.predict_idx_from_tensor(datasets_bank.inputs_tensor_test)
-    acc_test = evaluator.get_accuracy_token_level(datasets_bank.targets_idx_test, outputs_idx_test)
-    f1_test = evaluator.get_f1(datasets_bank.targets_idx_test, outputs_idx_test)
+    acc_test = Evaluator.get_accuracy_token_level(datasets_bank.targets_idx_test, outputs_idx_test)
+    f1_test = Evaluator.get_f1_idx(datasets_bank.targets_idx_test, outputs_idx_test)
 
     print('Results on TEST (for best on DEV tagger, best epoch = %d): Accuracy = %1.2f, F1 = %1.2f.\n' %  (best_epoch,
                                                                                                            acc_test,
                                                                                                            f1_test))
 
     # F1 for each class
-    print(evaluator.get_f1_scores_details(best_tagger, token_sequences_test, tag_sequences_test))
+    print(Evaluator.get_f1_scores_details(best_tagger, token_sequences_test, tag_sequences_test))
 
     # Write report
     if args.report_fn is not None:
-        evaluator.write_report(args.report_fn, args, best_tagger, token_sequences_test, tag_sequences_test)
+        Evaluator.write_report(args.report_fn, args, best_tagger, token_sequences_test, tag_sequences_test)
 
     # Please, note that SequencesIndexer object is stored in the "sequences_indexer" field
     if args.checkpoint_fn is not None:
