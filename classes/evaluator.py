@@ -2,6 +2,8 @@ import torch
 import numpy as np
 from sklearn.metrics import accuracy_score # f1_score, precision_score, recall_score
 
+from classes.tag_component import TagComponent
+
 
 class Evaluator():
     @staticmethod
@@ -11,45 +13,33 @@ class Evaluator():
         return accuracy_score(y_true, y_pred) * 100
 
     @staticmethod
-    def get_f1_idx(targets_idx, outputs_idx):
-        return Evaluator.get_accuracy_token_level(targets_idx, outputs_idx)
+    def get_f1_idx(targets_idx, outputs_idx, sequences_indexer, match_alpha_ratio=0.999):
+        targets_tag_sequences = sequences_indexer.idx2tag(targets_idx)
+        outputs_tag_sequences = sequences_indexer.idx2tag(outputs_idx)
+        return Evaluator.get_f1_tokens_tags(targets_tag_sequences, outputs_tag_sequences, match_alpha_ratio)
 
-
-    '''
-    def get_f1_micro(self, targets_idx, outputs_idx):
-        TP, FN, FP = 0, 0, 0
-        for curr_targets, curr_outputs in zip(targets_idx, outputs_idx):
-            for k, t in enumerate(curr_targets):
-                if t == curr_outputs[k]:
-                    TP += 1
-                else:
-                    FN += 1
-            for k, o in enumerate(curr_outputs):
-                if o != curr_targets[k]:
-                    FP += 1
-
-        print(TP, FN, FP)
-
-        P = TP/max(TP+FP, 1)
-        R = TP/max(TP+FN, 1)
-        F1 = 2*TP/max(2*TP+FP+FN, 1)
-
-        y_true = [i for sequence in targets_idx for i in sequence]
-        y_pred = [i for sequence in outputs_idx for i in sequence]
-        accuracy = accuracy_score(y_true, y_pred)*100
-
-        print(F1, P, R, accuracy)
-    '''
+    @staticmethod
+    def get_f1_tokens_tags(targets_tag_sequences, outputs_tag_sequences, match_alpha_ratio=0.999):
+        targets_tag_components_sequences = TagComponent.extract_tag_components_sequences(targets_tag_sequences)
+        outputs_tag_components_sequences = TagComponent.extract_tag_components_sequences(outputs_tag_sequences)
+        return Evaluator.get_f1_components_sequences(targets_tag_components_sequences, outputs_tag_components_sequences,
+                                                     match_alpha_ratio)
+    @staticmethod
+    def get_f1_tokens_tags_debug(tokens_sequences, targets_tag_sequences, outputs_tag_sequences, match_alpha_ratio=0.999):
+        targets_tag_components_sequences = TagComponent.extract_tag_components_sequences_debug(tokens_sequences, targets_tag_sequences)
+        outputs_tag_components_sequences = TagComponent.extract_tag_components_sequences_debug(tokens_sequences, outputs_tag_sequences)
+        return Evaluator.get_f1_components_sequences(targets_tag_components_sequences, outputs_tag_components_sequences,
+                                                     match_alpha_ratio)
 
 
     @staticmethod
-    def get_f1(targets_tag_components_sequences, outputs_tag_components_sequences):
+    def get_f1_components_sequences(targets_tag_components_sequences, outputs_tag_components_sequences, match_alpha_ratio):
         TP, FN, FP = 0, 0, 0
         for targets_tag_components, outputs_tag_components in zip(targets_tag_components_sequences, outputs_tag_components_sequences):
             for target_tc in targets_tag_components:
                 found = False
                 for output_tc in outputs_tag_components:
-                    if output_tc.is_equal(target_tc):
+                    if output_tc.is_equal(target_tc, match_alpha_ratio):
                         found = True
                         break
                 if found:
@@ -59,15 +49,15 @@ class Evaluator():
             for output_tc in outputs_tag_components:
                 found = False
                 for target_tc in targets_tag_components:
-                    if target_tc.is_equal(output_tc):
+                    if target_tc.is_equal(output_tc, match_alpha_ratio):
                         found = True
                         break
                 if not found:
                     FP += 1
-        #P = TP / max(TP + FP, 1)
-        #R = TP / max(TP + FN, 1)
+        Precision = (TP / max(TP + FP, 1))*100
+        Recall = (TP / max(TP + FN, 1))*100
         F1 = (2 * TP / max(2 * TP + FP + FN, 1))*100
-        return F1
+        return F1, Precision, Recall, TP, FP, FN
 
     @staticmethod
     def get_f1_scores_details(tagger, token_sequences, tag_sequences):
@@ -229,3 +219,29 @@ class Evaluator():
     str += '-----------------\n'
     str += '%006s |  %1.2f\n' % ('F1', np.mean(f1_scores))
     return str'''
+
+    '''
+    def get_f1_micro(self, targets_idx, outputs_idx):
+        TP, FN, FP = 0, 0, 0
+        for curr_targets, curr_outputs in zip(targets_idx, outputs_idx):
+            for k, t in enumerate(curr_targets):
+                if t == curr_outputs[k]:
+                    TP += 1
+                else:
+                    FN += 1
+            for k, o in enumerate(curr_outputs):
+                if o != curr_targets[k]:
+                    FP += 1
+
+        print(TP, FN, FP)
+
+        P = TP/max(TP+FP, 1)
+        R = TP/max(TP+FN, 1)
+        F1 = 2*TP/max(2*TP+FP+FN, 1)
+
+        y_true = [i for sequence in targets_idx for i in sequence]
+        y_pred = [i for sequence in outputs_idx for i in sequence]
+        accuracy = accuracy_score(y_true, y_pred)*100
+
+        print(F1, P, R, accuracy)
+    '''

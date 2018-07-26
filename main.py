@@ -28,7 +28,7 @@ if __name__ == "__main__":
                         help='Test data in CoNNL-2003 format, it is used to obtain the final accuracy/F1 score.')
     parser.add_argument('--emb_fn', default='embeddings/glove.6B.100d.txt', help='Path to embeddings file.')
     parser.add_argument('--emb_delimiter', default=' ', help='Delimiter for embeddings file.')
-    parser.add_argument('--freeze_embeddings', type=bool, default=False, help='To continue training the embedding or not.')
+    parser.add_argument('--freeze_embeddings', type=bool, default=False, help='False to continue training the embeddings.')
     parser.add_argument('--gpu', type=int, default=0, help='GPU device number, 0 by default, -1  means CPU.')
     parser.add_argument('--caseless', type=bool, default=True, help='Read tokens caseless.')
     parser.add_argument('--epoch_num', type=int, default=50, help='Number of epochs.')
@@ -47,6 +47,8 @@ if __name__ == "__main__":
     parser.add_argument('--report_fn', default='report_%s_%s.txt' % (datetime.datetime.now().hour,
                                                                      datetime.datetime.now().minute),
                                                                      help='Path to report.')
+    parser.add_argument('--match_alpha_ratio', type=float, default='0.999',
+                        help='Alpha ratio from non-strict matching, options: 0.999 or 0.5')
     args = parser.parse_args()
 
     np.random.seed(args.seed_num)
@@ -64,7 +66,7 @@ if __name__ == "__main__":
     args.fn_dev = 'data/persuasive_essays/Paragraph_Level/dev.dat.abs'
     args.fn_test = 'data/persuasive_essays/Paragraph_Level/test.dat.abs'
 
-    args.epoch_num = 1
+    args.epoch_num = 5
     #args.lr_decay = 0.05
     #args.rnn_type = 'LSTM'
     #args.checkpoint_fn = 'tagger_model_es1.txt'
@@ -123,26 +125,29 @@ if __name__ == "__main__":
 
         outputs_idx_dev = tagger.predict_idx_from_tensor(datasets_bank.inputs_tensor_dev)
         acc_dev = Evaluator.get_accuracy_token_level(datasets_bank.targets_idx_dev, outputs_idx_dev)
-        f1_dev = Evaluator.get_f1_idx(datasets_bank.targets_idx_dev, outputs_idx_dev)
-        #f1 = Evaluator.get_f1(target_tag_components_sequences_test, output_tag_components_sequences_test)git add
-        precision_dev, precision_dev = 0, 0
+        f1_dev, prec_dev, recall_dev, _, _, _ = Evaluator.get_f1_idx(datasets_bank.targets_idx_dev, outputs_idx_dev,
+                                                                     sequences_indexer, args.match_alpha_ratio)
 
         if f1_dev > best_f1_dev:
             best_epoch_msg = '[BEST] '
             best_epoch = epoch
             best_f1_dev = f1_dev
             best_tagger = tagger
-        print('\n%sEPOCH %d/%d, DEV: Accuracy = %1.2f, F1 = %1.2f, %d sec.\n' % (best_epoch_msg,
+        print('\n%sEPOCH %d/%d, DEV: Accuracy = %1.2f, Precision = %1.2f, Recall = %1.2f, F1 = %1.2f, %d sec.\n' %
+                                                                                (best_epoch_msg,
                                                                                  epoch,
                                                                                  args.epoch_num,
                                                                                  acc_dev,
                                                                                  f1_dev,
+                                                                                 prec_dev,
+                                                                                 recall_dev,
                                                                                  time.time() - time_start))
 
     # After all epochs
     outputs_idx_test = best_tagger.predict_idx_from_tensor(datasets_bank.inputs_tensor_test)
     acc_test = Evaluator.get_accuracy_token_level(datasets_bank.targets_idx_test, outputs_idx_test)
-    f1_test = Evaluator.get_f1_idx(datasets_bank.targets_idx_test, outputs_idx_test)
+    f1_test, _, _, _, _, _ = Evaluator.get_f1_idx(datasets_bank.targets_idx_test, outputs_idx_test, sequences_indexer,
+                                                  args.match_alpha_ratio)
 
     print('Results on TEST (for best on DEV tagger, best epoch = %d): Accuracy = %1.2f, F1 = %1.2f.\n' %  (best_epoch,
                                                                                                            acc_test,

@@ -2,9 +2,8 @@ from __future__ import print_function
 
 import os.path
 import torch
-from classes.utils import read_CoNNL, write_CoNNL, read_CoNNL_dat_abs, write_CoNNL_dat_abs
+from classes.utils import read_CoNNL_dat_abs, write_CoNNL_dat_abs
 from classes.evaluator import Evaluator
-from classes.tag_component import TagComponent
 
 print('Start!')
 
@@ -35,19 +34,13 @@ targets_idx = sequences_indexer.tag2idx(tag_sequences)
 outputs_idx = sequences_indexer.tag2idx(output_tag_sequences)
 acc = Evaluator.get_accuracy_token_level(targets_idx, outputs_idx)
 
-#tag_components_test = TagComponent.extract_tag_components_sequences(token_sequences_test, tag_sequences_test)
-target_tag_components_sequences_test = TagComponent.extract_tag_components_sequences(token_sequences, tag_sequences)
-output_tag_components_sequences_test = TagComponent.extract_tag_components_sequences(token_sequences, output_tag_sequences)
-
-f1 = Evaluator.get_f1(target_tag_components_sequences_test, output_tag_components_sequences_test)
-print('\nAccuracy = %1.2f, F1 = %1.2f.\n' % (acc, f1))
+f1, precision, recall, _, _, _ = Evaluator.get_f1_tokens_tags(tag_sequences, output_tag_sequences, match_alpha_ratio=0.999)
+print('\nAccuracy = %1.2f, F1 = %1.2f, Precision = %1.2f, Recall = %1.2f.\n' % (acc, f1, precision, recall))
 
 # Macro-F1 for each class
-print(Evaluator.get_f1_scores_details(tagger, token_sequences, tag_sequences))
+#print(Evaluator.get_f1_scores_details(tagger, token_sequences, tag_sequences)) # TBD
 
 # Write results to text file
-#write_CoNNL('out.txt', token_sequences, tag_sequences, output_tag_sequences)
-#write_CoNNL_dat_abs('oo.txt', token_sequences, output_tag_sequences)
-#write_CoNNL_dat_abs('oo1.txt', token_sequences, tag_sequences)
+write_CoNNL_dat_abs('out.dat.abs', token_sequences, output_tag_sequences)
 
 print('\nThe end.')
