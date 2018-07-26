@@ -66,12 +66,12 @@ if __name__ == "__main__":
     args.fn_dev = 'data/persuasive_essays/Paragraph_Level/dev.dat.abs'
     args.fn_test = 'data/persuasive_essays/Paragraph_Level/test.dat.abs'
 
-    args.epoch_num = 5
+    #args.epoch_num = 5
     #args.lr_decay = 0.05
     #args.rnn_type = 'LSTM'
     #args.checkpoint_fn = 'tagger_model_es1.txt'
     #args.report_fn = 'report_ner_e50_gru_lr_decay.txt'
-    args.rnn_hidden_dim = 100
+    #args.rnn_hidden_dim = 100
 
     # Load CoNNL data as sequences of strings of tokens and corresponding tags
     token_sequences_train, tag_sequences_train = read_CoNNL_dat_abs(args.fn_train)
