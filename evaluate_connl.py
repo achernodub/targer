@@ -14,7 +14,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Calculation of F1 score for CoNNL-based BIO-tagging scheme')
     parser.add_argument('--target', default='data/persuasive_essays/Essay_Level/test.dat.abs')
     parser.add_argument('--output', default='data/f1_test/maj_best10.out.corr.abs')
-    parser.add_argument('--match_alpha_ratio', type=float, default='0.999', help='Alpha ratio from non-strict matching, options: 0.999 or 0.5')
+    parser.add_argument('--match_alpha_ratio', type=float, default=0.999, help='Alpha ratio from non-strict matching, options: 0.999 or 0.5')
 args = parser.parse_args()
 _, target_tag_sequences = read_CoNNL_dat_abs(args.target)
 _, output_tag_sequences = read_CoNNL_dat_abs(args.output)
