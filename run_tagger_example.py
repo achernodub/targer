@@ -12,7 +12,7 @@ fn = 'data/persuasive_essays/Paragraph_Level/test.dat.abs'
 token_sequences, tag_sequences = read_CoNNL_dat_abs(fn)
 
 # Load tagger model
-fn_checkpoint = 'tagger_model_es3_50ep.txt'
+fn_checkpoint = 'es_tagger_par_200ep_LSTM.txt'
 if os.path.isfile(fn_checkpoint):
     tagger = torch.load(fn_checkpoint)
 else:
@@ -35,7 +35,10 @@ outputs_idx = sequences_indexer.tag2idx(output_tag_sequences)
 acc = Evaluator.get_accuracy_token_level(targets_idx, outputs_idx)
 
 f1, precision, recall, _, _, _ = Evaluator.get_f1_tokens_tags(tag_sequences, output_tag_sequences, match_alpha_ratio=0.999)
-print('\nAccuracy = %1.2f, F1 = %1.2f, Precision = %1.2f, Recall = %1.2f.\n' % (acc, f1, precision, recall))
+print('\nmatch_alpha_ratio = %1.1f | Accuracy = %1.2f, F1 = %1.2f, Precision = %1.2f, Recall = %1.2f.\n' % (0.999, acc, f1, precision, recall))
+
+f1, precision, recall, _, _, _ = Evaluator.get_f1_tokens_tags(tag_sequences, output_tag_sequences, match_alpha_ratio=0.5)
+print('\nmatch_alpha_ratio = %1.1f | Accuracy = %1.2f, F1 = %1.2f, Precision = %1.2f, Recall = %1.2f.\n' % (0.5, acc, f1, precision, recall))
 
 # Macro-F1 for each class
 #print(Evaluator.get_f1_scores_details(tagger, token_sequences, tag_sequences)) # TBD

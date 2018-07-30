@@ -62,11 +62,15 @@ if __name__ == "__main__":
     #args.fn_dev = 'data/NER/CoNNL_2003_shared_task/dev.txt'
     #args.fn_test = 'data/NER/CoNNL_2003_shared_task/test.txt'
 
-    args.fn_train = 'data/persuasive_essays/Paragraph_Level/train.dat.abs'
-    args.fn_dev = 'data/persuasive_essays/Paragraph_Level/dev.dat.abs'
-    args.fn_test = 'data/persuasive_essays/Paragraph_Level/test.dat.abs'
+    #args.fn_train = 'data/persuasive_essays/Paragraph_Level/train.dat.abs'
+    #args.fn_dev = 'data/persuasive_essays/Paragraph_Level/dev.dat.abs'
+    #args.fn_test = 'data/persuasive_essays/Paragraph_Level/test.dat.abs'
 
-    #args.epoch_num = 5
+    args.fn_train = 'data/persuasive_essays/Essay_Level/train.dat.abs'
+    args.fn_dev = 'data/persuasive_essays/Essay_Level/dev.dat.abs'
+    args.fn_test = 'data/persuasive_essays/Essay_Level/test.dat.abs'
+
+    args.epoch_num = 5
     #args.lr_decay = 0.05
     #args.rnn_type = 'LSTM'
     #args.checkpoint_fn = 'tagger_model_es1.txt'
