@@ -34,11 +34,11 @@ targets_idx = sequences_indexer.tag2idx(tag_sequences)
 outputs_idx = sequences_indexer.tag2idx(output_tag_sequences)
 acc = Evaluator.get_accuracy_token_level(targets_idx, outputs_idx)
 
-f1, precision, recall, _, _, _ = Evaluator.get_f1_tokens_tags(tag_sequences, output_tag_sequences, match_alpha_ratio=0.999)
-print('\nmatch_alpha_ratio = %1.1f | Accuracy = %1.2f, F1 = %1.2f, Precision = %1.2f, Recall = %1.2f.\n' % (0.999, acc, f1, precision, recall))
+f1_100, precision_100, recall_100, _, _, _ = Evaluator.get_f1_tokens_tags(tag_sequences, output_tag_sequences, match_alpha_ratio=0.999)
+print('\nmatch_alpha_ratio = %1.1f | Accuracy = %1.2f, F1-100%% = %1.2f, Precision-100%% = %1.2f, Recall-100%% = %1.2f.' % (0.999, acc, f1_100, precision_100, recall_100))
 
-f1, precision, recall, _, _, _ = Evaluator.get_f1_tokens_tags(tag_sequences, output_tag_sequences, match_alpha_ratio=0.5)
-print('\nmatch_alpha_ratio = %1.1f | Accuracy = %1.2f, F1 = %1.2f, Precision = %1.2f, Recall = %1.2f.\n' % (0.5, acc, f1, precision, recall))
+f1_50, precision_50, recall_50, _, _, _ = Evaluator.get_f1_tokens_tags(tag_sequences, output_tag_sequences, match_alpha_ratio=0.5)
+print('match_alpha_ratio = %1.1f | Accuracy = %1.2f, F1-50%% = %1.2f, Precision-50%% = %1.2f, Recall-50%% = %1.2f.' % (0.5, acc, f1_50, precision_50, recall_50))
 
 # Macro-F1 for each class
 #print(Evaluator.get_f1_scores_details(tagger, token_sequences, tag_sequences)) # TBD
