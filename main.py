@@ -69,8 +69,8 @@ if __name__ == "__main__":
     args.epoch_num = 200
     #args.lr_decay = 0.05
     args.rnn_type = 'GRU'
-    args.checkpoint_fn = 'tagger_model_es_par_GRU_old_experimental.bin'
-    args.report_fn = 'report_es_par_GRU_old_experimental.txt'
+    #args.checkpoint_fn = 'tagger_model_es_par_GRU_old_experimental.bin'
+    args.report_fn = 'report_es_par_GRU_experimental_ALL_BATCHES.txt'
 
     # Load CoNNL data as sequences of strings of tokens and corresponding tags
     token_sequences_train, tag_sequences_train = read_CoNNL_dat_abs(args.fn_train)
@@ -109,10 +109,10 @@ if __name__ == "__main__":
             scheduler.step()
         time_start = time.time()
         best_epoch_msg = ''
-        for i in range(iterations_num + 1):
-            tagger.train()
+        inputs_tensor_train_list, targets_tensor_train_list = datasets_bank.shuffle_train_batches(args.batch_size)
+        tagger.train()
+        for i, (inputs_tensor_train_batch, targets_tensor_train_batch) in enumerate(zip(inputs_tensor_train_list, targets_tensor_train_list)):
             tagger.zero_grad()
-            inputs_tensor_train_batch, targets_tensor_train_batch = datasets_bank.get_train_batch(args.batch_size)
             outputs_train_batch = tagger(inputs_tensor_train_batch)
             loss = nll_loss(outputs_train_batch, targets_tensor_train_batch)
             loss.backward()
@@ -121,7 +121,6 @@ if __name__ == "__main__":
             if i % 100 == 0 and args.verbose:
                 print('-- epoch %d, i = %d/%d, loss = %1.4f' % (epoch, i, iterations_num, loss.item()))
         time_finish = time.time()
-
         outputs_idx_dev = tagger.predict_idx_from_tensor(datasets_bank.inputs_tensor_dev)
         acc_dev = Evaluator.get_accuracy_token_level(datasets_bank.targets_idx_dev, outputs_idx_dev)
         f1_dev, prec_dev, recall_dev, _, _, _ = Evaluator.get_f1_idx(datasets_bank.targets_idx_dev, outputs_idx_dev,
