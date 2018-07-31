@@ -61,41 +61,28 @@ class Evaluator():
 
     @staticmethod
     def get_f1_scores_details(tagger, token_sequences, tag_sequences):
-        str = 'get_f1_scores_details - blank'
-        '''outputs_idx = tagger.predict_idx_from_tokens(token_sequences)
-        targets_idx = self.sequences_indexer.tag2idx(tag_sequences)
-        data_num = len(token_sequences)
-        tags_num =  self.sequences_indexer.get_tags_num()
-        tags_list_idx = [i for i in range(1, tags_num + 1)]
-        f1_scores_array = np.zeros([data_num, tags_num], dtype=float)
-        #f1_mean = 0
-        for k, (y_true, y_pred) in enumerate(zip(targets_idx, outputs_idx)):
-            f1_scores_array[k, :] = f1_score(y_true, y_pred, average=None, labels=tags_list_idx) * 100
-        f1_scores_mean = np.mean(f1_scores_array, axis=0)
-        str = 'Tag             | F1\n----------------------\n'
-        for n in range(1, tags_num + 1):
-            tag = self.sequences_indexer.idx2tag_dict[n]  # minumum tag no. is "1"
-            str += '%015s |  %1.2f\n' % (tag, f1_scores_mean[n-1])
-        str += '-----------------\n%015s |  %1.2f\n' % ('F1', np.mean(f1_scores_mean))'''
+        output_tag_sequences = tagger.predict_tags_from_tokens(token_sequences)
+        # Get scores
+        targets_idx = tagger.sequences_indexer.tag2idx(tag_sequences)
+        outputs_idx = tagger.sequences_indexer.tag2idx(output_tag_sequences)
+        acc = Evaluator.get_accuracy_token_level(targets_idx, outputs_idx)
+
+        f1_100, precision_100, recall_100, _, _, _ = Evaluator.get_f1_tokens_tags(tag_sequences, output_tag_sequences,
+                                                                                  match_alpha_ratio=0.999)
+        f1_50, precision_50, recall_50, _, _, _ = Evaluator.get_f1_tokens_tags(tag_sequences, output_tag_sequences,
+                                                                               match_alpha_ratio=0.5)
+
+        str = 'match_alpha_ratio = %1.1f | Accuracy = %1.2f, F1-100%% = %1.2f, Precision-100%% = %1.2f, Recall-100%% = %1.2f.' % ( 0.999, acc, f1_100, precision_100, recall_100)
+        str += '\nmatch_alpha_ratio = %1.1f | Accuracy = %1.2f, F1-50%% = %1.2f, Precision-50%% = %1.2f, Recall-50%% = %1.2f.' % (0.5, acc, f1_50, precision_50, recall_50)
+        str += '\n%1.2f' % f1_100
         return str
 
     @staticmethod
     def write_report(fn, args, tagger, token_sequences, tag_sequences):
-        pass
-        '''
         text_file = open(fn, mode='w')
         for hyper_param in str(args).replace('Namespace(', '').replace(')', '').split(', '):
             text_file.write('%s\n' % hyper_param)
-
-        acc_test, f1_test, precision_test, recall_test = self.get_scores(tagger=tagger,
-                                                                         inputs=token_sequences,
-                                                                         targets=tag_sequences)
-
-        text_file.write('\nResults on TEST: Accuracy = %1.2f, F1 = %1.2f, Precision = %1.2f, Recall = %1.2f.\n\n' % (
-                                                             acc_test, f1_test, precision_test, recall_test))
-        text_file.write(self.get_f1_scores_details(tagger, token_sequences, tag_sequences))
-        text_file.close()'''
-
+        text_file.write(Evaluator.get_f1_scores_details(tagger, token_sequences, tag_sequences))
 
 
 
