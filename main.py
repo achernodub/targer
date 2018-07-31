@@ -20,11 +20,11 @@ from models.tagger_birnn import TaggerBiRNN
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Learning tagging problem using neural networks')
-    parser.add_argument('--fn_train', default='data/argument_mining/persuasive_essays/es_paragraph_level_train.txt',
+    parser.add_argument('--fn_train', default='data/persuasive_essays/Paragraph_Level/train.dat.abs',
                         help='Train data in CoNNL-2003 format.')
-    parser.add_argument('--fn_dev', default='data/argument_mining/persuasive_essays/es_paragraph_level_dev.txt',
+    parser.add_argument('--fn_dev', default='data/persuasive_essays/Paragraph_Level/dev.dat.abs',
                         help='Dev data in CoNNL-2003 format, it is used to find best model during the training.')
-    parser.add_argument('--fn_test', default='data/argument_mining/persuasive_essays/es_paragraph_level_test.txt',
+    parser.add_argument('--fn_test', default='data/persuasive_essays/Paragraph_Level/test.dat.abs',
                         help='Test data in CoNNL-2003 format, it is used to obtain the final accuracy/F1 score.')
     parser.add_argument('--emb_fn', default='embeddings/glove.6B.100d.txt', help='Path to embeddings file.')
     parser.add_argument('--emb_delimiter', default=' ', help='Delimiter for embeddings file.')
@@ -66,16 +66,15 @@ if __name__ == "__main__":
     #args.fn_dev = 'data/persuasive_essays/Paragraph_Level/dev.dat.abs'
     #args.fn_test = 'data/persuasive_essays/Paragraph_Level/test.dat.abs'
 
-    args.fn_train = 'data/persuasive_essays/Essay_Level/train.dat.abs'
-    args.fn_dev = 'data/persuasive_essays/Essay_Level/dev.dat.abs'
-    args.fn_test = 'data/persuasive_essays/Essay_Level/test.dat.abs'
+    #args.fn_train = 'data/persuasive_essays/Essay_Level/train.dat.abs'
+    #args.fn_dev = 'data/persuasive_essays/Essay_Level/dev.dat.abs'
+    #args.fn_test = 'data/persuasive_essays/Essay_Level/test.dat.abs'
 
-    args.epoch_num = 5
+    args.epoch_num = 50
     #args.lr_decay = 0.05
-    #args.rnn_type = 'LSTM'
-    #args.checkpoint_fn = 'tagger_model_es1.txt'
-    #args.report_fn = 'report_ner_e50_gru_lr_decay.txt'
-    #args.rnn_hidden_dim = 100
+    args.rnn_type = 'GRU'
+    args.checkpoint_fn = 'tagger_model_es_par_GRU_experimental.bin'
+    args.report_fn = 'report__es_par_GRU_experimental.txt'
 
     # Load CoNNL data as sequences of strings of tokens and corresponding tags
     token_sequences_train, tag_sequences_train = read_CoNNL_dat_abs(args.fn_train)
