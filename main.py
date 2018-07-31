@@ -66,11 +66,11 @@ if __name__ == "__main__":
     #args.fn_dev = 'data/persuasive_essays/Essay_Level/dev.dat.abs'
     #args.fn_test = 'data/persuasive_essays/Essay_Level/test.dat.abs'
 
-    args.epoch_num = 50
+    args.epoch_num = 200
     #args.lr_decay = 0.05
     args.rnn_type = 'GRU'
     args.checkpoint_fn = 'tagger_model_es_par_GRU_experimental.bin'
-    args.report_fn = 'report__es_par_GRU_experimental.txt'
+    args.report_fn = 'report_es_par_GRU_experimental.txt'
 
     # Load CoNNL data as sequences of strings of tokens and corresponding tags
     token_sequences_train, tag_sequences_train = read_CoNNL_dat_abs(args.fn_train)
