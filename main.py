@@ -68,7 +68,7 @@ if __name__ == "__main__":
 
     args.epoch_num = 200
     #args.lr_decay = 0.05
-    args.rnn_type = 'GRU'
+    #args.rnn_type = 'GRU'
     args.checkpoint_fn = 'tagger_model_es_par_GRU_experimental.bin'
     args.report_fn = 'report_es_par_GRU_experimental.txt'
 
