@@ -1,0 +1,123 @@
+import numpy as np
+import torch
+
+class ElementSeqIndexer():
+    """
+    ElementsSeqIndexer converts list of lists of strings to to the list of lists of integer indices and back.
+        Strings could be either words, tags or characters. Indices are stored into internal vocabularies.
+        Index 0 stands for the unknown string.
+    """
+
+    def __init__(self, gpu=-1, caseless=True, load_embeddings=False, verbose=False, unk='<UNK>'):
+        self.gpu = gpu
+        self.caseless = caseless
+        self.load_embeddings = load_embeddings
+        self.verbose = verbose
+        self.unk = unk
+        self.elements_list = list()
+        self.out_of_vocabulary_list = list()
+        self.element2idx_dict = dict()
+        self.idx2element_dict = dict()
+        self.__add_element('<pad>')
+        if load_embeddings:
+            self.embeddings_loaded = False
+            self.embeddings_dim = 0
+            self.embeddings_list = list()
+        #self.add_element(unk)
+
+    def __add_element(self, element):
+        if self.caseless:
+            element = element.lower()
+        idx = len(self.elements_list)
+        self.elements_list.append(element)
+        self.element2idx_dict[element] = idx
+        self.idx2element_dict[idx] = element
+
+    def __element_exists(self, element):
+        if self.caseless:
+            element = element.lower()
+        return (element in self.elements_list)
+
+    def __add_emb_vector(self, emb_vector):
+        self.embeddings_list.append(emb_vector)
+
+    def __get_random_emb_vector(self):
+        if self.embeddings_dim == 0:
+            raise ValueError('embeddings_dim is not known.')
+        return np.random.uniform(-np.sqrt(3.0 / self.embeddings_dim), np.sqrt(3.0 / self.embeddings_dim), self.embeddings_dim).tolist()
+
+    def load_vocabulary_from_embeddings_file(self, emb_fn, emb_delimiter):
+        if not self.load_embeddings:
+            raise ValueError('load_embeddings == False')
+        # 0) Get dimensionality of embeddings
+        for line in open(emb_fn, 'r'):
+            values = line.split(emb_delimiter)
+            emb_vector = list(map(lambda t: float(t), filter(lambda n: n and not n.isspace(), values[1:])))
+            self.embeddings_dim = len(emb_vector)
+            break
+        # 1) Generate random embedding which will be correspond to the index 0 that in used in the batches instead of mask.
+        self.__add_emb_vector(self.__get_random_emb_vector())
+        # 2) Add embeddings from file
+        for line in open(emb_fn, 'r'):
+            values = line.split(emb_delimiter)
+            element = values[0]
+            emb_vector = list(map(lambda t: float(t), filter(lambda n: n and not n.isspace(), values[1:])))
+            self.__add_element(element)
+            self.__add_emb_vector(emb_vector)
+        self.embeddings_loaded = True
+        # 3) Generate random embedding for 'unknown' token
+        self.__add_element(self.unk)
+        self.__add_emb_vector(self.__get_random_emb_vector())
+        if self.verbose:
+            print('%s embeddings file was loaded, %d vectors, dim = %d.' % (emb_fn, len(self.embeddings_list), self.embeddings_dim))
+
+    def get_embeddings_tensor(self):
+        return torch.FloatTensor(np.asarray(self.embeddings_list))
+
+    def load_vocabulary_from_element_sequences(self, element_sequences, verbose=False):
+        if self.load_embeddings and not self.embeddings_loaded:
+            raise ValueError('Embeddings are not loaded.')
+        for element_seq in element_sequences:
+            for element in element_seq:
+                if not self.__element_exists(element):
+                    self.__add_element(element)
+                    self.out_of_vocabulary_list.append(element)
+                    if self.load_embeddings:
+                        self.__add_emb_vector(self.__get_random_emb_vector())
+        if verbose:
+            print('%d elements not found:' % len(self.out_of_vocabulary_list))
+            for k, element in enumerate(self.out_of_vocabulary_list):
+                print(' -= %d/%d out of vocabulary token: %s' % (k, len(self.out_of_vocabulary_list), element))
+            print('%d embeddings loaded/generated.' % len(self.embeddings_list))
+
+    def get_elements_num(self):
+        return len(self.elements_list) - 1
+
+    def elements2idx(self, element_sequences):
+        idx_sequences = []
+        for element_seq in element_sequences:
+            element_caseless_seq = [element.lower() if self.caseless else element for element in element_seq]
+            idx_seq = [self.element2idx_dict[element] for element in element_caseless_seq]
+            idx_sequences.append(idx_seq)
+        return idx_sequences
+
+    def idx2elements(self, idx_sequences):
+        element_sequences = []
+        for idx_seq in idx_sequences:
+            element_seq = [self.idx2element_dict[idx] for idx in idx_seq]
+            element_sequences.append(element_seq)
+        return element_sequences
+
+    def idx2tensor(self, idx_sequences):
+        batch_size = len(idx_sequences)
+        max_seq_len = max([len(idx_seq) for idx_seq in idx_sequences])
+        tensor = torch.zeros(batch_size, max_seq_len, dtype=torch.long)
+        for k, idx_seq in enumerate(idx_sequences):
+            curr_seq_len = len(idx_seq)
+            tensor[k, :curr_seq_len] = torch.LongTensor(np.asarray(idx_seq))
+        if self.gpu >= 0:
+            tensor = tensor.cuda(device=self.gpu)
+        return tensor
+
+    def elements2tensor(self, element_sequences):
+        return self.idx2tensor(self.elements2idx(element_sequences))

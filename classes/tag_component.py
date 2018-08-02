@@ -4,13 +4,13 @@ class TagComponent():
         self.pos_begin = pos_begin
         self.tag_class_name = TagComponent.get_tag_class_name(tag)
         self.pos_end = self.pos_begin - 1
-        self.tokens = list()
+        self.words = list()
 
     def has_same_tag_class(self, tag):
         return self.tag_class_name == TagComponent.get_tag_class_name(tag)
 
-    def add_token(self, token):
-        self.tokens.append(token)
+    def add_word(self, word):
+        self.words.append(word)
         self.pos_end += 1
 
     def is_equal(self, tc, match_alpha_ratio):
@@ -19,9 +19,9 @@ class TagComponent():
     def print(self):
         print('--tag_class_name = %s, pos_begin = %s, pos_end = %s' % (self.tag_class_name, self.pos_begin,
                                                                          self.pos_end))
-        token_str = '    '
-        for token in self.tokens: token_str += token + ' '
-        print(token_str, '\n')
+        word_str = '    '
+        for word in self.words: word_str += word + ' '
+        print(word_str, '\n')
 
     @staticmethod
     def get_tag_class_name(tag):
@@ -46,23 +46,23 @@ class TagComponent():
         return (float(len(common_positions)) / max(len(tc1_positions), len(tc2_positions)) >= match_ratio)
 
     @staticmethod
-    def extract_tag_components_sequences_debug(token_sequences, tag_sequences):
+    def extract_tag_components_sequences_debug(word_sequences, tag_sequences):
         tag_components_sequences = list()
-        for tokens, tags in zip(token_sequences, tag_sequences):
+        for words, tags in zip(word_sequences, tag_sequences):
             tag_components = list()
-            # First tag component definitely contains the first token and it's tag class name
-            #print(0, tokens[0], tags[0])
+            # First tag component definitely contains the first word and it's tag class name
+            #print(0, words[0], tags[0])
             tc = TagComponent(pos_begin=0, tag=tags[0])
-            tc.add_token(tokens[0])
-            # Iterating over all the rest tokens/tags, starting from the second pair
+            tc.add_word(words[0])
+            # Iterating over all the rest words/tags, starting from the second pair
             for k in range(1, len(tags)):
-                #print(k, tokens[k], tags[k])
+                #print(k, words[k], tags[k])
                 if not tc.has_same_tag_class(tags[k]): # previous tag component has the end
                     if tc.tag_class_name != 'O':
                         tag_components.append(tc)
                     tc = TagComponent(pos_begin=tc.pos_end+1, tag=tags[k])
-                tc.add_token(tokens[k])
-            # Adding the last token
+                tc.add_word(words[k])
+            # Adding the last word
             if tc.tag_class_name != 'O':
                 tag_components.append(tc)
             #for t in tag_components: t.print()
@@ -75,21 +75,21 @@ class TagComponent():
         for tags in tag_sequences:
             tag_components = list()
             tc = TagComponent(pos_begin=0, tag=tags[0])
-            tc.add_token('not-debug-mode')
+            tc.add_word('not-debug-mode')
             for k in range(1, len(tags)):
                 if not tc.has_same_tag_class(tags[k]): # previous tag component has the end
                     if tc.tag_class_name != 'O':
                         tag_components.append(tc)
                     tc = TagComponent(pos_begin=tc.pos_end+1, tag=tags[k])
-                tc.add_token('not-debug-mode')
-            # Adding the last token
+                tc.add_word('not-debug-mode')
+            # Adding the last word
             if tc.tag_class_name != 'O':
                 tag_components.append(tc)
             tag_components_sequences.append(tag_components)
         return tag_components_sequences
 
     @staticmethod
-    def extract_tag_components_sequences_idx(token_sequences_idx, tag_sequences_idx, sequences_indexer):
-        token_sequences = sequences_indexer.token2idx(token_sequences_idx)
+    def extract_tag_components_sequences_idx(word_sequences_idx, tag_sequences_idx, sequences_indexer):
+        word_sequences = sequences_indexer.word2idx(word_sequences_idx)
         tag_sequences = sequences_indexer.tag2idx(tag_sequences_idx)
-        return TagComponent.extract_tag_components_sequences_debug(token_sequences, tag_sequences)
+        return TagComponent.extract_tag_components_sequences_debug(word_sequences, tag_sequences)
