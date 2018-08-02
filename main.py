@@ -65,10 +65,10 @@ if __name__ == "__main__":
     #args.fn_dev = 'data/persuasive_essays/Essay_Level/dev.dat.abs'
     #args.fn_test = 'data/persuasive_essays/Essay_Level/test.dat.abs'
 
-    args.epoch_num = 2
+    args.epoch_num = 200
     #args.lr_decay = 0.05
     args.rnn_type = 'GRU'
-    #args.checkpoint_fn = 'tagger_model_es_par_GRU.bin'
+    args.checkpoint_fn = 'tagger_model_es_par_GRU.bin'
     args.report_fn = 'report_model_es_par_GRU.txt'
 
     # Load CoNNL data as sequences of strings of words and corresponding tags
@@ -139,15 +139,15 @@ if __name__ == "__main__":
             best_epoch = epoch
             best_f1_dev = f1_dev
             best_tagger = tagger
-        print('\n%sEPOCH %d/%d, DEV: Accuracy = %1.2f, Precision = %1.2f, Recall = %1.2f, F1 = %1.2f, %d sec.\n' %
-                                                                                (best_epoch_msg,
-                                                                                 epoch,
-                                                                                 args.epoch_num,
-                                                                                 acc_dev,
-                                                                                 f1_dev,
-                                                                                 prec_dev,
-                                                                                 recall_dev,
-                                                                                 time.time() - time_start))
+        print('\n%sEPOCH %d/%d, DEV dataset: Accuracy = %1.2f, Precision = %1.2f, Recall = %1.2f, F1-100%% = %1.2f, %d sec.\n' %
+                                                                                                (best_epoch_msg,
+                                                                                                 epoch,
+                                                                                                 args.epoch_num,
+                                                                                                 acc_dev,
+                                                                                                 f1_dev,
+                                                                                                 prec_dev,
+                                                                                                 recall_dev,
+                                                                                                 time.time() - time_start))
 
     # After all epochs, perform the final evaluation on test dataset
     outputs_tag_sequences_test = tagger.predict_tags_from_words(datasets_bank.word_sequences_test)
