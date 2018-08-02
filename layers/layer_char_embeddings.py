@@ -12,6 +12,7 @@ class LayerCharEmbeddings(nn.Module):
         self.gpu = gpu
         self.freeze_char_embeddings = freeze_char_embeddings
         self.max_pad_len = max_pad_len # standard len to pad
+        self.feature_dim = self.max_pad_len*self.char_embeddings_dim
         # Init character sequences indexer
         self.char_seq_indexer = ElementSeqIndexer(gpu = gpu, caseless=True, load_embeddings=False)
         for c in list(string.printable):
@@ -27,12 +28,11 @@ class LayerCharEmbeddings(nn.Module):
         print(word_sequences)
         batch_num = len(word_sequences)
         max_seq_len = max([len(word_seq) for word_seq in word_sequences])
-        char_embeddings_feature_dim = self.max_pad_len*self.char_embeddings_dim
-        char_embeddings_feature = torch.zeros(batch_num, max_seq_len, char_embeddings_feature_dim, dtype=torch.float)
+        char_embeddings_feature = torch.zeros(batch_num, max_seq_len, self.feature_dim, dtype=torch.float)
         for n, word_seq in enumerate(word_sequences):
             curr_seq_len = len(word_seq)
             input_tensor = self.char_seq_indexer.elements2tensor(word_seq, align='center', max_seq_len=self.max_pad_len)
-            z = self.embeddings(input_tensor).view(curr_seq_len, char_embeddings_feature_dim)
+            z = self.embeddings(input_tensor).view(curr_seq_len, self.feature_dim)
             for k in range(curr_seq_len):
                 char_embeddings_feature[n, k] = z[k, :]
         return char_embeddings_feature
