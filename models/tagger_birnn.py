@@ -13,16 +13,16 @@ class TaggerBiRNN(TaggerBase):
     """
     TaggerBiRNN is a basic pure recurrent network model for sequences tagging.
     """
-    def __init__(self, word_seq_indexer, tag_seq_indexer, class_num, rnn_hidden_dim=100, freeze_embeddings=False, dropout_ratio=0.5,
+    def __init__(self, word_seq_indexer, tag_seq_indexer, class_num, rnn_hidden_dim=100, freeze_word_embeddings=False, dropout_ratio=0.5,
                  rnn_type='GRU', gpu=-1):
         super(TaggerBiRNN, self).__init__(word_seq_indexer, tag_seq_indexer, gpu)
         self.class_num = class_num
         self.rnn_hidden_dim = rnn_hidden_dim
-        self.freeze_embeddings = freeze_embeddings
+        self.freeze_embeddings = freeze_word_embeddings
         self.dropout_ratio = dropout_ratio
         self.rnn_type = rnn_type
         self.gpu = gpu
-        self.word_embeddings = LayerWordEmbeddings(word_seq_indexer, freeze_embeddings)
+        self.word_embeddings = LayerWordEmbeddings(word_seq_indexer, freeze_word_embeddings)
         self.dropout1 = torch.nn.Dropout(p=dropout_ratio)
         self.dropout2 = torch.nn.Dropout(p=dropout_ratio)
         if rnn_type == 'GRU':
