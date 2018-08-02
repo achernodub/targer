@@ -20,7 +20,8 @@ class LayerBiGRU(LayerBiRNNBase):
         output, _ = self.rnn(input_tensor, h0)
         return output  # shape: batch_size x max_seq_len x hidden_dim*2
 
-    def forward_old(self, input_tensor): #input_tensor shape: batch_size x max_seq_len x dim
+    '''
+    def __forward_old(self, input_tensor): #input_tensor shape: batch_size x max_seq_len x dim
         batch_size, max_seq_len, _ = input_tensor.shape
         # Init rnn's states by zeros
         rnn_forward_h = self.make_gpu(torch.zeros(batch_size, self.hidden_dim))
@@ -34,3 +35,4 @@ class LayerBiGRU(LayerBiRNNBase):
             output[:, l, :self.hidden_dim] = rnn_forward_h
             output[:, n, self.hidden_dim:] = rnn_backward_h
         return output  # shape: batch_size x max_seq_len x hidden_dim*2
+    '''
