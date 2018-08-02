@@ -30,7 +30,7 @@ if __name__ == "__main__":
     parser.add_argument('--freeze_embeddings', type=bool, default=False, help='False to continue training the embeddings.')
     parser.add_argument('--gpu', type=int, default=0, help='GPU device number, 0 by default, -1  means CPU.')
     parser.add_argument('--caseless', type=bool, default=True, help='Read characters caseless.')
-    parser.add_argument('--epoch_num', type=int, default=50, help='Number of epochs.')
+    parser.add_argument('--epoch_num', type=int, default=200, help='Number of epochs.')
     parser.add_argument('--rnn_hidden_dim', type=int, default=200, help='Number hidden units in the recurrent layer.')
     parser.add_argument('--rnn_type', default='GRU', help='RNN cell units type: "Vanilla", "LSTM", "GRU".')
     parser.add_argument('--dropout_ratio', type=float, default=0.5, help='Dropout ratio.')
@@ -65,11 +65,11 @@ if __name__ == "__main__":
     #args.fn_dev = 'data/persuasive_essays/Essay_Level/dev.dat.abs'
     #args.fn_test = 'data/persuasive_essays/Essay_Level/test.dat.abs'
 
-    args.epoch_num = 200
+    #args.epoch_num = 2
     #args.lr_decay = 0.05
-    args.rnn_type = 'GRU'
-    args.checkpoint_fn = 'tagger_model_es_par_GRU.bin'
-    args.report_fn = 'report_model_es_par_GRU.txt'
+    #args.rnn_type = 'LSTM'
+    #args.checkpoint_fn = 'tagger_model_es_par_GRU.bin'
+    #args.report_fn = 'report_model_es_par_GRU.txt'
 
     # Load CoNNL data as sequences of strings of words and corresponding tags
     word_sequences_train, tag_sequences_train = read_CoNNL_dat_abs(args.fn_train)
