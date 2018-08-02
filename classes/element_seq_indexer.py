@@ -115,6 +115,9 @@ class ElementSeqIndexer():
         tensor = torch.zeros(batch_size, max_seq_len, dtype=torch.long)
         for k, idx_seq in enumerate(idx_sequences):
             curr_seq_len = len(idx_seq)
+            if curr_seq_len > max_seq_len:
+                idx_seq = [idx_seq[i] for i in range(max_seq_len)]
+                curr_seq_len = max_seq_len
             if align == 'left':
                 tensor[k, :curr_seq_len] = torch.LongTensor(np.asarray(idx_seq))
             elif align == 'center':
