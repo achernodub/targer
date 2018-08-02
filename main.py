@@ -43,9 +43,12 @@ if __name__ == "__main__":
     parser.add_argument('--verbose', type=bool, default=True, help='Show additional information.')
     parser.add_argument('--seed_num', type=int, default=42, help='Random seed number, but 42 is the best forever!')
     parser.add_argument('--checkpoint_fn', default=None, help='Path to save the trained model (best on DEV).')
-    parser.add_argument('--report_fn', default='report_%s_%s.txt' % (datetime.datetime.now().hour,
-                                                                     datetime.datetime.now().minute),
-                                                                     help='Path to report.')
+    parser.add_argument('--report_fn', default='report_%d_%02d_%02d_%02d_%02d.txt' % (datetime.datetime.now().year,
+                                                                                      datetime.datetime.now().month,
+                                                                                      datetime.datetime.now().day,
+                                                                                      datetime.datetime.now().hour,
+                                                                                      datetime.datetime.now().minute),
+                                                                                      help='Path to report.')
     parser.add_argument('--match_alpha_ratio', type=float, default='0.999',
                         help='Alpha ratio from non-strict matching, options: 0.999 or 0.5')
     args = parser.parse_args()
@@ -67,10 +70,10 @@ if __name__ == "__main__":
 
     args.epoch_num = 5
     #args.lr_decay = 0.05
-    #args.rnn_type = 'LSTM'
+    args.rnn_type = 'LSTM'
     #args.checkpoint_fn = 'tagger_model_es_par_GRU.bin'
     #args.report_fn = 'report_model_es_par_GRU.txt'
-    args.seed_num = 112
+    #args.seed_num = 112
 
     # Load CoNNL data as sequences of strings of words and corresponding tags
     word_sequences_train, tag_sequences_train = read_CoNNL_dat_abs(args.fn_train)
