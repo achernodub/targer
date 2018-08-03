@@ -3,11 +3,12 @@ import string
 import torch
 import torch.nn as nn
 
+from layers.layer_base import LayerBase
 from classes.element_seq_indexer import ElementSeqIndexer
 
-class LayerCharEmbeddings(nn.Module):
-    def __init__(self, char_embeddings_dim, freeze_char_embeddings=False, max_char_pad_len=20, gpu=-1):
-        super(LayerCharEmbeddings, self).__init__()
+class LayerCharEmbeddings(LayerBase):
+    def __init__(self, char_embeddings_dim, freeze_char_embeddings=False, max_char_pad_len=20, gpu):
+        super(LayerCharEmbeddings, self).__init__(gpu)
         self.char_embeddings_dim = char_embeddings_dim
         self.gpu = gpu
         self.freeze_char_embeddings = freeze_char_embeddings

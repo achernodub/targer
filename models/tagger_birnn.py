@@ -22,7 +22,7 @@ class TaggerBiRNN(TaggerBase):
         self.dropout_ratio = dropout_ratio
         self.rnn_type = rnn_type
         self.gpu = gpu
-        self.word_embeddings = LayerWordEmbeddings(word_seq_indexer, freeze_word_embeddings)
+        self.word_embeddings = LayerWordEmbeddings(word_seq_indexer, gpu, freeze_word_embeddings)
         self.dropout1 = torch.nn.Dropout(p=dropout_ratio)
         self.dropout2 = torch.nn.Dropout(p=dropout_ratio)
         if rnn_type == 'GRU':
