@@ -26,9 +26,9 @@ class TaggerBiRNN(TaggerBase):
         self.dropout1 = torch.nn.Dropout(p=dropout_ratio)
         self.dropout2 = torch.nn.Dropout(p=dropout_ratio)
         if rnn_type == 'GRU':
-            self.birnn_layer = LayerBiGRU(input_dim=self.word_embeddings.feature_dim, hidden_dim=rnn_hidden_dim, gpu=gpu)
+            self.birnn_layer = LayerBiGRU(input_dim=self.word_embeddings.embeddings_dim, hidden_dim=rnn_hidden_dim, gpu=gpu)
         elif rnn_type == 'LSTM':
-            self.birnn_layer = LayerBiLSTM(input_dim=self.word_embeddings.feature_dim, hidden_dim=rnn_hidden_dim, gpu=gpu)
+            self.birnn_layer = LayerBiLSTM(input_dim=self.word_embeddings.embeddings_dim, hidden_dim=rnn_hidden_dim, gpu=gpu)
         else:
             raise ValueError('Unknown rnn_type = %s, must be either "LSTM" or "GRU"')
         # We add an additional class that corresponds to the zero-padded values not to be included to the loss function
