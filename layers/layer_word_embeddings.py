@@ -10,6 +10,7 @@ class LayerWordEmbeddings(LayerBase):
         self.freeze_embeddings = freeze_word_embeddings
         self.embeddings_num = embeddings_tensor.shape[0]
         self.embeddings_dim = embeddings_tensor.shape[1]
+        self.output_dim = self.embeddings_dim
 
     def forward(self, word_sequences):
         input_tensor = self.word_seq_indexer.elements2tensor(word_sequences) # shape: batch_size x max_seq_len
