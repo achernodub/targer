@@ -23,7 +23,7 @@ class ElementSeqIndexer():
             self.embeddings_loaded = False
             self.embeddings_dim = 0
             self.embeddings_list = list()
-        #self.add_element(unk)
+        self.add_element(unk)
 
     def add_element(self, element):
         if self.caseless:
@@ -56,7 +56,8 @@ class ElementSeqIndexer():
             self.embeddings_dim = len(emb_vector)
             break
         # 1) Generate random embedding which will be correspond to the index 0 that in used in the batches instead of mask.
-        self.__add_emb_vector(self.__get_random_emb_vector())
+        self.__add_emb_vector(self.__get_random_emb_vector()) # for <pad>
+        self.__add_emb_vector(self.__get_random_emb_vector()) # for <unk>
         # 2) Add embeddings from file
         for line in open(emb_fn, 'r'):
             values = line.split(emb_delimiter)
@@ -97,7 +98,7 @@ class ElementSeqIndexer():
         idx_sequences = []
         for element_seq in element_sequences:
             element_caseless_seq = [element.lower() if self.caseless else element for element in element_seq]
-            idx_seq = [self.element2idx_dict[element] for element in element_caseless_seq]
+            idx_seq = [self.element2idx_dict.get(element, self.unk) for element in element_caseless_seq]
             idx_sequences.append(idx_seq)
         return idx_sequences
 

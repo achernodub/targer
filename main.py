@@ -16,9 +16,11 @@ from classes.element_seq_indexer import ElementSeqIndexer
 from classes.utils import *
 
 from models.tagger_birnn import TaggerBiRNN
+from models.tagger_birnncnn import TaggerBiRNNCNN
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Learning tagging problem using neural networks')
+    parser.add_argument('--model', default='BiRNN', help='Tagger model: "BiRNN" or "BiRNNCNN".')
     parser.add_argument('--fn_train', default='data/persuasive_essays/Paragraph_Level/train.dat.abs',
                         help='Train data in CoNNL-2003 format.')
     parser.add_argument('--fn_dev', default='data/persuasive_essays/Paragraph_Level/dev.dat.abs',
@@ -28,11 +30,18 @@ if __name__ == "__main__":
     parser.add_argument('--emb_fn', default='embeddings/glove.6B.100d.txt', help='Path to embeddings file.')
     parser.add_argument('--emb_delimiter', default=' ', help='Delimiter for embeddings file.')
     parser.add_argument('--freeze_word_embeddings', type=bool, default=False, help='False to continue training the word embeddings.')
+    parser.add_argument('--freeze_char_embeddings', type=bool, default=False,
+                        help='False to continue training the char embeddings.')
     parser.add_argument('--gpu', type=int, default=0, help='GPU device number, 0 by default, -1  means CPU.')
     parser.add_argument('--caseless', type=bool, default=True, help='Read characters caseless.')
     parser.add_argument('--epoch_num', type=int, default=200, help='Number of epochs.')
     parser.add_argument('--rnn_hidden_dim', type=int, default=200, help='Number hidden units in the recurrent layer.')
     parser.add_argument('--rnn_type', default='GRU', help='RNN cell units type: "Vanilla", "LSTM", "GRU".')
+
+    parser.add_argument('--char_embeddings_dim', type=int, default=25, help='Char embeddings dim, works only with Char CNNs.')
+    parser.add_argument('--max_char_pad_len', type=int, default=20, help='Standard length of words in characters for character CNNs.')
+    parser.add_argument('--char_cnn_filter_num', type=int, default=30, help='Number of filters in Char CNN.')
+    parser.add_argument('--char_window_size', type=int, default=3, help='Convolution1D size.')
     parser.add_argument('--dropout_ratio', type=float, default=0.5, help='Dropout ratio.')
     parser.add_argument('--clip_grad', type=float, default=5.0, help='Clipping gradients maximum L2 norm.')
     parser.add_argument('--opt_method', default='sgd', help='Optimization method: "sgd", "adam".')
@@ -68,9 +77,10 @@ if __name__ == "__main__":
     #args.fn_dev = 'data/persuasive_essays/Essay_Level/dev.dat.abs'
     #args.fn_test = 'data/persuasive_essays/Essay_Level/test.dat.abs'
 
-    args.epoch_num = 5
+    #args.model = 'BiRNNCNN'
+    #args.epoch_num = 2
     #args.lr_decay = 0.05
-    args.rnn_type = 'LSTM'
+    #args.rnn_type = 'LSTM'
     #args.checkpoint_fn = 'tagger_model_es_par_GRU.bin'
     #args.report_fn = 'report_model_es_par_GRU.txt'
     #args.seed_num = 112
@@ -97,14 +107,31 @@ if __name__ == "__main__":
     datasets_bank.add_dev_sequences(word_sequences_dev, tag_sequences_dev)
     datasets_bank.add_test_sequences(word_sequences_test, tag_sequences_test)
 
-    tagger = TaggerBiRNN(word_seq_indexer=word_seq_indexer,
-                         tag_seq_indexer=tag_seq_indexer,
-                         class_num=tag_seq_indexer.get_elements_num(),
-                         rnn_hidden_dim=args.rnn_hidden_dim,
-                         freeze_word_embeddings=args.freeze_word_embeddings,
-                         dropout_ratio=args.dropout_ratio,
-                         rnn_type=args.rnn_type,
-                         gpu=args.gpu)
+    if args.model == 'BiRNN':
+        tagger = TaggerBiRNN(word_seq_indexer=word_seq_indexer,
+                             tag_seq_indexer=tag_seq_indexer,
+                             class_num=tag_seq_indexer.get_elements_num(),
+                             rnn_hidden_dim=args.rnn_hidden_dim,
+                             freeze_word_embeddings=args.freeze_word_embeddings,
+                             dropout_ratio=args.dropout_ratio,
+                             rnn_type=args.rnn_type,
+                             gpu=args.gpu)
+    elif args.model == 'BiRNNCNN':
+        tagger = TaggerBiRNNCNN(word_seq_indexer=word_seq_indexer,
+                                tag_seq_indexer=tag_seq_indexer,
+                                class_num=tag_seq_indexer.get_elements_num(),
+                                rnn_hidden_dim=args.rnn_hidden_dim,
+                                freeze_word_embeddings=args.freeze_word_embeddings,
+                                dropout_ratio=args.dropout_ratio,
+                                rnn_type=args.rnn_type,
+                                gpu=args.gpu,
+                                freeze_char_embeddings=args.freeze_char_embeddings,
+                                char_embeddings_dim=args.char_embeddings_dim,
+                                max_char_pad_len=args.max_char_pad_len,
+                                char_cnn_filter_num=args.char_cnn_filter_num,
+                                char_window_size=args.char_window_size)
+    else:
+        raise ValueError('Unknown tagger model, must be one of BiRNN/BiRNNCNN.')
 
     nll_loss = nn.NLLLoss(ignore_index=0) # "0" target values actually are zero-padded parts of sequences
     optimizer = optim.SGD(list(tagger.parameters()), lr=args.lr, momentum=args.momentum)

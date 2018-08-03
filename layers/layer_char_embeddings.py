@@ -28,8 +28,6 @@ class LayerCharEmbeddings(LayerBase):
     def forward(self, word_sequences):
         batch_num = len(word_sequences)
         max_seq_len = max([len(word_seq) for word_seq in word_sequences])
-        print('batch_num', batch_num)
-        print('max_seq_len', max_seq_len)
         char_embeddings_feature = self.make_gpu(torch.zeros(batch_num, max_seq_len, self.char_embeddings_dim,
                                                             self.max_char_pad_len, dtype=torch.float))
         for n, word_seq in enumerate(word_sequences):
