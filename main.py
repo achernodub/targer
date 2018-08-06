@@ -77,8 +77,10 @@ if __name__ == "__main__":
     #args.fn_dev = 'data/persuasive_essays/Essay_Level/dev.dat.abs'
     #args.fn_test = 'data/persuasive_essays/Essay_Level/test.dat.abs'
 
-    #args.model = 'BiRNNCNN'
-    #args.epoch_num = 2
+    args.model = 'BiRNNCNN'
+    args.epoch_num = 2
+    #args.batch_size = 1
+    #args.gpu = -1
     #args.lr_decay = 0.05
     #args.rnn_type = 'LSTM'
     #args.checkpoint_fn = 'tagger_model_es_par_GRU.bin'

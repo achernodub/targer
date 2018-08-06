@@ -25,9 +25,12 @@ char_cnn_filter_num = 30
 char_window_size = 3
 gpu = 0
 
-word_sequences = [['Paris', 'is', 'good'], ['London', 'is', 'a', 'capital', 'of', 'UK', '.']]
+#word_sequences = [['Paris', 'is', 'good'], ['London', 'is', 'a', 'capital', 'of', 'UK', '.']]
+#word_sequences = [['As', 'a', 'mass', 'media', 'majoring', 'student', ',', 'I', 'think', 'that', 'it', "'", 's', 'true', 'that', 'media', 'is', 'overemphasizing', 'the', 'personal', 'lives', 'of', 'famous', 'people', 'in', 'this', 'modern', 'society', '.', 'In', 'my', 'point', 'of', 'view', ',', 'disadvantages', 'of', 'overemphasizing', 'on', 'personal', 'lives', 'of', 'famous', 'people', 'by', 'media', 'outweigh', 'its', 'advantages', '.', 'My', 'reasons', 'include', 'the', 'following', ':']]
 
-print(word_sequences)
+word_sequences = [['Let', "'", 's', 'then', 'take', 'a', 'look', 'at', 'the', 'impact', 'that', 'art', 'has', 'posed', 'on', 'individuals', '.', 'It', 'is', 'undeniable', 'that', 'some', 'of', 'the', 'art', 'work', 'may', 'contain', 'negative', 'implications', 'such', 'as', 'insanity', ',', 'violence', ',', 'eroticism', 'etc', '.', 'I', 'absolutely', 'agree', 'that', 'restrictions', 'on', 'exposure', 'to', 'adolescents', 'should', 'apply', 'as', 'adolescents', 'are', 'not', 'mature', 'enough', 'to', 'avoid', 'being', 'led', 'astray', 'by', 'these', 'contents', ';', 'however', ',', 'in', 'the', 'case', 'of', 'adults', 'being', 'the', 'audience', ',', 'there', "'", 's', 'really', 'nothing', 'to', 'hide', '–', 'these', 'negative', 'things', 'objectively', 'exist', 'on', 'this', 'planet', 'and', 'it', 'is', 'impossible', 'for', 'adults', 'to', 'be', 'brain', '-', 'washed', 'only', 'because', 'of', 'some', 'pieces', 'of', 'creative', 'art', '.']]
+
+print('word_sequences', word_sequences)
 
 layer_char_embeddings = LayerCharEmbeddings(gpu=gpu, char_embeddings_dim=char_embeddings_dim,
                                             freeze_char_embeddings=False,

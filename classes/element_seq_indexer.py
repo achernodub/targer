@@ -46,6 +46,11 @@ class ElementSeqIndexer():
             raise ValueError('embeddings_dim is not known.')
         return np.random.uniform(-np.sqrt(3.0 / self.embeddings_dim), np.sqrt(3.0 / self.embeddings_dim), self.embeddings_dim).tolist()
 
+    def __get_zero_emb_vector(self):
+        if self.embeddings_dim == 0:
+            raise ValueError('embeddings_dim is not known.')
+        return [0 for _ in range(self.embeddings_dim)]
+
     def load_vocabulary_from_embeddings_file(self, emb_fn, emb_delimiter):
         if not self.load_embeddings:
             raise ValueError('load_embeddings == False')
@@ -56,7 +61,7 @@ class ElementSeqIndexer():
             self.embeddings_dim = len(emb_vector)
             break
         # 1) Generate random embedding which will be correspond to the index 0 that in used in the batches instead of mask.
-        self.__add_emb_vector(self.__get_random_emb_vector()) # for <pad>
+        self.__add_emb_vector(self.__get_zero_emb_vector()) # for <pad>
         self.__add_emb_vector(self.__get_random_emb_vector()) # for <unk>
         # 2) Add embeddings from file
         for line in open(emb_fn, 'r'):
@@ -98,7 +103,7 @@ class ElementSeqIndexer():
         idx_sequences = []
         for element_seq in element_sequences:
             element_caseless_seq = [element.lower() if self.caseless else element for element in element_seq]
-            idx_seq = [self.element2idx_dict.get(element, self.unk) for element in element_caseless_seq]
+            idx_seq = [self.element2idx_dict.get(element, 1) for element in element_caseless_seq] # 1 stands for <unk>
             idx_sequences.append(idx_seq)
         return idx_sequences
 
@@ -126,10 +131,10 @@ class ElementSeqIndexer():
                 tensor[k, start_idx:start_idx+curr_seq_len] = torch.LongTensor(np.asarray(idx_seq))
             else:
                 raise ValueError('Unknown align string.')
-
         if self.gpu >= 0:
             tensor = tensor.cuda(device=self.gpu)
         return tensor
 
     def elements2tensor(self, element_sequences, align='left', max_seq_len=-1):
-        return self.idx2tensor(self.elements2idx(element_sequences), align, max_seq_len)
+        idx = self.elements2idx(element_sequences)
+        return self.idx2tensor(idx, align, max_seq_len)
