@@ -1,4 +1,5 @@
 import codecs
+import itertools
 
 def info(name, t):
     print(name, '|', t.type(), '|', t.shape)
@@ -94,3 +95,6 @@ def write_CoNNL_dat_abs(fn, token_sequences, tag_sequences):
             for i, (token, tag) in enumerate(zip(tokens, tags)):
                 text_file.write('%d\t%s\t%s\n' % (i+1, token, tag))
             text_file.write('\n')
+
+def flatten(list_in):
+    return [list(itertools.chain.from_iterable(list_item)) for list_item in list_in]

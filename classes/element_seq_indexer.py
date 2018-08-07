@@ -114,20 +114,20 @@ class ElementSeqIndexer():
             element_sequences.append(element_seq)
         return element_sequences
 
-    def idx2tensor(self, idx_sequences, align='left', max_seq_len=-1):
+    def idx2tensor(self, idx_sequences, align='left', word_len=-1):
         batch_size = len(idx_sequences)
-        if max_seq_len == -1:
-            max_seq_len = max([len(idx_seq) for idx_seq in idx_sequences])
-        tensor = torch.zeros(batch_size, max_seq_len, dtype=torch.long)
+        if word_len == -1:
+            word_len = max([len(idx_seq) for idx_seq in idx_sequences])
+        tensor = torch.zeros(batch_size, word_len, dtype=torch.long)
         for k, idx_seq in enumerate(idx_sequences):
             curr_seq_len = len(idx_seq)
-            if curr_seq_len > max_seq_len:
-                idx_seq = [idx_seq[i] for i in range(max_seq_len)]
-                curr_seq_len = max_seq_len
+            if curr_seq_len > word_len:
+                idx_seq = [idx_seq[i] for i in range(word_len)]
+                curr_seq_len = word_len
             if align == 'left':
                 tensor[k, :curr_seq_len] = torch.LongTensor(np.asarray(idx_seq))
             elif align == 'center':
-                start_idx = (max_seq_len - curr_seq_len) // 2
+                start_idx = (word_len - curr_seq_len) // 2
                 tensor[k, start_idx:start_idx+curr_seq_len] = torch.LongTensor(np.asarray(idx_seq))
             else:
                 raise ValueError('Unknown align string.')
@@ -135,6 +135,6 @@ class ElementSeqIndexer():
             tensor = tensor.cuda(device=self.gpu)
         return tensor
 
-    def elements2tensor(self, element_sequences, align='left', max_seq_len=-1):
+    def elements2tensor(self, element_sequences, align='left', word_len=-1):
         idx = self.elements2idx(element_sequences)
-        return self.idx2tensor(idx, align, max_seq_len)
+        return self.idx2tensor(idx, align, word_len)

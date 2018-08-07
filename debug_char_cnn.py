@@ -34,7 +34,7 @@ print('word_sequences', word_sequences)
 
 layer_char_embeddings = LayerCharEmbeddings(gpu=gpu, char_embeddings_dim=char_embeddings_dim,
                                             freeze_char_embeddings=False,
-                                            max_char_pad_len=max_char_pad_len)
+                                            word_len=max_char_pad_len)
 
 layer_char_embeddings.cuda()
 
