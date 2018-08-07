@@ -78,7 +78,7 @@ if __name__ == "__main__":
     #args.fn_test = 'data/persuasive_essays/Essay_Level/test.dat.abs'
 
     args.model = 'BiRNNCNN'
-    args.epoch_num = 3
+    #args.epoch_num = 3
     args.rnn_hidden_dim = 100
     #args.batch_size = 1
     #args.gpu = -1
