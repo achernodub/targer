@@ -49,26 +49,25 @@ class Evaluator():
         return F1, Precision, Recall, (TP, FP, FN)
 
     @staticmethod
-    def get_f1_scores_extended(tagger, word_sequences, tag_sequences):
-        outputs_tag_sequences = tagger.predict_tags_from_words(word_sequences)
-        acc  = Evaluator.get_accuracy_token_level(targets_tag_sequences=tag_sequences,
-                                                  outputs_tag_sequences=outputs_tag_sequences,
-                                                  tag_seq_indexer=tagger.tag_seq_indexer)
+    def get_scores_report(outputs_tag_sequences, tag_sequences, tag_seq_indexer):
+        acc = Evaluator.get_accuracy_token_level(targets_tag_sequences=tag_sequences,
+                                                 outputs_tag_sequences=outputs_tag_sequences,
+                                                 tag_seq_indexer=tag_seq_indexer)
         f1_100, precision_100, recall_100, _ = Evaluator.get_f1_from_words(targets_tag_sequences=tag_sequences,
-                                                                        outputs_tag_sequences=outputs_tag_sequences,
-                                                                        match_alpha_ratio=0.999)
+                                                                           outputs_tag_sequences=outputs_tag_sequences,
+                                                                           match_alpha_ratio=0.999)
         f1_50, precision_50, recall_50, _ = Evaluator.get_f1_from_words(targets_tag_sequences=tag_sequences,
-                                                                     outputs_tag_sequences=outputs_tag_sequences,
-                                                                     match_alpha_ratio=0.5)
-        str = 'match_alpha_ratio = %1.1f | Accuracy = %1.2f, F1-100%% = %1.2f, Precision-100%% = %1.2f, Recall-100%% = %1.2f.' % ( 0.999, acc, f1_100, precision_100, recall_100)
-        str += '\nmatch_alpha_ratio = %1.1f | Accuracy = %1.2f, F1-50%% = %1.2f, Precision-50%% = %1.2f, Recall-50%% = %1.2f.' % (0.5, acc, f1_50, precision_50, recall_50)
-        str += '\n%1.2f' % f1_100
-        return str
+                                                                        outputs_tag_sequences=outputs_tag_sequences,
+                                                                        match_alpha_ratio=0.5)
+        scores_report_str = 'match_alpha_ratio = %1.1f | Accuracy = %1.2f, F1-100%% = %1.2f, Precision-100%% = %1.2f, Recall-100%% = %1.2f.' % ( 0.999, acc, f1_100, precision_100, recall_100)
+        scores_report_str += '\nmatch_alpha_ratio = %1.1f | Accuracy = %1.2f, F1-50%% = %1.2f, Precision-50%% = %1.2f, Recall-50%% = %1.2f.' % (0.5, acc, f1_50, precision_50, recall_50)
+        scores_report_str += '\n%1.2f' % f1_100
+        return scores_report_str
 
     @staticmethod
-    def write_report(fn, args, tagger, word_sequences, tag_sequences):
+    def write_scores_report(fn, args, scores_report_str):
         text_file = open(fn, mode='w')
         for hyper_param in str(args).replace('Namespace(', '').replace(')', '').split(', '):
             text_file.write('%s\n' % hyper_param)
-        text_file.write(Evaluator.get_f1_scores_extended(tagger, word_sequences, tag_sequences))
+        text_file.write(scores_report_str)
         text_file.close()

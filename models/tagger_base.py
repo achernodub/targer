@@ -12,12 +12,17 @@ class TaggerBase(nn.Module):
         super(TaggerBase, self).__init__()
         self.word_seq_indexer = word_seq_indexer
         self.tag_seq_indexer = tag_seq_indexer
+        self.gpu = gpu
 
-    def make_gpu(self, tensor):
+    def ensure_gpu(self, tensor):
         if self.gpu >= 0:
             return tensor.cuda(device=self.gpu)
         else:
             return tensor
+
+    def make_self_cpu(self):
+        self.gpu = -1
+        self.cpu()
 
     def clip_gradients(self, clip_grad):
         nn.utils.clip_grad_norm_(self.parameters(), clip_grad)

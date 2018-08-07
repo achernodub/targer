@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 import argparse
+import copy
 import time
 import datetime
 
@@ -78,14 +79,14 @@ if __name__ == "__main__":
     #args.fn_test = 'data/persuasive_essays/Essay_Level/test.dat.abs'
 
     args.model = 'BiRNNCNN'
-    #args.epoch_num = 3
+    #args.epoch_num = 2
     args.rnn_hidden_dim = 100
     #args.batch_size = 1
     #args.gpu = -1
     #args.lr_decay = 0.05
     #args.rnn_type = 'LSTM'
-    #args.checkpoint_fn = 'tagger_model_es_par_GRU.bin'
-    #args.report_fn = 'report_model_es_par_GRU.txt'
+    args.checkpoint_fn = 'tagger_model_BiRNNCNN.bin'
+    args.report_fn = 'report_model_BiRNNCNN.txt'
     #args.seed_num = 112
 
     # Load CoNNL data as sequences of strings of words and corresponding tags
@@ -165,42 +166,43 @@ if __name__ == "__main__":
                                                      outputs_tag_sequences=outputs_tag_sequences_dev,
                                                      tag_seq_indexer=tag_seq_indexer)
 
-        f1_dev, prec_dev, recall_dev, _ = Evaluator.get_f1_from_words(targets_tag_sequences=datasets_bank.tag_sequences_dev,
+        f1_dev, _, _, _ = Evaluator.get_f1_from_words(targets_tag_sequences=datasets_bank.tag_sequences_dev,
                                                                    outputs_tag_sequences=outputs_tag_sequences_dev,
                                                                    match_alpha_ratio=0.999)
         if f1_dev > best_f1_dev:
             best_epoch_msg = '[BEST] '
             best_epoch = epoch
             best_f1_dev = f1_dev
-            best_tagger = tagger
-        print('\n%sEPOCH %d/%d, DEV dataset: Accuracy = %1.2f, Precision = %1.2f, Recall = %1.2f, F1-100%% = %1.2f, %d sec.\n' %
-                                                                                                (best_epoch_msg,
-                                                                                                 epoch,
-                                                                                                 args.epoch_num,
-                                                                                                 acc_dev,
-                                                                                                 f1_dev,
-                                                                                                 prec_dev,
-                                                                                                 recall_dev,
-                                                                                                 time.time() - time_start))
+            best_tagger = copy.deepcopy(tagger)
+        print('\n%sEPOCH %d/%d, DEV dataset: Accuracy = %1.2f, F1-100%% = %1.2f, %d sec.\n' % (best_epoch_msg,
+                                                                                               epoch,
+                                                                                               args.epoch_num,
+                                                                                               acc_dev,
+                                                                                               f1_dev,
+                                                                                               time.time() - time_start))
 
     # After all epochs, perform the final evaluation on test dataset
-    outputs_tag_sequences_test = tagger.predict_tags_from_words(datasets_bank.word_sequences_test)
+    outputs_tag_sequences_test = best_tagger.predict_tags_from_words(datasets_bank.word_sequences_test)
     acc_test = Evaluator.get_accuracy_token_level(targets_tag_sequences=datasets_bank.tag_sequences_test,
                                                   outputs_tag_sequences=outputs_tag_sequences_test,
                                                   tag_seq_indexer=tag_seq_indexer)
-    f1_test, _, _, _ = Evaluator.get_f1_from_words(targets_tag_sequences=datasets_bank.tag_sequences_test,
-                                                outputs_tag_sequences=outputs_tag_sequences_test,
-                                                match_alpha_ratio=0.999)
+    f1_100, precision_100, recall_100, _ = Evaluator.get_f1_from_words(targets_tag_sequences=datasets_bank.tag_sequences_test,
+                                                                       outputs_tag_sequences=outputs_tag_sequences_test,
+                                                                       match_alpha_ratio=0.999)
+    f1_50, precision_50, recall_50, _ = Evaluator.get_f1_from_words(targets_tag_sequences=datasets_bank.tag_sequences_test,
+                                                                    outputs_tag_sequences=outputs_tag_sequences_test,
+                                                                    match_alpha_ratio=0.5)
 
-    print('Results on TEST (best on DEV, best epoch = %d): Accuracy = %1.2f, F1-100%% = %1.2f.\n' %  (best_epoch,
-                                                                                                      acc_test,
-                                                                                                      f1_test))
+    scores_report_str = 'Results on TEST (best epoch = %d): Accuracy = %1.2f.\n' % (best_epoch, acc_test)
+    scores_report_str = '\nmatch_alpha_ratio = %1.1f | F1-100%% = %1.2f, Precision-100%% = %1.2f, Recall-100%% = %1.2f.'\
+                        % (0.999, f1_100, precision_100, recall_100)
+    scores_report_str += '\nmatch_alpha_ratio = %1.1f | F1-50%% = %1.2f, Precision-50%% = %1.2f, Recall-50%% = %1.2f.' \
+                         % (0.5, f1_50, precision_50, recall_50)
+    print(scores_report_str)
 
-    print(Evaluator.get_f1_scores_extended(best_tagger, word_sequences_test, tag_sequences_test))
-
-    # Write report
+    # Write scores report to text file
     if args.report_fn is not None:
-        Evaluator.write_report(args.report_fn, args, best_tagger, word_sequences_test, tag_sequences_test)
+        Evaluator.write_scores_report(args.report_fn, args, scores_report_str)
 
     # Please, sequences_indexer objects are stored in the model
     if args.checkpoint_fn is not None:
