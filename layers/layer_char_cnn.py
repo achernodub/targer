@@ -29,8 +29,9 @@ class LayerCharCNN(LayerBase):
         max_pooling_out = self.make_gpu(torch.zeros(batch_num, max_seq_len,
                                                     self.char_cnn_filter_num*self.char_embeddings_dim, dtype=torch.float))
         for k in range(max_seq_len):
-            curr_y = char_embeddings_feature[:, k, :, :]  # batch_num x  char_embeddings_dim x word_len
-            curr_z = self.conv1d(curr_y)  # batch_num x filter_num*char_embeddings_dim x conv_feature_len
-            max_pooling_out[:, k, :], _ = torch.max(curr_z, dim=2)
+#            curr_y = char_embeddings_feature[:, k, :, :]  # batch_num x  char_embeddings_dim x word_len
+#            curr_z = self.conv1d(curr_y)  # batch_num x filter_num*char_embeddings_dim x conv_feature_len
+#            max_pooling_out[:, k, :], _ = torch.max(curr_z, dim=2)
+            max_pooling_out[:, k, :], _ = torch.max(self.conv1d(char_embeddings_feature[:, k, :, :]), dim=2)
         #max_pooling_out, _ = torch.max(conv_out, dim=3)
         return max_pooling_out # shape: batch_num x max_seq_len x filter_num*char_embeddings_dim
