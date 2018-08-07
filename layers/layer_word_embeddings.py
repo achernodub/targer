@@ -14,5 +14,5 @@ class LayerWordEmbeddings(LayerBase):
 
     def forward(self, word_sequences):
         input_tensor = self.word_seq_indexer.elements2tensor(word_sequences) # shape: batch_size x max_seq_len
-        word_embeddings_feature = self.embeddings(input_tensor) # shape: batch_size x max_seq_len x feature_dim
+        word_embeddings_feature = self.embeddings(input_tensor) # shape: batch_size x max_seq_len x output_dim
         return word_embeddings_feature
