@@ -82,15 +82,15 @@ if __name__ == "__main__":
 
     #args.model = 'BiRNN'
     args.model = 'BiRNNCNN'
-    #args.epoch_num = 2
+    args.epoch_num = 2
     #args.rnn_hidden_dim = 100
     #args.batch_size = 1
     #args.gpu = -1
-    #args.lr_decay = 0.05
+    args.lr_decay = 0.05
     #args.rnn_type = 'LSTM'
-    #args.checkpoint_fn = 'tagger_model_BiRNNCNN_NER.bin'
-    #args.report_fn = 'report_model_BiRNNCNN_NER.txt'
-    args.checkpoint_fn = 'tagger_model_temp.bin'
+    args.checkpoint_fn = 'tagger_model_BiRNNCNN_NER.bin'
+    args.report_fn = 'report_model_BiRNNCNN_NER.txt'
+    #args.checkpoint_fn = 'tagger_model_temp.bin'
     #args.seed_num = 112
 
     # Load CoNNL data as sequences of strings of words and corresponding tags
@@ -169,7 +169,7 @@ if __name__ == "__main__":
                 print('-- epoch %d, i = %d/%d, loss = %1.4f' % (epoch, i, iterations_num, loss.item()))
 
         time_finish = time.time()
-        outputs_tag_sequences_dev = tagger.predict_tags_from_words(datasets_bank.word_sequences_dev)
+        outputs_tag_sequences_dev = tagger.predict_tags_from_words(datasets_bank.word_sequences_dev, batch_size=100)
         acc_dev = Evaluator.get_accuracy_token_level(targets_tag_sequences=datasets_bank.tag_sequences_dev,
                                                      outputs_tag_sequences=outputs_tag_sequences_dev,
                                                      tag_seq_indexer=tag_seq_indexer)
@@ -181,9 +181,7 @@ if __name__ == "__main__":
             best_epoch_msg = '[BEST] '
             best_epoch = epoch
             best_f1_dev = f1_dev
-            if args.checkpoint_fn is not None:
-                tagger.save(args.checkpoint_fn)
-            #best_tagger = copy.deepcopy(tagger)
+            best_tagger = copy.deepcopy(tagger)
 
         print('\n%sEPOCH %d/%d, DEV dataset: Accuracy = %1.2f, F1-100%% = %1.2f, %d sec.\n' % (best_epoch_msg,
                                                                                                epoch,
@@ -192,11 +190,7 @@ if __name__ == "__main__":
                                                                                                f1_dev,
                                                                                                time.time() - time_start))
 
-    # After all epochs, perform the final evaluation on test dataset
-    if args.checkpoint_fn is not None:
-        best_tagger = TaggerBase.load(args.checkpoint_fn, gpu=args.gpu)
-
-    outputs_tag_sequences_test = best_tagger.predict_tags_from_words(datasets_bank.word_sequences_test)
+    outputs_tag_sequences_test = best_tagger.predict_tags_from_words(datasets_bank.word_sequences_test, batch_size=100)
     acc_test = Evaluator.get_accuracy_token_level(targets_tag_sequences=datasets_bank.tag_sequences_test,
                                                   outputs_tag_sequences=outputs_tag_sequences_test,
                                                   tag_seq_indexer=tag_seq_indexer)
@@ -217,5 +211,9 @@ if __name__ == "__main__":
     # Write scores report to text file
     if args.report_fn is not None:
         Evaluator.write_scores_report(args.report_fn, args, scores_report_str)
+
+    # Save best tagger to disk
+    if args.checkpoint_fn is not None:
+        best_tagger.save(args.checkpoint_fn)
 
     print('The end!')

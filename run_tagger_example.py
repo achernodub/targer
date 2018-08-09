@@ -6,14 +6,14 @@ from classes.data_io import DataIO
 from classes.evaluator import Evaluator
 from models.tagger_base import TaggerBase
 
-print('Start!')
+print('Start run_tagger_example.py.')
 
 # Read data in CoNNL-2003 dat.abs format (Eger, 2017)
 fn = 'data/persuasive_essays/Paragraph_Level/test.dat.abs'
 word_sequences, tag_sequences = DataIO.read_CoNNL_dat_abs(fn)
 
 # Load tagger model
-fn_checkpoint = 'tagger_model.bin'
+fn_checkpoint = 'tagger_model_temp.bin'
 if os.path.isfile(fn_checkpoint):
     tagger = TaggerBase.load(fn_checkpoint)
 else:
@@ -25,7 +25,7 @@ if gpu >= 0:
     tagger = tagger.cuda(device=0)
 
 # Get tags as sequences of strings
-output_tag_sequences = tagger.predict_tags_from_words(word_sequences)
+output_tag_sequences = tagger.predict_tags_from_words(word_sequences, batch_size=10)
 
 # Calculate scores
 outputs_tag_sequences_test = tagger.predict_tags_from_words(word_sequences)

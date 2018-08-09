@@ -1,3 +1,4 @@
+import math
 import torch
 import torch.nn as nn
 
@@ -44,11 +45,18 @@ class TaggerBase(nn.Module):
         if self.gpu > 0:
             self.cuda(device=self.gpu)
 
-    def predict_tags_from_words(self, word_sequences):
-        self.make_cpu()
-        tag_sequences = self.tag_seq_indexer.idx2elements(self.predict_idx_from_words(word_sequences))
-        self.make_gpu()
-        return tag_sequences
+    def predict_tags_from_words(self, word_sequences, batch_size=100):
+        batch_num = math.floor(len(word_sequences) / batch_size)
+        output_tag_sequences = list()
+        for n in range(batch_num):
+            i = n*batch_size
+            if n < batch_num - 1:
+                j = (n + 1)*batch_size
+            else:
+                j = len(word_sequences)
+            curr_output_tag_sequences = self.tag_seq_indexer.idx2elements(self.predict_idx_from_words(word_sequences[i:j]))
+            output_tag_sequences.extend(curr_output_tag_sequences)
+        return output_tag_sequences
 
     def save(self, checkpoint_fn):
         self.make_cpu()
