@@ -72,9 +72,9 @@ if __name__ == "__main__":
         torch.cuda.manual_seed(args.seed_num)
 
     # Custom params here to replace the defaults
-    args.fn_train = 'data/NER/CoNNL_2003_shared_task/train.txt'
-    args.fn_dev = 'data/NER/CoNNL_2003_shared_task/dev.txt'
-    args.fn_test = 'data/NER/CoNNL_2003_shared_task/test.txt'
+    #args.fn_train = 'data/NER/CoNNL_2003_shared_task/train.txt'
+    #args.fn_dev = 'data/NER/CoNNL_2003_shared_task/dev.txt'
+    #args.fn_test = 'data/NER/CoNNL_2003_shared_task/test.txt'
 
     #args.fn_train = 'data/persuasive_essays/Essay_Level/train.dat.abs'
     #args.fn_dev = 'data/persuasive_essays/Essay_Level/dev.dat.abs'
@@ -82,7 +82,7 @@ if __name__ == "__main__":
 
     #args.model = 'BiRNN'
     args.model = 'BiRNNCNN'
-    args.epoch_num = 2
+    args.epoch_num = 50
     #args.rnn_hidden_dim = 100
     #args.batch_size = 1
     #args.gpu = -1
