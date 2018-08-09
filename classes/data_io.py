@@ -1,7 +1,7 @@
 import codecs
+from classes.utils import is_number
 
 class DataIO():
-
     @staticmethod
     def read_CoNNL_dat_abs(fn, column_no=-1):
         word_sequences = list()
@@ -69,3 +69,16 @@ class DataIO():
                 tag_1 = tags_1[j]
                 text_file.write('%s %s\n' % (word, tag_1))
         text_file.close()
+
+    @staticmethod
+    def __is_CoNNL_dat_abs(fn):
+        with codecs.open(fn, 'r', 'utf-8') as f:
+            c = f.readlines()[0][0]
+            return is_number(c)
+
+    @staticmethod
+    def read_CoNNL_universal(fn,column_no=-1):
+        if DataIO.__is_CoNNL_dat_abs(fn):
+            return DataIO.read_CoNNL_dat_abs(fn, column_no)
+        else:
+            return DataIO.read_CoNNL_2003(fn, column_no)
