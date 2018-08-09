@@ -8,7 +8,7 @@ from classes.element_seq_indexer import ElementSeqIndexer
 from classes.utils import flatten
 
 class LayerCharEmbeddings(LayerBase):
-    def __init__(self, gpu, char_embeddings_dim, freeze_char_embeddings=False, word_len=20):
+    def __init__(self, gpu, char_embeddings_dim, freeze_char_embeddings=False, word_len=20, unique_characters_list=None):
         super(LayerCharEmbeddings, self).__init__(gpu)
         self.gpu = gpu
         self.char_embeddings_dim = char_embeddings_dim
@@ -16,7 +16,9 @@ class LayerCharEmbeddings(LayerBase):
         self.word_len = word_len # standard len to pad
         # Init character sequences indexer
         self.char_seq_indexer = ElementSeqIndexer(gpu = gpu, caseless=True, load_embeddings=False)
-        for c in list(string.printable):
+        if unique_characters_list is None:
+            unique_characters_list = list(string.printable)
+        for c in unique_characters_list:
             self.char_seq_indexer.add_element(c)
         self.char_seq_indexer.add_element(self.char_seq_indexer.unk)
         # Init character embedding
