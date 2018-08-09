@@ -20,8 +20,8 @@ class TaggerBiRNN(TaggerBase):
         self.rnn_type = rnn_type
         self.gpu = gpu
         self.word_embeddings_layer = LayerWordEmbeddings(word_seq_indexer, gpu, freeze_word_embeddings)
-        self.dropout1 = torch.nn.Dropout(p=dropout_ratio)
-        self.dropout2 = torch.nn.Dropout(p=dropout_ratio)
+        self.dropout = torch.nn.Dropout(p=dropout_ratio)
+        #self.dropout2 = torch.nn.Dropout(p=dropout_ratio)
         if rnn_type == 'GRU':
             self.birnn_layer = LayerBiGRU(input_dim=self.word_embeddings_layer.output_dim,
                                           hidden_dim=rnn_hidden_dim,
@@ -40,8 +40,8 @@ class TaggerBiRNN(TaggerBase):
 
     def forward(self, word_sequences):
         z_word_embed = self.word_embeddings_layer(word_sequences)
-        z_word_embed_d = self.dropout1(z_word_embed)
+        z_word_embed_d = self.dropout(z_word_embed)
         rnn_output_h = self.birnn_layer(z_word_embed_d)
-        rnn_output_h_d = self.dropout2(rnn_output_h) # shape: batch_size x max_seq_len x class_num + 1
+        rnn_output_h_d = self.dropout(rnn_output_h) # shape: batch_size x max_seq_len x class_num + 1
         z_out = self.lin_layer(rnn_output_h_d).permute(0, 2, 1) # shape: batch_size x class_num + 1 x max_seq_len
         return self.log_softmax_layer(z_out)

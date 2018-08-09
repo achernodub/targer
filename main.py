@@ -72,24 +72,25 @@ if __name__ == "__main__":
         torch.cuda.manual_seed(args.seed_num)
 
     # Custom params here to replace the defaults
-    args.fn_train = 'data/NER/CoNNL_2003_shared_task/train.txt'
-    args.fn_dev = 'data/NER/CoNNL_2003_shared_task/dev.txt'
-    args.fn_test = 'data/NER/CoNNL_2003_shared_task/test.txt'
+    #args.fn_train = 'data/NER/CoNNL_2003_shared_task/train.txt'
+    #args.fn_dev = 'data/NER/CoNNL_2003_shared_task/dev.txt'
+    #args.fn_test = 'data/NER/CoNNL_2003_shared_task/test.txt'
 
     #args.fn_train = 'data/persuasive_essays/Essay_Level/train.dat.abs'
     #args.fn_dev = 'data/persuasive_essays/Essay_Level/dev.dat.abs'
     #args.fn_test = 'data/persuasive_essays/Essay_Level/test.dat.abs'
 
     #args.model = 'BiRNN'
-    args.model = 'BiRNNCNN'
+    #args.model = 'BiRNNCNN'
     #args.epoch_num = 2
     #args.rnn_hidden_dim = 100
     #args.batch_size = 1
     #args.gpu = -1
     #args.lr_decay = 0.05
     #args.rnn_type = 'LSTM'
-    args.checkpoint_fn = 'tagger_model_BiRNNCNN_NER.bin'
-    args.report_fn = 'report_model_BiRNNCNN_NER.txt'
+    #args.checkpoint_fn = 'tagger_model_BiRNNCNN_NER.bin'
+    args.checkpoint_fn = 'tagger_model_temp.bin'
+    #args.report_fn = 'report_model_BiRNNCNN_NER.txt'
     #args.seed_num = 112
 
     # Load CoNNL data as sequences of strings of words and corresponding tags
