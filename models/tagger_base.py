@@ -37,13 +37,23 @@ class TaggerBase(nn.Module):
             output_idx_sequences.append(idx_seq)
         return output_idx_sequences
 
+    def make_cpu(self):
+        self.cpu()
+
+    def make_gpu(self):
+        if self.gpu > 0:
+            self.cuda(device=self.gpu)
+
     def predict_tags_from_words(self, word_sequences):
-        return self.tag_seq_indexer.idx2elements(self.predict_idx_from_words(word_sequences))
+        self.make_cpu()
+        tag_sequences = self.tag_seq_indexer.idx2elements(self.predict_idx_from_words(word_sequences))
+        self.make_gpu()
+        return tag_sequences
 
     def save(self, checkpoint_fn):
-        self.cpu()
+        self.make_cpu()
         torch.save(self, checkpoint_fn)
-        self.cuda(device=self.gpu)
+        self.make_gpu()
 
     @staticmethod
     def load(fn_checkpoint, gpu=-1):

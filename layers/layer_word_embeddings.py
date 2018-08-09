@@ -12,7 +12,13 @@ class LayerWordEmbeddings(LayerBase):
         self.embeddings_dim = embeddings_tensor.shape[1]
         self.output_dim = self.embeddings_dim
 
+    def is_cuda(self):
+        return self.embeddings.weight.is_cuda
+
     def forward(self, word_sequences):
-        input_tensor = self.word_seq_indexer.elements2tensor(word_sequences) # shape: batch_size x max_seq_len
+        input_tensor = self.tensor_ensure_gpu(self.word_seq_indexer.elements2tensor(word_sequences)) # shape: batch_size x max_seq_len
+        #print('------\nlayer self gpu=', self.gpu)
+        #print('self.is_cuda', self.is_cuda())
+        #print('input_tensor is_cuda', input_tensor.is_cuda)
         word_embeddings_feature = self.embeddings(input_tensor) # shape: batch_size x max_seq_len x output_dim
         return word_embeddings_feature

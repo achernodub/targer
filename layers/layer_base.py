@@ -6,8 +6,8 @@ class LayerBase(nn.Module):
         super(LayerBase, self).__init__()
         self.gpu = gpu
 
-    def make_gpu(self, tensor):
-        if self.gpu >= 0:
+    def tensor_ensure_gpu(self, tensor):
+        if self.is_cuda():
             return tensor.cuda(device=self.gpu)
         else:
-            return tensor
+            return tensor.cpu()

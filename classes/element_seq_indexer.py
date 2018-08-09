@@ -120,7 +120,11 @@ class ElementSeqIndexer():
         batch_size = len(idx_sequences)
         if word_len == -1:
             word_len = max([len(idx_seq) for idx_seq in idx_sequences])
-        tensor = torch.zeros(batch_size, word_len, dtype=torch.long)
+        # tensor = torch.zeros(batch_size, word_len, dtype=torch.long)
+        if self.gpu >= 0:
+            tensor = torch.cuda.LongTensor(batch_size, word_len).fill_(0)
+        else:
+            tensor = torch.LongTensor(batch_size, word_len).fill_(0)
         for k, idx_seq in enumerate(idx_sequences):
             curr_seq_len = len(idx_seq)
             if curr_seq_len > word_len:

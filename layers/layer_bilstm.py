@@ -16,10 +16,13 @@ class LayerBiLSTM(LayerBiRNNBase):
 
     def forward(self, input_tensor): #input_tensor shape: batch_size x max_seq_len x dim
         batch_size, max_seq_len, _ = input_tensor.shape
-        h0 = self.make_gpu(torch.zeros(self.num_layers*self.num_directions, batch_size, self.hidden_dim))
-        c0 = self.make_gpu(torch.zeros(self.num_layers*self.num_directions, batch_size, self.hidden_dim))
+        h0 = self.tensor_ensure_gpu(torch.zeros(self.num_layers * self.num_directions, batch_size, self.hidden_dim))
+        c0 = self.tensor_ensure_gpu(torch.zeros(self.num_layers * self.num_directions, batch_size, self.hidden_dim))
         output, _ = self.rnn(input_tensor, (h0, c0))
         return output  # shape: batch_size x max_seq_len x hidden_dim*2
+
+    def is_cuda(self):
+        return self.rnn.weight_hh_l0.is_cuda
 
     '''
     def __forward_old(self, input_tensor): #input_tensor shape: batch_size x max_seq_len x dim

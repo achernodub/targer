@@ -27,11 +27,14 @@ class LayerCharEmbeddings(LayerBase):
                                        padding_idx=0)
         # nn.init.uniform_(self.embeddings.weight, -0.5, 0.5) # Option: Ma, 2016
 
+    def is_cuda(self):
+        return self.embeddings.weight.is_cuda
+
     def forward(self, word_sequences):
         batch_num = len(word_sequences)
         max_seq_len = max([len(word_seq) for word_seq in word_sequences])
         char_sequences = [[[c for c in word] for word in word_seq] for word_seq in word_sequences]
-        input_tensor = self.make_gpu(torch.zeros(batch_num, max_seq_len, self.word_len, dtype=torch.long))
+        input_tensor = self.tensor_ensure_gpu(torch.zeros(batch_num, max_seq_len, self.word_len, dtype=torch.long))
         for n, curr_char_seq in enumerate(char_sequences):
             curr_seq_len = len(curr_char_seq)
             curr_char_seq_tensor = self.char_seq_indexer.elements2tensor(curr_char_seq,
