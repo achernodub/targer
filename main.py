@@ -11,6 +11,7 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.optim.lr_scheduler import LambdaLR
 
+from classes.data_io import DataIO
 from classes.evaluator import Evaluator
 from classes.datasets_bank import DatasetsBank
 from classes.element_seq_indexer import ElementSeqIndexer
@@ -80,20 +81,20 @@ if __name__ == "__main__":
     #args.fn_test = 'data/persuasive_essays/Essay_Level/test.dat.abs'
 
     args.model = 'BiRNNCNN'
-    #args.epoch_num = 2
+    args.epoch_num = 2
     #args.rnn_hidden_dim = 100
     #args.batch_size = 1
     #args.gpu = -1
     #args.lr_decay = 0.05
     #args.rnn_type = 'LSTM'
-    args.checkpoint_fn = 'tagger_model_BiRNNCNN2.bin'
-    args.report_fn = 'report_model_BiRNNCNN2.txt'
+    args.checkpoint_fn = 'tagger_model.bin'
+    args.report_fn = 'report_model.txt'
     #args.seed_num = 112
 
     # Load CoNNL data as sequences of strings of words and corresponding tags
-    word_sequences_train, tag_sequences_train = read_CoNNL_dat_abs(args.fn_train)
-    word_sequences_dev, tag_sequences_dev = read_CoNNL_dat_abs(args.fn_dev)
-    word_sequences_test, tag_sequences_test = read_CoNNL_dat_abs(args.fn_test)
+    word_sequences_train, tag_sequences_train = DataIO.read_CoNNL_dat_abs(args.fn_train)
+    word_sequences_dev, tag_sequences_dev = DataIO.read_CoNNL_dat_abs(args.fn_dev)
+    word_sequences_test, tag_sequences_test = DataIO.read_CoNNL_dat_abs(args.fn_test)
 
     # Converts lists of lists of words to integer indices and back
     word_seq_indexer = ElementSeqIndexer(gpu=args.gpu, caseless=args.caseless, load_embeddings=True, verbose=args.verbose)

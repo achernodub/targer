@@ -1,7 +1,7 @@
 import argparse
 
 from classes.evaluator import Evaluator
-from classes.utils import *
+from classes.data_io import DataIO
 
 '''
 The script is based on paper: Eger S., Daxenberger J., Gurevych I. Neural end-to-end learning for computational
@@ -16,8 +16,8 @@ if __name__ == "__main__":
     parser.add_argument('--output', default='data/persuasive_essays/Essay_Level/f1_test/maj_best10.out.corr.abs')
     parser.add_argument('--match_alpha_ratio', type=float, default=0.999, help='Alpha ratio from non-strict matching, options: 0.999 or 0.5')
 args = parser.parse_args()
-_, target_tag_sequences = read_CoNNL_dat_abs(args.target)
-_, output_tag_sequences = read_CoNNL_dat_abs(args.output)
+_, target_tag_sequences = DataIO.read_CoNNL_dat_abs(args.target)
+_, output_tag_sequences = DataIO.read_CoNNL_dat_abs(args.output)
 
 F1, Precision, Recall, (TP, FP, FN) = Evaluator.get_f1_from_words(targets_tag_sequences=target_tag_sequences,
                                                                   outputs_tag_sequences=output_tag_sequences,

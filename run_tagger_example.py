@@ -2,7 +2,7 @@ from __future__ import print_function
 
 import os.path
 import torch
-from classes.utils import read_CoNNL_dat_abs, write_CoNNL_dat_abs
+from classes.data_io import DataIO
 from classes.evaluator import Evaluator
 from models.tagger_base import TaggerBase
 
@@ -10,10 +10,10 @@ print('Start!')
 
 # Read data in CoNNL-2003 dat.abs format (Eger, 2017)
 fn = 'data/persuasive_essays/Paragraph_Level/test.dat.abs'
-word_sequences, tag_sequences = read_CoNNL_dat_abs(fn)
+word_sequences, tag_sequences = DataIO.read_CoNNL_dat_abs(fn)
 
 # Load tagger model
-fn_checkpoint = 'tagger_model_BiRNNCNN.bin'
+fn_checkpoint = 'tagger_model.bin'
 if os.path.isfile(fn_checkpoint):
     tagger = TaggerBase.load(fn_checkpoint)
 else:
@@ -48,6 +48,6 @@ scores_report_str += '\nmatch_alpha_ratio = %1.1f | F1-50%% = %1.2f, Precision-5
 print(scores_report_str)
 
 # Write results to text file
-write_CoNNL_dat_abs('out.dat.abs', word_sequences, output_tag_sequences)
+DataIO.write_CoNNL_dat_abs('out.dat.abs', word_sequences, output_tag_sequences)
 
 print('\nThe end.')
