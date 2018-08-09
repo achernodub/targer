@@ -138,3 +138,9 @@ class ElementSeqIndexer():
     def elements2tensor(self, element_sequences, align='left', word_len=-1):
         idx = self.elements2idx(element_sequences)
         return self.idx2tensor(idx, align, word_len)
+
+    def get_unique_characters_list(self):
+        unique_characters_set = set()
+        for n, token in enumerate(self.elements_list):
+            unique_characters_set = unique_characters_set.union(set(token))
+        return unique_characters_set

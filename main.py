@@ -102,6 +102,26 @@ if __name__ == "__main__":
     word_seq_indexer.load_vocabulary_from_element_sequences(word_sequences_dev)
     word_seq_indexer.load_vocabulary_from_element_sequences(word_sequences_test, verbose=True)
 
+    '''
+    un = word_seq_indexer.get_unique_characters_list()
+    import string
+    pr = set(string.printable)
+    print(len(un))
+    print(len(pr))
+    comm = un.union(pr)
+    print('UNION')
+    print('len =', len(un.union(pr)))
+    print('INTERSECT')
+    bb = un.intersection(pr)
+    print('len =',len(bb))
+    print(bb)
+    exit()
+
+    for n, c in enumerate(un):
+        print('n= %d c = %s' % (n, c))
+    exit()
+    '''
+
     # Converts lists of lists of tags to integer indices and back
     tag_seq_indexer = ElementSeqIndexer(gpu=args.gpu, caseless=False, verbose=args.verbose)
     tag_seq_indexer.load_vocabulary_from_element_sequences(tag_sequences_train)
