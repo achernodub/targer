@@ -1,9 +1,10 @@
+import torch
 import torch.nn as nn
 
 
 class TaggerBase(nn.Module):
     """
-    TaggerBase is a base class for tagger models. It implements the tagging functionality for different types of
+    TaggerBase is an abstract class for tagger models. It implements the tagging functionality for different types of
      inputs (sequences of tokens, sequences of integer indices, tensors). Auxiliary class SequencesIndexer is used
      for input and output data formats conversions. Abstract method `forward` is used in order to make these predictions,
      it have to be implemented in ancestors.
@@ -14,15 +15,11 @@ class TaggerBase(nn.Module):
         self.tag_seq_indexer = tag_seq_indexer
         self.gpu = gpu
 
-    def ensure_gpu(self, tensor):
+    def tensor_ensure_gpu(self, tensor):
         if self.gpu >= 0:
             return tensor.cuda(device=self.gpu)
         else:
             return tensor
-
-    def make_self_cpu(self):
-        self.gpu = -1
-        self.cpu()
 
     def clip_gradients(self, clip_grad):
         nn.utils.clip_grad_norm_(self.parameters(), clip_grad)
@@ -42,3 +39,13 @@ class TaggerBase(nn.Module):
 
     def predict_tags_from_words(self, word_sequences):
         return self.tag_seq_indexer.idx2elements(self.predict_idx_from_words(word_sequences))
+
+    def save(self, checkpoint_fn):
+        self.cpu()
+        torch.save(self, checkpoint_fn)
+        self.cuda(device=self.gpu)
+
+    @staticmethod
+    def load(fn_checkpoint, gpu=-1):
+        tagger = torch.load(fn_checkpoint)
+        return tagger.cuda(device=gpu)

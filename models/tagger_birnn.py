@@ -43,5 +43,5 @@ class TaggerBiRNN(TaggerBase):
         z_word_embed_d = self.dropout1(z_word_embed)
         rnn_output_h = self.birnn_layer(z_word_embed_d)
         rnn_output_h_d = self.dropout2(rnn_output_h) # shape: batch_size x max_seq_len x class_num + 1
-        z = self.lin_layer(rnn_output_h_d).permute(0, 2, 1) # shape: batch_size x class_num + 1 x max_seq_len
-        return self.log_softmax_layer(z)
+        z_out = self.lin_layer(rnn_output_h_d).permute(0, 2, 1) # shape: batch_size x class_num + 1 x max_seq_len
+        return self.log_softmax_layer(z_out)

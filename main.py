@@ -16,6 +16,7 @@ from classes.datasets_bank import DatasetsBank
 from classes.element_seq_indexer import ElementSeqIndexer
 from classes.utils import *
 
+from models.tagger_base import TaggerBase
 from models.tagger_birnn import TaggerBiRNN
 from models.tagger_birnncnn import TaggerBiRNNCNN
 
@@ -79,7 +80,7 @@ if __name__ == "__main__":
     #args.fn_test = 'data/persuasive_essays/Essay_Level/test.dat.abs'
 
     args.model = 'BiRNNCNN'
-    #args.epoch_num = 2
+    args.epoch_num = 2
     args.rnn_hidden_dim = 100
     #args.batch_size = 1
     #args.gpu = -1
@@ -173,7 +174,10 @@ if __name__ == "__main__":
             best_epoch_msg = '[BEST] '
             best_epoch = epoch
             best_f1_dev = f1_dev
-            best_tagger = copy.deepcopy(tagger)
+            if args.checkpoint_fn is not None:
+                tagger.save(args.checkpoint_fn)
+            #best_tagger = copy.deepcopy(tagger)
+
         print('\n%sEPOCH %d/%d, DEV dataset: Accuracy = %1.2f, F1-100%% = %1.2f, %d sec.\n' % (best_epoch_msg,
                                                                                                epoch,
                                                                                                args.epoch_num,
@@ -182,6 +186,9 @@ if __name__ == "__main__":
                                                                                                time.time() - time_start))
 
     # After all epochs, perform the final evaluation on test dataset
+    if args.checkpoint_fn is not None:
+        best_tagger = TaggerBase.load(args.checkpoint_fn, gpu=args.gpu)
+
     outputs_tag_sequences_test = best_tagger.predict_tags_from_words(datasets_bank.word_sequences_test)
     acc_test = Evaluator.get_accuracy_token_level(targets_tag_sequences=datasets_bank.tag_sequences_test,
                                                   outputs_tag_sequences=outputs_tag_sequences_test,
@@ -203,9 +210,5 @@ if __name__ == "__main__":
     # Write scores report to text file
     if args.report_fn is not None:
         Evaluator.write_scores_report(args.report_fn, args, scores_report_str)
-
-    # Please, sequences_indexer objects are stored in the model
-    if args.checkpoint_fn is not None:
-        torch.save(best_tagger.cpu(), args.checkpoint_fn)
 
     print('The end!')
