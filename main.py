@@ -88,8 +88,8 @@ if __name__ == "__main__":
     #args.gpu = -1
     #args.lr_decay = 0.05
     #args.rnn_type = 'LSTM'
-    args.checkpoint_fn = 'tagger_model_NER.bin'
-    args.report_fn = 'report_model_NER.txt'
+    args.checkpoint_fn = 'tagger_model_BiRNN_NER.bin'
+    args.report_fn = 'report_model_BiRNN_NER.txt'
     #args.seed_num = 112
 
     # Load CoNNL data as sequences of strings of words and corresponding tags
