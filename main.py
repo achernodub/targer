@@ -37,11 +37,11 @@ if __name__ == "__main__":
     parser.add_argument('--gpu', type=int, default=0, help='GPU device number, 0 by default, -1  means CPU.')
     parser.add_argument('--caseless', type=bool, default=True, help='Read characters caseless.')
     parser.add_argument('--epoch_num', type=int, default=200, help='Number of epochs.')
-    parser.add_argument('--rnn_hidden_dim', type=int, default=200, help='Number hidden units in the recurrent layer.')
+    parser.add_argument('--rnn_hidden_dim', type=int, default=100, help='Number hidden units in the recurrent layer.')
     parser.add_argument('--rnn_type', default='GRU', help='RNN cell units type: "Vanilla", "LSTM", "GRU".')
 
-    parser.add_argument('--char_embeddings_dim', type=int, default=25, help='Char embeddings dim, works only with Char CNNs.')
-    parser.add_argument('--max_char_pad_len', type=int, default=20, help='Standard length of words in characters for character CNNs.')
+    parser.add_argument('--char_embeddings_dim', type=int, default=25, help='Char embeddings dim, only for char CNNs.')
+    parser.add_argument('--word_len', type=int, default=20, help='Max length of words in characters for char CNNs.')
     parser.add_argument('--char_cnn_filter_num', type=int, default=30, help='Number of filters in Char CNN.')
     parser.add_argument('--char_window_size', type=int, default=3, help='Convolution1D size.')
     parser.add_argument('--dropout_ratio', type=float, default=0.5, help='Dropout ratio.')
@@ -80,14 +80,14 @@ if __name__ == "__main__":
     #args.fn_test = 'data/persuasive_essays/Essay_Level/test.dat.abs'
 
     args.model = 'BiRNNCNN'
-    args.epoch_num = 2
-    args.rnn_hidden_dim = 100
+    #args.epoch_num = 2
+    #args.rnn_hidden_dim = 100
     #args.batch_size = 1
     #args.gpu = -1
     #args.lr_decay = 0.05
     #args.rnn_type = 'LSTM'
-    args.checkpoint_fn = 'tagger_model_BiRNNCNN.bin'
-    args.report_fn = 'report_model_BiRNNCNN.txt'
+    args.checkpoint_fn = 'tagger_model_BiRNNCNN2.bin'
+    args.report_fn = 'report_model_BiRNNCNN2.txt'
     #args.seed_num = 112
 
     # Load CoNNL data as sequences of strings of words and corresponding tags
@@ -101,26 +101,6 @@ if __name__ == "__main__":
     word_seq_indexer.load_vocabulary_from_element_sequences(word_sequences_train)
     word_seq_indexer.load_vocabulary_from_element_sequences(word_sequences_dev)
     word_seq_indexer.load_vocabulary_from_element_sequences(word_sequences_test, verbose=True)
-
-    '''
-    un = word_seq_indexer.get_unique_characters_list()
-    import string
-    pr = set(string.printable)
-    print(len(un))
-    print(len(pr))
-    comm = un.union(pr)
-    print('UNION')
-    print('len =', len(un.union(pr)))
-    print('INTERSECT')
-    bb = un.intersection(pr)
-    print('len =',len(bb))
-    print(bb)
-    exit()
-
-    for n, c in enumerate(un):
-        print('n= %d c = %s' % (n, c))
-    exit()
-    '''
 
     # Converts lists of lists of tags to integer indices and back
     tag_seq_indexer = ElementSeqIndexer(gpu=args.gpu, caseless=False, verbose=args.verbose)
@@ -152,7 +132,7 @@ if __name__ == "__main__":
                                 gpu=args.gpu,
                                 freeze_char_embeddings=args.freeze_char_embeddings,
                                 char_embeddings_dim=args.char_embeddings_dim,
-                                max_char_pad_len=args.max_char_pad_len,
+                                word_len=args.word_len,
                                 char_cnn_filter_num=args.char_cnn_filter_num,
                                 char_window_size=args.char_window_size)
     else:

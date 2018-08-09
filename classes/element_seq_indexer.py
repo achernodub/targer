@@ -1,3 +1,5 @@
+import string
+
 import numpy as np
 import torch
 
@@ -139,8 +141,17 @@ class ElementSeqIndexer():
         idx = self.elements2idx(element_sequences)
         return self.idx2tensor(idx, align, word_len)
 
-    def get_unique_characters_list(self):
-        unique_characters_set = set()
+    def get_unique_characters_list(self, verbose=False, init_by_printable_characters=True):
+        if init_by_printable_characters:
+            unique_characters_set = set(string.printable)
+        else:
+            unique_characters_set = set()
+        if verbose:
+            cnt = 0
         for n, token in enumerate(self.elements_list):
+            len_delta = len(unique_characters_set)
             unique_characters_set = unique_characters_set.union(set(token))
-        return unique_characters_set
+            if verbose and len(unique_characters_set) > len_delta:
+                cnt += 1
+                print('n = %d/%d (%d) %s' % (n, len(self.elements_list), cnt, token))
+        return list(unique_characters_set)

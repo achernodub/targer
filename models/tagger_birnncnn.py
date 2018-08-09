@@ -14,7 +14,7 @@ class TaggerBiRNNCNN(TaggerBase):
     """
     def __init__(self, word_seq_indexer, tag_seq_indexer, class_num, rnn_hidden_dim=100, freeze_word_embeddings=False,
                  dropout_ratio=0.5, rnn_type='GRU', gpu=-1, freeze_char_embeddings = False, char_embeddings_dim=25,
-                 max_char_pad_len=20, char_cnn_filter_num=30, char_window_size=3):
+                 word_len=20, char_cnn_filter_num=30, char_window_size=3):
         super(TaggerBiRNNCNN, self).__init__(word_seq_indexer, tag_seq_indexer, gpu)
         self.class_num = class_num
         self.rnn_hidden_dim = rnn_hidden_dim
@@ -24,14 +24,14 @@ class TaggerBiRNNCNN(TaggerBase):
         self.gpu = gpu
         self.freeze_char_embeddings = freeze_char_embeddings
         self.char_embeddings_dim = char_embeddings_dim
-        self.max_char_pad_len = max_char_pad_len
+        self.word_len = word_len
         self.char_cnn_filter_num = char_cnn_filter_num
         self.char_window_size = char_window_size
         self.word_embeddings_layer = LayerWordEmbeddings(word_seq_indexer, gpu, freeze_word_embeddings)
         self.char_embeddings_layer = LayerCharEmbeddings(gpu, char_embeddings_dim, freeze_char_embeddings,
-                                                         max_char_pad_len)
+                                                         word_len, word_seq_indexer.get_unique_characters_list())
         self.char_cnn_layer = LayerCharCNN(gpu, char_embeddings_dim, char_cnn_filter_num, char_window_size,
-                                           max_char_pad_len)
+                                           word_len)
         self.dropout1 = torch.nn.Dropout(p=dropout_ratio)
         self.dropout2 = torch.nn.Dropout(p=dropout_ratio)
         if rnn_type == 'GRU':
