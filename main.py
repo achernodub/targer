@@ -63,6 +63,7 @@ if __name__ == "__main__":
                                                                                       help='Path to report.')
     parser.add_argument('--match_alpha_ratio', type=float, default='0.999',
                         help='Alpha ratio from non-strict matching, options: 0.999 or 0.5')
+    parser.add_argument('--save_best', type=bool, default=True, help='Save best on DEV dataset as a final model.')
     args = parser.parse_args()
 
     np.random.seed(args.seed_num)
@@ -91,6 +92,7 @@ if __name__ == "__main__":
     args.checkpoint_fn = 'tagger_model_BiRNNCNN_NER.bin'
     args.report_fn = 'report_model_BiRNNCNN_NER.txt'
     #args.checkpoint_fn = 'tagger_model_temp.bin'
+    args.save_best = False
 
     # Load CoNNL data as sequences of strings of words and corresponding tags
     #word_sequences_train, tag_sequences_train = DataIO.read_CoNNL_dat_abs(args.fn_train)
@@ -176,11 +178,15 @@ if __name__ == "__main__":
         f1_dev, _, _, _ = Evaluator.get_f1_from_words(targets_tag_sequences=datasets_bank.tag_sequences_dev,
                                                                    outputs_tag_sequences=outputs_tag_sequences_dev,
                                                                    match_alpha_ratio=0.999)
+
         if f1_dev > best_f1_dev:
             best_epoch_msg = '[BEST] '
             best_epoch = epoch
             best_f1_dev = f1_dev
             best_tagger = copy.deepcopy(tagger)
+
+        if not args.save_best:
+            best_tagger = copy.deepcopy(tagger) # if save_best flag is off then best tagger is the last tagger anyway
 
         print('\n%sEPOCH %d/%d, DEV dataset: Accuracy = %1.2f, F1-100%% = %1.2f, %d sec.\n' % (best_epoch_msg,
                                                                                                epoch,
