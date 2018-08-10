@@ -49,7 +49,7 @@ if __name__ == "__main__":
     parser.add_argument('--clip_grad', type=float, default=5.0, help='Clipping gradients maximum L2 norm.')
     parser.add_argument('--opt_method', default='sgd', help='Optimization method: "sgd", "adam".')
     parser.add_argument('--lr', type=float, default=0.01, help='Learning rate.')
-    parser.add_argument('--lr_decay', type=float, default=0.0, help='Learning decay rate.')
+    parser.add_argument('--lr_decay', type=float, default=0.05, help='Learning decay rate.')
     parser.add_argument('--momentum', type=float, default=0.9, help='Learning momentum rate.')
     parser.add_argument('--batch_size', type=int, default=10, help='Batch size, samples.')
     parser.add_argument('--verbose', type=bool, default=True, help='Show additional information.')
@@ -82,7 +82,7 @@ if __name__ == "__main__":
 
     #args.model = 'BiRNN'
     args.model = 'BiRNNCNN'
-    args.epoch_num = 50
+    args.epoch_num = 200
     #args.rnn_hidden_dim = 100
     #args.batch_size = 1
     #args.gpu = -1
@@ -91,7 +91,6 @@ if __name__ == "__main__":
     args.checkpoint_fn = 'tagger_model_BiRNNCNN_NER.bin'
     args.report_fn = 'report_model_BiRNNCNN_NER.txt'
     #args.checkpoint_fn = 'tagger_model_temp.bin'
-    #args.seed_num = 112
 
     # Load CoNNL data as sequences of strings of words and corresponding tags
     #word_sequences_train, tag_sequences_train = DataIO.read_CoNNL_dat_abs(args.fn_train)
