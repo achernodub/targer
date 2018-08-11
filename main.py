@@ -2,8 +2,8 @@ from __future__ import print_function
 
 import argparse
 import copy
-import time
 import datetime
+import time
 
 import numpy as np
 import torch
@@ -12,12 +12,10 @@ import torch.optim as optim
 from torch.optim.lr_scheduler import LambdaLR
 
 from classes.data_io import DataIO
-from classes.evaluator import Evaluator
 from classes.datasets_bank import DatasetsBank
 from classes.element_seq_indexer import ElementSeqIndexer
-from classes.utils import *
+from classes.evaluator import Evaluator
 
-from models.tagger_base import TaggerBase
 from models.tagger_birnn import TaggerBiRNN
 from models.tagger_birnncnn import TaggerBiRNNCNN
 
@@ -32,7 +30,8 @@ if __name__ == "__main__":
                         help='Test data in CoNNL-2003 format, it is used to obtain the final accuracy/F1 score.')
     parser.add_argument('--emb_fn', default='embeddings/glove.6B.100d.txt', help='Path to embeddings file.')
     parser.add_argument('--emb_delimiter', default=' ', help='Delimiter for embeddings file.')
-    parser.add_argument('--freeze_word_embeddings', type=bool, default=False, help='False to continue training the word embeddings.')
+    parser.add_argument('--freeze_word_embeddings', type=bool, default=False, help='False to continue training the \
+                                                                                    word embeddings.')
     parser.add_argument('--freeze_char_embeddings', type=bool, default=False,
                         help='False to continue training the char embeddings.')
     parser.add_argument('--gpu', type=int, default=0, help='GPU device number, 0 by default, -1  means CPU.')
@@ -81,8 +80,8 @@ if __name__ == "__main__":
     #args.fn_dev = 'data/persuasive_essays/Essay_Level/dev.dat.abs'
     #args.fn_test = 'data/persuasive_essays/Essay_Level/test.dat.abs'
 
-    args.model = 'BiRNN'
-    #args.model = 'BiRNNCNN'
+    #args.model = 'BiRNN'
+    args.model = 'BiRNNCNN'
     args.epoch_num = 200
     #args.rnn_hidden_dim = 100
     #args.batch_size = 1
@@ -95,10 +94,6 @@ if __name__ == "__main__":
     #args.save_best = False
 
     # Load CoNNL data as sequences of strings of words and corresponding tags
-    #word_sequences_train, tag_sequences_train = DataIO.read_CoNNL_dat_abs(args.fn_train)
-    #word_sequences_dev, tag_sequences_dev = DataIO.read_CoNNL_dat_abs(args.fn_dev)
-    #word_sequences_test, tag_sequences_test = DataIO.read_CoNNL_dat_abs(args.fn_test)
-
     word_sequences_train, tag_sequences_train = DataIO.read_CoNNL_universal(args.fn_train)
     word_sequences_dev, tag_sequences_dev = DataIO.read_CoNNL_universal(args.fn_dev)
     word_sequences_test, tag_sequences_test = DataIO.read_CoNNL_universal(args.fn_test)
@@ -161,7 +156,8 @@ if __name__ == "__main__":
         best_epoch_msg = ''
         word_sequences_train_batch_list, tag_sequences_train_batch_list = datasets_bank.get_train_batches(args.batch_size)
         loss_sum = 0
-        for i, (word_sequences_train_batch, tag_sequences_train_batch) in enumerate(zip(word_sequences_train_batch_list, tag_sequences_train_batch_list)):
+        for i, (word_sequences_train_batch, tag_sequences_train_batch) in enumerate(zip(word_sequences_train_batch_list,
+                                                                                        tag_sequences_train_batch_list)):
             tagger.zero_grad()
             outputs_tensor_train_batch_one_hot = tagger(word_sequences_train_batch)
             targets_tensor_train_batch = tag_seq_indexer.elements2tensor(tag_sequences_train_batch)
