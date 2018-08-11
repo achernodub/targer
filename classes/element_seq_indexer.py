@@ -107,7 +107,7 @@ class ElementSeqIndexer():
             print('%d embeddings loaded/generated.' % len(self.embeddings_list))
 
     def get_elements_num(self):
-        return len(self.elements_list) - 1
+        return len(self.elements_list)
 
     def elements2idx(self, element_sequences):
         idx_sequences = []
