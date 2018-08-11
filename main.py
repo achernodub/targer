@@ -91,7 +91,7 @@ if __name__ == "__main__":
     #args.rnn_type = 'LSTM'
     #args.checkpoint_fn = 'tagger_model_BiRNNCNN_NER_nosb.bin'
     #args.report_fn = 'report_model_BiRNNCNN_NER_nosb.txt'
-    #args.checkpoint_fn = 'tagger_model_temp.bin'
+    args.checkpoint_fn = 'tagger_model_temp.bin'
     #args.save_best = False
 
     # Load CoNNL data as sequences of strings of words and corresponding tags
@@ -159,6 +159,7 @@ if __name__ == "__main__":
         time_start = time.time()
         best_epoch_msg = ''
         word_sequences_train_batch_list, tag_sequences_train_batch_list = datasets_bank.get_train_batches(args.batch_size)
+        loss_sum = 0
         for i, (word_sequences_train_batch, tag_sequences_train_batch) in enumerate(zip(word_sequences_train_batch_list, tag_sequences_train_batch_list)):
             tagger.zero_grad()
             outputs_tensor_train_batch_one_hot = tagger(word_sequences_train_batch)
@@ -168,7 +169,8 @@ if __name__ == "__main__":
             tagger.clip_gradients(args.clip_grad)
             optimizer.step()
             if i % 50 == 0 and args.verbose:
-                print('-- epoch %d, i = %d/%d, loss = %1.4f' % (epoch, i, iterations_num, loss.item()))
+                print('-- epoch %d, i = %d/%d, instant loss = %1.4f' % (epoch, i, iterations_num, loss.item()))
+            loss_sum += loss.item()
 
         time_finish = time.time()
         outputs_tag_sequences_dev = tagger.predict_tags_from_words(datasets_bank.word_sequences_dev, batch_size=100)
@@ -189,9 +191,10 @@ if __name__ == "__main__":
         if not args.save_best:
             best_tagger = copy.deepcopy(tagger) # if save_best flag is off then best tagger is the last tagger anyway
 
-        print('\n%sEPOCH %d/%d, DEV dataset: Accuracy = %1.2f, F1-100%% = %1.2f, %d sec.\n' % (best_epoch_msg,
+        print('\n%sEPOCH %d/%d, DEV dataset: loss = %1.2f, accuracy = %1.2f, F1-100%% = %1.2f,  | %d sec.\n' % (best_epoch_msg,
                                                                                                epoch,
                                                                                                args.epoch_num,
+                                                                                               loss_sum,
                                                                                                acc_dev,
                                                                                                f1_dev,
                                                                                                time.time() - time_start))
