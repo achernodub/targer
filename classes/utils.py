@@ -1,7 +1,7 @@
 import codecs
 import itertools
 
-def info(name, t):
+def info(t, name=''):
     print(name, '|', t.type(), '|', t.shape)
 
 def flatten(list_in):

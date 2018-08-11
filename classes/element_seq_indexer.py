@@ -10,22 +10,28 @@ class ElementSeqIndexer():
         Index 0 stands for the unknown string.
     """
 
-    def __init__(self, gpu=-1, caseless=True, load_embeddings=False, verbose=False, unk='<unk>'):
+    def __init__(self, gpu=-1, caseless=True, load_embeddings=False, verbose=False, add_pad=True, add_unk=True,
+                 pad='<pad>', unk='<unk>'):
         self.gpu = gpu
         self.caseless = caseless
         self.load_embeddings = load_embeddings
         self.verbose = verbose
+        self.add_pad = add_pad
+        self.add_unk = add_unk
+        self.pad = pad
         self.unk = unk
         self.elements_list = list()
         self.out_of_vocabulary_list = list()
         self.element2idx_dict = dict()
         self.idx2element_dict = dict()
-        self.add_element('<pad>')
+        if add_pad:
+            self.add_element(pad)
         if load_embeddings:
             self.embeddings_loaded = False
             self.embeddings_dim = 0
             self.embeddings_list = list()
-        self.add_element(unk)
+        if add_unk:
+            self.add_element(unk)
 
     def add_element(self, element):
         if self.caseless:
@@ -63,8 +69,10 @@ class ElementSeqIndexer():
             self.embeddings_dim = len(emb_vector)
             break
         # 1) Generate random embedding which will be correspond to the index 0 that in used in the batches instead of mask.
-        self.__add_emb_vector(self.__get_zero_emb_vector()) # for <pad>
-        self.__add_emb_vector(self.__get_random_emb_vector()) # for <unk>
+        if self.add_pad:
+            self.__add_emb_vector(self.__get_zero_emb_vector()) # for <pad>
+        if self.add_unk:
+            self.__add_emb_vector(self.__get_random_emb_vector()) # for <unk>
         # 2) Add embeddings from file
         for line in open(emb_fn, 'r'):
             values = line.split(emb_delimiter)
