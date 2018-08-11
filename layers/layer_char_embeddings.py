@@ -15,14 +15,15 @@ class LayerCharEmbeddings(LayerBase):
         self.freeze_char_embeddings = freeze_char_embeddings
         self.word_len = word_len # standard len to pad
         # Init character sequences indexer
-        self.char_seq_indexer = ElementSeqIndexer(gpu = gpu, caseless=True, load_embeddings=False)
+        self.char_seq_indexer = ElementSeqIndexer(gpu = gpu, caseless=True, load_embeddings=False, pad='<pad>',
+                                                  unk='<unk>')
         if unique_characters_list is None:
             unique_characters_list = list(string.printable)
         for c in unique_characters_list:
             self.char_seq_indexer.add_element(c)
         self.char_seq_indexer.add_element(self.char_seq_indexer.unk)
         # Init character embedding
-        self.embeddings = nn.Embedding(num_embeddings=self.char_seq_indexer.get_elements_num() + 1, # + <unk>
+        self.embeddings = nn.Embedding(num_embeddings=self.char_seq_indexer.get_elements_num(),
                                        embedding_dim=char_embeddings_dim,
                                        padding_idx=0)
         # nn.init.uniform_(self.embeddings.weight, -0.5, 0.5) # Option: Ma, 2016

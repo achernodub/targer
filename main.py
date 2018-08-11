@@ -81,9 +81,9 @@ if __name__ == "__main__":
     #args.fn_dev = 'data/persuasive_essays/Essay_Level/dev.dat.abs'
     #args.fn_test = 'data/persuasive_essays/Essay_Level/test.dat.abs'
 
-    args.model = 'BiRNN'
-    #args.model = 'BiRNNCNN'
-    args.epoch_num = 50
+    #args.model = 'BiRNN'
+    args.model = 'BiRNNCNN'
+    args.epoch_num = 200
     #args.rnn_hidden_dim = 100
     #args.batch_size = 1
     #args.gpu = -1
@@ -91,7 +91,7 @@ if __name__ == "__main__":
     #args.rnn_type = 'LSTM'
     #args.checkpoint_fn = 'tagger_model_BiRNNCNN_NER_nosb.bin'
     #args.report_fn = 'report_model_BiRNNCNN_NER_nosb.txt'
-    args.checkpoint_fn = 'tagger_model_temp.bin'
+    #args.checkpoint_fn = 'tagger_model_temp3.bin'
     #args.save_best = False
 
     # Load CoNNL data as sequences of strings of words and corresponding tags
@@ -104,14 +104,15 @@ if __name__ == "__main__":
     word_sequences_test, tag_sequences_test = DataIO.read_CoNNL_universal(args.fn_test)
 
     # Converts lists of lists of words to integer indices and back
-    word_seq_indexer = ElementSeqIndexer(gpu=args.gpu, caseless=args.caseless, load_embeddings=True, verbose=args.verbose)
+    word_seq_indexer = ElementSeqIndexer(gpu=args.gpu, caseless=args.caseless, load_embeddings=True,
+                                         verbose=args.verbose, pad='<pad>', unk='<unk>')
     word_seq_indexer.load_vocabulary_from_embeddings_file(emb_fn=args.emb_fn, emb_delimiter=args.emb_delimiter)
     word_seq_indexer.load_vocabulary_from_element_sequences(word_sequences_train)
     word_seq_indexer.load_vocabulary_from_element_sequences(word_sequences_dev)
     word_seq_indexer.load_vocabulary_from_element_sequences(word_sequences_test, verbose=True)
 
     # Converts lists of lists of tags to integer indices and back
-    tag_seq_indexer = ElementSeqIndexer(gpu=args.gpu, caseless=False, verbose=args.verbose, add_pad=False, add_unk=False)
+    tag_seq_indexer = ElementSeqIndexer(gpu=args.gpu, caseless=False, verbose=args.verbose, pad='<pad>', unk=None)
     tag_seq_indexer.load_vocabulary_from_element_sequences(tag_sequences_train)
 
     # DatasetsBank provides storing the different dataset subsets (train/dev/test) and sampling batches from them
@@ -123,7 +124,7 @@ if __name__ == "__main__":
     if args.model == 'BiRNN':
         tagger = TaggerBiRNN(word_seq_indexer=word_seq_indexer,
                              tag_seq_indexer=tag_seq_indexer,
-                             class_num=tag_seq_indexer.get_elements_num(),
+                             class_num=tag_seq_indexer.get_class_num(),
                              rnn_hidden_dim=args.rnn_hidden_dim,
                              freeze_word_embeddings=args.freeze_word_embeddings,
                              dropout_ratio=args.dropout_ratio,
@@ -132,7 +133,7 @@ if __name__ == "__main__":
     elif args.model == 'BiRNNCNN':
         tagger = TaggerBiRNNCNN(word_seq_indexer=word_seq_indexer,
                                 tag_seq_indexer=tag_seq_indexer,
-                                class_num=tag_seq_indexer.get_elements_num(),
+                                class_num=tag_seq_indexer.get_class_num(),
                                 rnn_hidden_dim=args.rnn_hidden_dim,
                                 freeze_word_embeddings=args.freeze_word_embeddings,
                                 dropout_ratio=args.dropout_ratio,

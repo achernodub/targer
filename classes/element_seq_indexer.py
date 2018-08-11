@@ -10,27 +10,24 @@ class ElementSeqIndexer():
         Index 0 stands for the unknown string.
     """
 
-    def __init__(self, gpu=-1, caseless=True, load_embeddings=False, verbose=False, add_pad=True, add_unk=True,
-                 pad='<pad>', unk='<unk>'):
+    def __init__(self, gpu=-1, caseless=True, load_embeddings=False, verbose=False, pad='<pad>', unk='<unk>'):
         self.gpu = gpu
         self.caseless = caseless
         self.load_embeddings = load_embeddings
         self.verbose = verbose
-        self.add_pad = add_pad
-        self.add_unk = add_unk
         self.pad = pad
         self.unk = unk
         self.elements_list = list()
         self.out_of_vocabulary_list = list()
         self.element2idx_dict = dict()
         self.idx2element_dict = dict()
-        if add_pad:
+        if pad is not None:
             self.add_element(pad)
         if load_embeddings:
             self.embeddings_loaded = False
             self.embeddings_dim = 0
             self.embeddings_list = list()
-        if add_unk:
+        if unk is not None:
             self.add_element(unk)
 
     def add_element(self, element):
@@ -69,10 +66,10 @@ class ElementSeqIndexer():
             self.embeddings_dim = len(emb_vector)
             break
         # 1) Generate random embedding which will be correspond to the index 0 that in used in the batches instead of mask.
-        if self.add_pad:
-            self.__add_emb_vector(self.__get_zero_emb_vector()) # for <pad>
-        if self.add_unk:
-            self.__add_emb_vector(self.__get_random_emb_vector()) # for <unk>
+        if self.pad is not None:
+            self.__add_emb_vector(self.__get_zero_emb_vector()) # zeros for <pad>
+        if self.unk is not None:
+            self.__add_emb_vector(self.__get_random_emb_vector()) # randoms for <unk>
         # 2) Add embeddings from file
         for line in open(emb_fn, 'r'):
             values = line.split(emb_delimiter)
@@ -107,9 +104,12 @@ class ElementSeqIndexer():
             print('%d embeddings loaded/generated.' % len(self.embeddings_list))
 
     def get_elements_num(self):
-        if self.add_pad and self.unk:
+        return len(self.elements_list)
+
+    def get_class_num(self):
+        if self.pad is not None and self.unk is not None:
             return len(self.elements_list) - 2
-        if self.add_pad or self.unk:
+        if self.pad is not None or self.unk is not None:
             return len(self.elements_list) - 1
         return len(self.elements_list)
 
@@ -117,7 +117,8 @@ class ElementSeqIndexer():
         idx_sequences = []
         for element_seq in element_sequences:
             element_caseless_seq = [element.lower() if self.caseless else element for element in element_seq]
-            idx_seq = [self.element2idx_dict.get(element, 1) for element in element_caseless_seq] # 1 stands for <unk>
+            idx_seq = [self.element2idx_dict.get(element, self.element2idx_dict[self.unk])
+                       for element in element_caseless_seq]
             idx_sequences.append(idx_seq)
         return idx_sequences
 
