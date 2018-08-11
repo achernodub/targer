@@ -81,9 +81,9 @@ if __name__ == "__main__":
     #args.fn_dev = 'data/persuasive_essays/Essay_Level/dev.dat.abs'
     #args.fn_test = 'data/persuasive_essays/Essay_Level/test.dat.abs'
 
-    #args.model = 'BiRNN'
-    args.model = 'BiRNNCNN'
-    args.epoch_num = 200
+    args.model = 'BiRNN'
+    #args.model = 'BiRNNCNN'
+    args.epoch_num = 50
     #args.rnn_hidden_dim = 100
     #args.batch_size = 1
     #args.gpu = -1
@@ -192,7 +192,7 @@ if __name__ == "__main__":
         if not args.save_best:
             best_tagger = copy.deepcopy(tagger) # if save_best flag is off then best tagger is the last tagger anyway
 
-        print('\n%sEPOCH %d/%d, DEV dataset: loss = %1.2f, accuracy = %1.2f, F1-100%% = %1.2f,  | %d sec.\n' % (best_epoch_msg,
+        print('\n%sEPOCH %d/%d, DEV dataset: loss = %1.2f, accuracy = %1.2f, F1-100%% = %1.2f  | %d sec.\n' % (best_epoch_msg,
                                                                                                epoch,
                                                                                                args.epoch_num,
                                                                                                loss_sum,

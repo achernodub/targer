@@ -117,8 +117,17 @@ class ElementSeqIndexer():
         idx_sequences = []
         for element_seq in element_sequences:
             element_caseless_seq = [element.lower() if self.caseless else element for element in element_seq]
-            idx_seq = [self.element2idx_dict.get(element, self.element2idx_dict[self.unk])
-                       for element in element_caseless_seq]
+            idx_seq = list()
+            #idx_seq = [self.element2idx_dict.get(element, self.element2idx_dict[self.unk])
+            #           for element in element_caseless_seq]
+            for element in element_caseless_seq:
+                if element in self.element2idx_dict:
+                    idx_seq.append(self.element2idx_dict[element])
+                else:
+                    if self.unk is not None:
+                        idx_seq.append(self.element2idx_dict[self.unk])
+                    else:
+                        idx_seq.append(0) # pad
             idx_sequences.append(idx_seq)
         return idx_sequences
 
