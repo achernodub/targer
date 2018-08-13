@@ -17,7 +17,7 @@ class ElementSeqIndexer():
         self.verbose = verbose
         self.pad = pad
         self.unk = unk
-        self.elements_list = list()
+        #self.elements_list = list()
         self.out_of_vocabulary_list = list()
         self.element2idx_dict = dict()
         self.idx2element_dict = dict()
@@ -30,18 +30,21 @@ class ElementSeqIndexer():
         if unk is not None:
             self.add_element(unk)
 
+    def elements_list(self):
+        return self.element2idx_dict.keys()
+
     def add_element(self, element):
         if self.caseless:
             element = element.lower()
-        idx = len(self.elements_list)
-        self.elements_list.append(element)
+        idx = len(self.elements_list())
+        #self.elements_list.append(element)
         self.element2idx_dict[element] = idx
         self.idx2element_dict[idx] = element
 
     def __element_exists(self, element):
         if self.caseless:
             element = element.lower()
-        return (element in self.elements_list)
+        return (element in self.elements_list())
 
     def __add_emb_vector(self, emb_vector):
         self.embeddings_list.append(emb_vector)
@@ -104,14 +107,14 @@ class ElementSeqIndexer():
             print('%d embeddings loaded/generated.' % len(self.embeddings_list))
 
     def get_elements_num(self):
-        return len(self.elements_list)
+        return len(self.elements_list())
 
     def get_class_num(self):
         if self.pad is not None and self.unk is not None:
-            return len(self.elements_list) - 2
+            return len(self.elements_list()) - 2
         if self.pad is not None or self.unk is not None:
-            return len(self.elements_list) - 1
-        return len(self.elements_list)
+            return len(self.elements_list()) - 1
+        return len(self.elements_list())
 
     def elements2idx(self, element_sequences):
         idx_sequences = []
@@ -174,7 +177,7 @@ class ElementSeqIndexer():
             unique_characters_set = set()
         if verbose:
             cnt = 0
-        for n, token in enumerate(self.elements_list):
+        for n, token in enumerate(self.elements_list()):
             len_delta = len(unique_characters_set)
             unique_characters_set = unique_characters_set.union(set(token))
             if verbose and len(unique_characters_set) > len_delta:

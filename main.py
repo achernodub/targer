@@ -63,6 +63,9 @@ if __name__ == "__main__":
     parser.add_argument('--match_alpha_ratio', type=float, default='0.999',
                         help='Alpha ratio from non-strict matching, options: 0.999 or 0.5')
     parser.add_argument('--save_best', type=bool, default=True, help='Save best on DEV dataset as a final model.')
+    parser.add_argument('-load_word_seq_indexer', type=str, default=None, help='Load word_seq_indexer object from hdf5 file.')
+
+
     args = parser.parse_args()
 
     np.random.seed(args.seed_num)
@@ -82,7 +85,7 @@ if __name__ == "__main__":
 
     #args.model = 'BiRNN'
     args.model = 'BiRNNCNN'
-    args.epoch_num = 200
+    args.epoch_num = 50
     #args.rnn_hidden_dim = 100
     #args.batch_size = 1
     #args.gpu = -1
@@ -92,25 +95,28 @@ if __name__ == "__main__":
     #args.report_fn = 'report_model_BiRNNCNN_NER_nosb.txt'
     #args.checkpoint_fn = 'tagger_model_temp3.bin'
     #args.save_best = False
+    args.load_word_seq_indexer = 'word_seq_indexer.hdf5'
 
     # Load CoNNL data as sequences of strings of words and corresponding tags
     word_sequences_train, tag_sequences_train = DataIO.read_CoNNL_universal(args.fn_train)
     word_sequences_dev, tag_sequences_dev = DataIO.read_CoNNL_universal(args.fn_dev)
     word_sequences_test, tag_sequences_test = DataIO.read_CoNNL_universal(args.fn_test)
 
-    # Converts lists of lists of words to integer indices and back
-    word_seq_indexer = ElementSeqIndexer(gpu=args.gpu, caseless=args.caseless, load_embeddings=True,
-                                         verbose=args.verbose, pad='<pad>', unk='<unk>')
-    word_seq_indexer.load_vocabulary_from_embeddings_file(emb_fn=args.emb_fn, emb_delimiter=args.emb_delimiter)
-    word_seq_indexer.load_vocabulary_from_element_sequences(word_sequences_train)
-    word_seq_indexer.load_vocabulary_from_element_sequences(word_sequences_dev)
-    word_seq_indexer.load_vocabulary_from_element_sequences(word_sequences_test, verbose=True)
-
     # Converts lists of lists of tags to integer indices and back
     tag_seq_indexer = ElementSeqIndexer(gpu=args.gpu, caseless=False, verbose=args.verbose, pad='<pad>', unk=None)
     tag_seq_indexer.load_vocabulary_from_element_sequences(tag_sequences_train)
 
-    torch.save(word_seq_indexer, 'word_seq_indexer.hdf5)
+    # Word_seq_indexer converts lists of lists of words to integer indices and back; optionally contains embeddings
+    if args.load_word_seq_indexer is not None:
+        word_seq_indexer = torch.load(args.load_word_seq_indexer)
+    else:
+        word_seq_indexer = ElementSeqIndexer(gpu=args.gpu, caseless=args.caseless, load_embeddings=True,
+                                             verbose=args.verbose, pad='<pad>', unk='<unk>')
+        word_seq_indexer.load_vocabulary_from_embeddings_file(emb_fn=args.emb_fn, emb_delimiter=args.emb_delimiter)
+        word_seq_indexer.load_vocabulary_from_element_sequences(word_sequences_train)
+        word_seq_indexer.load_vocabulary_from_element_sequences(word_sequences_dev)
+        word_seq_indexer.load_vocabulary_from_element_sequences(word_sequences_test, verbose=True)
+        torch.save(word_seq_indexer, args.load_word_seq_indexer)
 
     # DatasetsBank provides storing the different dataset subsets (train/dev/test) and sampling batches from them
     datasets_bank = DatasetsBank()
