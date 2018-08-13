@@ -17,7 +17,7 @@ from classes.element_seq_indexer import ElementSeqIndexer
 from classes.evaluator import Evaluator
 
 from models.tagger_birnn import TaggerBiRNN
-from models.tagger_birnncnn import TaggerBiRNNCNN
+from models.tagger_birnn_cnn import TaggerBiRNNCNN
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Learning tagging problem using neural networks')
