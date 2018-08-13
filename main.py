@@ -18,6 +18,7 @@ from classes.evaluator import Evaluator
 
 from models.tagger_birnn import TaggerBiRNN
 from models.tagger_birnn_cnn import TaggerBiRNNCNN
+from models.tagger_birnn_cnn_crf import TaggerBiRNNCNNCRF
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Learning tagging problem using neural networks')
@@ -84,7 +85,8 @@ if __name__ == "__main__":
     #args.fn_test = 'data/persuasive_essays/Essay_Level/test.dat.abs'
 
     #args.model = 'BiRNN'
-    args.model = 'BiRNNCNN'
+    #args.model = 'BiRNNCNN'
+    args.model = 'BiRNNCNNCRF'
     args.epoch_num = 50
     #args.rnn_hidden_dim = 100
     #args.batch_size = 1
@@ -147,6 +149,20 @@ if __name__ == "__main__":
                                 word_len=args.word_len,
                                 char_cnn_filter_num=args.char_cnn_filter_num,
                                 char_window_size=args.char_window_size)
+    elif args.model == 'BiRNNCNNCRF':
+        tagger = TaggerBiRNNCNNCRF(word_seq_indexer=word_seq_indexer,
+                                   tag_seq_indexer=tag_seq_indexer,
+                                   class_num=tag_seq_indexer.get_class_num(),
+                                   rnn_hidden_dim=args.rnn_hidden_dim,
+                                   freeze_word_embeddings=args.freeze_word_embeddings,
+                                   dropout_ratio=args.dropout_ratio,
+                                   rnn_type=args.rnn_type,
+                                   gpu=args.gpu,
+                                   freeze_char_embeddings=args.freeze_char_embeddings,
+                                   char_embeddings_dim=args.char_embeddings_dim,
+                                   word_len=args.word_len,
+                                   char_cnn_filter_num=args.char_cnn_filter_num,
+                                   char_window_size=args.char_window_size)
 
     else:
         raise ValueError('Unknown tagger model, must be one of BiRNN/BiRNNCNN.')
