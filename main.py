@@ -88,7 +88,7 @@ if __name__ == "__main__":
     #args.gpu = -1
     #args.lr_decay = 0.05
     #args.rnn_type = 'LSTM'
-    #args.checkpoint_fn = 'tagger_model_BiRNNCNN_NER_nosb.bin'
+    #args.checkpoint_fn = 'tagger_model_BiRNNCNN_NER_nosb.hdf5'
     #args.report_fn = 'report_model_BiRNNCNN_NER_nosb.txt'
     #args.checkpoint_fn = 'tagger_model_temp3.bin'
     #args.save_best = False
@@ -109,6 +109,8 @@ if __name__ == "__main__":
     # Converts lists of lists of tags to integer indices and back
     tag_seq_indexer = ElementSeqIndexer(gpu=args.gpu, caseless=False, verbose=args.verbose, pad='<pad>', unk=None)
     tag_seq_indexer.load_vocabulary_from_element_sequences(tag_sequences_train)
+
+    torch.save(word_seq_indexer, 'word_seq_indexer.hdf5)
 
     # DatasetsBank provides storing the different dataset subsets (train/dev/test) and sampling batches from them
     datasets_bank = DatasetsBank()

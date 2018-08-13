@@ -13,7 +13,7 @@ fn = 'data/persuasive_essays/Paragraph_Level/test.dat.abs'
 word_sequences, tag_sequences = DataIO.read_CoNNL_dat_abs(fn)
 
 # Load tagger model
-fn_checkpoint = 'tagger_model_temp.bin'
+fn_checkpoint = 'tagger_model_temp.hdf5'
 if os.path.isfile(fn_checkpoint):
     tagger = TaggerBase.load(fn_checkpoint)
 else:
