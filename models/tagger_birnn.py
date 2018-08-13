@@ -13,6 +13,7 @@ class TaggerBiRNN(TaggerBase):
     def __init__(self, word_seq_indexer, tag_seq_indexer, class_num, rnn_hidden_dim=100, freeze_word_embeddings=False, dropout_ratio=0.5,
                  rnn_type='GRU', gpu=-1):
         super(TaggerBiRNN, self).__init__(word_seq_indexer, tag_seq_indexer, gpu)
+        self.tag_seq_indexer = tag_seq_indexer
         self.class_num = class_num
         self.rnn_hidden_dim = rnn_hidden_dim
         self.freeze_embeddings = freeze_word_embeddings
@@ -37,6 +38,7 @@ class TaggerBiRNN(TaggerBase):
         self.log_softmax_layer = nn.LogSoftmax(dim=1)
         if gpu >= 0:
             self.cuda(device=self.gpu)
+        self.nll_loss = nn.NLLLoss(ignore_index=0) # "0" target values actually are zero-padded parts of sequences
 
     def forward(self, word_sequences):
         z_word_embed = self.word_embeddings_layer(word_sequences)
@@ -46,3 +48,9 @@ class TaggerBiRNN(TaggerBase):
         z_rnn_out = self.lin_layer(rnn_output_h_d).permute(0, 2, 1) # shape: batch_size x class_num + 1 x max_seq_len
         y = self.log_softmax_layer(z_rnn_out)
         return y
+
+    def get_loss(self, word_sequences_train_batch, tag_sequences_train_batch):
+        outputs_tensor_train_batch_one_hot = self.forward(word_sequences_train_batch)
+        targets_tensor_train_batch = self.tag_seq_indexer.elements2tensor(tag_sequences_train_batch)
+        loss = self.nll_loss(outputs_tensor_train_batch_one_hot, targets_tensor_train_batch)
+        return loss

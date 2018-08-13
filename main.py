@@ -85,8 +85,8 @@ if __name__ == "__main__":
     #args.fn_test = 'data/persuasive_essays/Essay_Level/test.dat.abs'
 
     #args.model = 'BiRNN'
-    #args.model = 'BiRNNCNN'
-    args.model = 'BiRNNCNNCRF'
+    args.model = 'BiRNNCNN'
+    #args.model = 'BiRNNCNNCRF'
     args.epoch_num = 50
     #args.rnn_hidden_dim = 100
     #args.batch_size = 1
@@ -167,7 +167,6 @@ if __name__ == "__main__":
     else:
         raise ValueError('Unknown tagger model, must be one of BiRNN/BiRNNCNN.')
 
-    nll_loss = nn.NLLLoss(ignore_index=0) # "0" target values actually are zero-padded parts of sequences
     optimizer = optim.SGD(list(tagger.parameters()), lr=args.lr, momentum=args.momentum)
     scheduler = LambdaLR(optimizer, lr_lambda=lambda epoch: 1/(1 + args.lr_decay*epoch))
     iterations_num = int(datasets_bank.train_data_num / args.batch_size)
@@ -183,9 +182,7 @@ if __name__ == "__main__":
         for i, (word_sequences_train_batch, tag_sequences_train_batch) in enumerate(zip(word_sequences_train_batch_list,
                                                                                         tag_sequences_train_batch_list)):
             tagger.zero_grad()
-            outputs_tensor_train_batch_one_hot = tagger(word_sequences_train_batch)
-            targets_tensor_train_batch = tag_seq_indexer.elements2tensor(tag_sequences_train_batch)
-            loss = nll_loss(outputs_tensor_train_batch_one_hot, targets_tensor_train_batch)
+            loss = tagger.get_loss(word_sequences_train_batch, tag_sequences_train_batch)
             loss.backward()
             tagger.clip_gradients(args.clip_grad)
             optimizer.step()
