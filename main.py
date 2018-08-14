@@ -85,8 +85,8 @@ if __name__ == "__main__":
     #args.fn_test = 'data/persuasive_essays/Essay_Level/test.dat.abs'
 
     #args.model = 'BiRNN'
-    args.model = 'BiRNNCNN'
-    #args.model = 'BiRNNCNNCRF'
+    #args.model = 'BiRNNCNN'
+    args.model = 'BiRNNCNNCRF'
     args.epoch_num = 50
     #args.rnn_hidden_dim = 100
     #args.batch_size = 1
@@ -186,8 +186,8 @@ if __name__ == "__main__":
             loss.backward()
             tagger.clip_gradients(args.clip_grad)
             optimizer.step()
-            if i % 50 == 0 and args.verbose:
-                print('-- epoch %d, i = %d/%d, instant loss = %1.4f' % (epoch, i, iterations_num, loss.item()))
+            #if i % 1 == 0 and args.verbose:
+            print('-- epoch %d, i = %d/%d, instant loss = %1.4f' % (epoch, i, iterations_num, loss.item()))
             loss_sum += loss.item()
 
         time_finish = time.time()

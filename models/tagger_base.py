@@ -45,7 +45,7 @@ class TaggerBase(nn.Module):
         if self.gpu > 0:
             self.cuda(device=self.gpu)
 
-    def predict_tags_from_words(self, word_sequences, batch_size=100):
+    def predict_tags_from_words(self, word_sequences, batch_size=1):
         batch_num = math.floor(len(word_sequences) / batch_size)
         output_tag_sequences = list()
         for n in range(batch_num):
