@@ -181,13 +181,32 @@ if __name__ == "__main__":
         loss_sum = 0
         for i, (word_sequences_train_batch, tag_sequences_train_batch) in enumerate(zip(word_sequences_train_batch_list,
                                                                                         tag_sequences_train_batch_list)):
+            tagger.train()
             tagger.zero_grad()
             loss = tagger.get_loss(word_sequences_train_batch, tag_sequences_train_batch)
             loss.backward()
             tagger.clip_gradients(args.clip_grad)
             optimizer.step()
-            #if i % 1 == 0 and args.verbose:
-            print('-- epoch %d, i = %d/%d, instant loss = %1.4f' % (epoch, i, iterations_num, loss.item()))
+            #tagger.eval()
+            #yy = tagger.predict_tags_from_words(word_sequences_train_batch)
+            #exit()
+            #if i < 598:
+            #    continue
+            #for kk in range(100):
+            #    tagger.train()
+            #    tagger.zero_grad()
+            #    loss = tagger.get_loss(word_sequences_train_batch, tag_sequences_train_batch)
+            #    loss.backward()
+            #    tagger.clip_gradients(args.clip_grad)
+            #    optimizer.step()
+            #    tagger.eval()
+            #    yy = tagger.predict_tags_from_words(word_sequences_train_batch)
+            #    print('---- k=%d loss=%1.2f -----' % (kk, loss.item()))
+            #    for tag, out in zip(tag_sequences_train_batch[0], yy[0]):
+            #        print(tag, out)
+            #exit()
+            if i % 10 == 0 and args.verbose:
+                print('-- epoch %d, i = %d/%d, instant loss = %1.4f' % (epoch, i, iterations_num, loss.item()))
             loss_sum += loss.item()
 
         time_finish = time.time()
@@ -219,7 +238,13 @@ if __name__ == "__main__":
 
     outputs_tag_sequences_test = best_tagger.predict_tags_from_words(datasets_bank.word_sequences_test, batch_size=100)
     acc_test = Evaluator.get_accuracy_token_level(targets_tag_sequences=datasets_bank.tag_sequences_test,
-                                                  outputs_tag_sequences=outputs_tag_sequences_test,
+
+
+
+
+
+
+                                                     outputs_tag_sequences=outputs_tag_sequences_test,
                                                   tag_seq_indexer=tag_seq_indexer)
     f1_100, precision_100, recall_100, _ = Evaluator.get_f1_from_words(targets_tag_sequences=datasets_bank.tag_sequences_test,
                                                                        outputs_tag_sequences=outputs_tag_sequences_test,

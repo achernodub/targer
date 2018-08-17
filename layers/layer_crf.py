@@ -8,52 +8,88 @@ class LayerCRF(LayerBase):
     def __init__(self, gpu, states_num):
         super(LayerCRF, self).__init__(gpu)
         self.states_num = states_num
-        self.START_STATE = states_num # the last one
-        self.transition_matrix = nn.Parameter(torch.zeros(states_num + 1, states_num))
+        self.START_STATE = 0 # the first one
+        self.transition_matrix = nn.Parameter(torch.zeros(states_num, states_num))
         nn.init.normal_(self.transition_matrix, -1, 0.1)
+        self.transition_matrix.data[self.START_STATE, :] = -100500.
 
-    def _score_func(self, prev_state, curr_state, inputs, k):
-        # inputs: max_seq_len x states_num
-        # 0 <= k < seq_len
-        return self.transition_matrix[prev_state, curr_state] + inputs[k, curr_state]
+    def is_cuda(self):
+        return self.transition_matrix.is_cuda
 
-    def _log_sum_exp(self, inputs): # inputs: states_num
-        return (inputs - F.log_softmax(inputs, dim=0)).mean(dim=0, keepdim=False)
+    def get_neg_loglikelihood(self, features_input_tensor, targets_tensor):
+        mask_tensor = targets_tensor.gt(0).float() # shape: batch_num x max_seq_len
+        log_likelihood_numerator = self._compute_loglikelihood_numerator(features_input_tensor, targets_tensor, mask_tensor)
+        log_likelihood_denominator = self._compute_log_likelihood_denominator(features_input_tensor, mask_tensor)
+        return -torch.sum(log_likelihood_numerator - log_likelihood_denominator)
 
-    def _compute_log_likelihood_numerator(self, curr_inputs_tensor, states):
-        # inputs: max_seq_len x states_num
-        # states: seq_len
-        prev_state = self.START_STATE
-        score = torch.Tensor([0])
-        score = self.tensor_ensure_gpu(score)
-        for k, curr_state in enumerate(states):
-            score += self._score_func(prev_state, curr_state, curr_inputs_tensor, k)
-            prev_state = curr_state
-        return score
+    def _compute_loglikelihood_numerator(self, features_input_tensor, states_tensor, mask_tensor):
+        #
+        # features_input_tensor: batch_num x max_seq_len x states_num
+        # states_tensor: batch_num x max_seq_len
+        # mask_tensor: batch_num x max_seq_len
+        #
+        batch_num, max_seq_len = mask_tensor.shape
+        start_states_tensor = self.tensor_ensure_gpu(torch.LongTensor(batch_num, 1).fill_(self.START_STATE))
+        states_tensor = torch.cat([start_states_tensor, states_tensor], 1) # batch_num x max_seq_len + 1
+        scores_batch = self.tensor_ensure_gpu(torch.zeros(batch_num, dtype=torch.float))
+        for k in range(max_seq_len):
+            curr_emission_scores_batch = self.tensor_ensure_gpu(torch.zeros(batch_num, dtype=torch.float))
+            curr_transition_scores_batch = self.tensor_ensure_gpu(torch.zeros(batch_num, dtype=torch.float))
+            for n in range(batch_num):
+                curr_state = states_tensor[n, k].item()
+                next_state = states_tensor[n, k + 1].item()
+                curr_emission_scores_batch[n] = features_input_tensor[n, k, next_state]
+                curr_transition_scores_batch[n] = self.transition_matrix[next_state, curr_state]
+            curr_mask = mask_tensor[:, k]
+            scores_batch += curr_emission_scores_batch * curr_mask + curr_transition_scores_batch * curr_mask
+        return scores_batch
 
-    def _compute_log_likelihood_denominator(self, inputs_seq, seq_len):
-        # alpha_t(j) = \sum_i alpha_{t-1}(i) * L(x_t | y_t) * T(y_t | y{t-1} = i)
-        # inputs: max_seq_len x states_num
-        # 1) Init stage
-        prev_alpha = self.tensor_ensure_gpu(torch.zeros(self.states_num, dtype=torch.float))
-        for start_state in range(0, self.states_num):
-            prev_alpha[start_state] = self._score_func(self.START_STATE, start_state, inputs_seq, k=0)
-        # 2) Regular stage
-        for k in range(1, seq_len):
-            curr_alpha = self.tensor_ensure_gpu(torch.zeros(self.states_num, dtype=torch.float))
-            for curr_state in range(self.states_num):
-                scores = self.tensor_ensure_gpu(torch.zeros(self.states_num, dtype=torch.float))
-                for next_state in range(self.states_num):
-                    scores[next_state] = prev_alpha[curr_state] + self._score_func(curr_state, next_state, inputs_seq, k)
-                curr_alpha[curr_state] = self._log_sum_exp(scores)
-            prev_alpha = curr_alpha
-        return self._log_sum_exp(prev_alpha)
+    def _compute_log_likelihood_denominator(self, features_input_tensor, mask_tensor):
+        #
+        # features_input_tensor: batch_num x max_seq_len x states_num
+        # mask_tensor: batch_num x max_seq_len
+        #
+        batch_num, max_seq_len = mask_tensor.shape
+        scores = self.tensor_ensure_gpu(torch.Tensor(batch_num, self.states_num).fill_(-100500.))
+        for k in range(max_seq_len):
+            curr_scores = scores.unsqueeze(1).expand(batch_num, self.states_num, self.states_num)
+            curr_emission_scores_batch = features_input_tensor[:, k].unsqueeze(-1).expand(batch_num, self.states_num,
+                                                                                          self.states_num)
+            curr_transition_scores_batch = self.transition_matrix.unsqueeze(0).expand(batch_num, self.states_num,
+                                                                                      self.states_num)
+            curr_mask = mask_tensor[:, k].unsqueeze(-1).expand(batch_num, self.states_num)
+            curr_scores = torch.logsumexp(curr_scores + curr_emission_scores_batch + curr_transition_scores_batch, dim=2)
+            scores = curr_scores * curr_mask + scores * (1 - curr_mask)
+        return torch.logsumexp(scores, 1)
 
-    def _compute_neg_loglikelihood(self, curr_inputs_tensor, states):
-        seq_len = len(states)
-        log_likelihood_numerator = self._compute_log_likelihood_numerator(curr_inputs_tensor, states)
-        log_likelihood_denominator = self._compute_log_likelihood_denominator(curr_inputs_tensor, seq_len)
-        return -log_likelihood_numerator + log_likelihood_denominator
+    def _decode_viterbi(self, features_input_tensor, mask_tensor):
+        # initialize backpointers and viterbi variables in log space
+        batch_num, max_seq_len = mask_tensor.shape
+        bptr = self.tensor_ensure_gpu(torch.LongTensor())
+        score = self.tensor_ensure_gpu(torch.Tensor(batch_num, self.states_num).fill_(-100500.))
+        score[:, self.START_STATE] = 0.
+        for k in range(max_seq_len):
+            curr_bptr = self.tensor_ensure_gpu(torch.LongTensor())
+            curr_score = self.tensor_ensure_gpu(torch.Tensor())
+            for i in range(self.states_num): # for each next tag
+                m = [e.unsqueeze(1) for e in torch.max(score + self.transition_matrix[i], 1)]
+                curr_bptr = torch.cat((curr_bptr, m[1]), 1) # best previous tags
+                curr_score = torch.cat((curr_score, m[0]), 1) # best transition scores
+            bptr = torch.cat((bptr, curr_bptr.unsqueeze(1)), 1)
+            score = curr_score + features_input_tensor[:, k] # plus emission scores
+        best_score, best_tag = torch.max(score, 1)
+        # back-tracking
+        bptr = bptr.tolist()
+        best_path = [[i] for i in best_tag.tolist()]
+        for n in range(batch_num):
+            x = best_tag[n] # best tag
+            l = int((mask_tensor[n].sum()).item())
+            for curr_bptr in reversed(bptr[n][:l]):
+                x = curr_bptr[x]
+                best_path[n].append(x)
+            best_path[n].pop()
+            best_path[n].reverse()
+        return best_path
 
     def _viterbi_most_likely_states(self, inputs_seq, seq_len):
         argmaxes = list()
@@ -81,42 +117,18 @@ class LayerCRF(LayerBase):
             most_likely_states.append(final_state)
         return most_likely_states
 
-    def is_cuda(self):
-        return self.transition_matrix.is_cuda
-
-    def idx2states(self, sequences_idx): # idx are in range [1 .. class_num], whereas states in range [0 .. class_num-1]
-        return [[i - 1 for i in idx_seq] for idx_seq in sequences_idx]
-
-    def states2idx(self, sequences_states): # idx are in range [1 .. class_num], whereas states in range [0 .. class_num-1]
-        return [[i + 1 for i in states] for states in sequences_states]
-
-    def get_neg_loglikelihood(self, features_input_tensor, targets_sequences_idx):
-        # By default, in targets_idx tags are from 1 to class_num, because 0 is reserved for <pad> words.
-        # Here for convenience we temporarily make them from 0 to class_num -1
-        sequences_states = self.idx2states(targets_sequences_idx)
-        neg_loglikelihood = self.tensor_ensure_gpu(torch.Tensor([0]))
-        for n, states in enumerate(sequences_states):
-            curr_input_tensor = features_input_tensor[n, :, :]
-            neg_loglikelihood += self._compute_neg_loglikelihood(curr_input_tensor, states)
-        return neg_loglikelihood
-
-    def forward(self, features_input_tensor, seq_lens):
-        states_sequences = list()
-        for n, seq_len in enumerate(seq_lens):
-            curr_input_tensor = features_input_tensor[n, :, :]
-            output_states = self._viterbi_most_likely_states(curr_input_tensor, seq_len)
-            states_sequences.append(output_states)
-        idx_sequences = self.states2idx(states_sequences)
+    def forward(self, features_input_tensor, mask_tensor):
+        idx_sequences = self._decode_viterbi(features_input_tensor, mask_tensor)
         y = self.idx2tensor(idx_sequences)
         return y
 
     def idx2tensor(self, idx_sequences):
-        batch_size = len(idx_sequences)
+        batch_num = len(idx_sequences)
         seq_lens = [len(seq) for seq in idx_sequences]
         max_seq_len = max(seq_lens)
         class_num = self.states_num
-        outputs_tensor = self.tensor_ensure_gpu(torch.zeros(batch_size, class_num + 1, max_seq_len, dtype=torch.float))
-        for n in range(batch_size):
+        outputs_tensor = self.tensor_ensure_gpu(torch.zeros(batch_num, class_num, max_seq_len, dtype=torch.float))
+        for n in range(batch_num):
             for seq_len in range(seq_lens[n]):
                 for k in range(seq_len):
                     c = idx_sequences[n][k]

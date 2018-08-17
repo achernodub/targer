@@ -34,7 +34,7 @@ class TaggerBiRNNCNNCRF(TaggerBase):
                                                          word_len, word_seq_indexer.get_unique_characters_list())
         self.char_cnn_layer = LayerCharCNN(gpu, char_embeddings_dim, char_cnn_filter_num, char_window_size,
                                            word_len)
-        self.layer_crf = LayerCRF(gpu, states_num=class_num)
+        self.layer_crf = LayerCRF(gpu, states_num=class_num+1)
         self.dropout = torch.nn.Dropout(p=dropout_ratio)
         if rnn_type == 'GRU':
             self.birnn_layer = LayerBiGRU(input_dim=self.word_embeddings_layer.output_dim+self.char_cnn_layer.output_dim,
@@ -47,7 +47,7 @@ class TaggerBiRNNCNNCRF(TaggerBase):
         else:
             raise ValueError('Unknown rnn_type = %s, must be either "LSTM" or "GRU"')
         # We add an additional class that corresponds to the zero-padded values not to be included to the loss function
-        self.lin_layer = nn.Linear(in_features=self.birnn_layer.output_dim, out_features=class_num)
+        self.lin_layer = nn.Linear(in_features=self.birnn_layer.output_dim, out_features=class_num+1) # +1 for 'start' state
         #self.log_softmax_layer = nn.LogSoftmax(dim=1) ###############################################################
         if gpu >= 0:
             self.cuda(device=self.gpu)
@@ -65,14 +65,19 @@ class TaggerBiRNNCNNCRF(TaggerBase):
         return features_rnn
 
     def get_loss(self, word_sequences_train_batch, tag_sequences_train_batch):
-        targets_sequences_train_idx = self.tag_seq_indexer.elements2idx(tag_sequences_train_batch)
+        targets_tensor_train_batch = self.tag_seq_indexer.elements2tensor(tag_sequences_train_batch)
         features_rnn = self._forward_birnn_cnn(word_sequences_train_batch) # batch_num x max_seq_len x class_num
-        neg_log_likelihood = self.layer_crf.get_neg_loglikelihood(features_rnn, targets_sequences_train_idx)
+        neg_log_likelihood = self.layer_crf.get_neg_loglikelihood(features_rnn, targets_tensor_train_batch)
         return neg_log_likelihood
 
     def forward(self, word_sequences):
-        # outputs_tensor = self.forward(word_sequences)  # batch_size x num_class+1 x max_seq_len
-        seq_lens = [len(word_seq) for word_seq in word_sequences]
-        features_rnn = self._forward_birnn_cnn(word_sequences)  # batch_num x max_seq_len x class_num
-        y = self.layer_crf(features_rnn, seq_lens)
-        return y
+        # outputs_tensor = self.forward(word_sequences)  # batch_num x class_num + 1 x max_seq_len
+        batch_num = len(word_sequences)
+        max_seq_len = max([len(word_seq) for word_seq in word_sequences])
+        outputs_tensor = self.tensor_ensure_gpu(torch.zeros(batch_num, self.class_num + 1, max_seq_len))
+        for n, word_seq in enumerate(word_sequences):
+            features_rnn = self._forward_birnn_cnn([word_seq])  # batch_num x max_seq_len x class_num + 1
+            mask_tensor = self.tensor_ensure_gpu(torch.Tensor(1, len(word_seq)).fill_(1))
+            y = self.layer_crf(features_rnn, mask_tensor)
+            outputs_tensor[n, :, :len(word_seq)] = y
+        return outputs_tensor
