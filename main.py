@@ -3,6 +3,7 @@ from __future__ import print_function
 import argparse
 import copy
 import datetime
+import os.path
 import time
 
 import numpy as np
@@ -49,7 +50,7 @@ if __name__ == "__main__":
     parser.add_argument('--clip_grad', type=float, default=5.0, help='Clipping gradients maximum L2 norm.')
     parser.add_argument('--opt_method', default='sgd', help='Optimization method: "sgd", "adam".')
     parser.add_argument('--lr', type=float, default=0.01, help='Learning rate.')
-    parser.add_argument('--lr_decay', type=float, default=0.05, help='Learning decay rate.')
+    parser.add_argument('--lr_decay', type=float, default=0.05, help='Learning decay rate.') # 0.05
     parser.add_argument('--momentum', type=float, default=0.9, help='Learning momentum rate.')
     parser.add_argument('--batch_size', type=int, default=10, help='Batch size, samples.')
     parser.add_argument('--verbose', type=bool, default=True, help='Show additional information.')
@@ -76,9 +77,9 @@ if __name__ == "__main__":
         torch.cuda.manual_seed(args.seed_num)
 
     # Custom params here to replace the defaults
-    #args.fn_train = 'data/NER/CoNNL_2003_shared_task/train.txt'
-    #args.fn_dev = 'data/NER/CoNNL_2003_shared_task/dev.txt'
-    #args.fn_test = 'data/NER/CoNNL_2003_shared_task/test.txt'
+    args.fn_train = 'data/NER/CoNNL_2003_shared_task/train.txt'
+    args.fn_dev = 'data/NER/CoNNL_2003_shared_task/dev.txt'
+    args.fn_test = 'data/NER/CoNNL_2003_shared_task/test.txt'
 
     #args.fn_train = 'data/persuasive_essays/Essay_Level/train.dat.abs'
     #args.fn_dev = 'data/persuasive_essays/Essay_Level/dev.dat.abs'
@@ -88,15 +89,15 @@ if __name__ == "__main__":
     #args.model = 'BiRNNCNN'
     args.model = 'BiRNNCNNCRF'
     args.epoch_num = 50
-    #args.rnn_hidden_dim = 100
+    args.rnn_hidden_dim = 100
     #args.batch_size = 1
     #args.gpu = -1
     #args.lr_decay = 0.05
     #args.rnn_type = 'LSTM'
     #args.checkpoint_fn = 'tagger_model_BiRNNCNN_NER_nosb.hdf5'
-    #args.report_fn = 'report_model_BiRNNCNN_NER_nosb.txt'
-    #args.checkpoint_fn = 'tagger_model_temp3.bin'
-    #args.save_best = False
+    args.report_fn = 'report_model_BiRNNCNNCRF.txt'
+    args.checkpoint_fn = 'tagger_model_BiRNNCNNCRF_NER.hdf5'
+    args.save_best = False
     args.load_word_seq_indexer = 'word_seq_indexer.hdf5'
 
     # Load CoNNL data as sequences of strings of words and corresponding tags
@@ -110,15 +111,16 @@ if __name__ == "__main__":
 
     # Word_seq_indexer converts lists of lists of words to integer indices and back; optionally contains embeddings
     if args.load_word_seq_indexer is not None:
-        word_seq_indexer = torch.load(args.load_word_seq_indexer)
-    else:
-        word_seq_indexer = ElementSeqIndexer(gpu=args.gpu, caseless=args.caseless, load_embeddings=True,
-                                             verbose=args.verbose, pad='<pad>', unk='<unk>')
-        word_seq_indexer.load_vocabulary_from_embeddings_file(emb_fn=args.emb_fn, emb_delimiter=args.emb_delimiter)
-        word_seq_indexer.load_vocabulary_from_element_sequences(word_sequences_train)
-        word_seq_indexer.load_vocabulary_from_element_sequences(word_sequences_dev)
-        word_seq_indexer.load_vocabulary_from_element_sequences(word_sequences_test, verbose=True)
-        torch.save(word_seq_indexer, args.load_word_seq_indexer)
+        if os.path.isfile(args.load_word_seq_indexer):
+            word_seq_indexer = torch.load(args.load_word_seq_indexer)
+        else:
+            word_seq_indexer = ElementSeqIndexer(gpu=args.gpu, caseless=args.caseless, load_embeddings=True,
+                                                 verbose=args.verbose, pad='<pad>', unk='<unk>')
+            word_seq_indexer.load_vocabulary_from_embeddings_file(emb_fn=args.emb_fn, emb_delimiter=args.emb_delimiter)
+            word_seq_indexer.load_vocabulary_from_element_sequences(word_sequences_train)
+            word_seq_indexer.load_vocabulary_from_element_sequences(word_sequences_dev)
+            word_seq_indexer.load_vocabulary_from_element_sequences(word_sequences_test, verbose=True)
+            torch.save(word_seq_indexer, args.load_word_seq_indexer)
 
     # DatasetsBank provides storing the different dataset subsets (train/dev/test) and sampling batches from them
     datasets_bank = DatasetsBank()
