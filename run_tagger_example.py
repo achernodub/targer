@@ -40,7 +40,7 @@ f1_50, precision_50, recall_50, _ = Evaluator.get_f1_from_words(targets_tag_sequ
                                                                 outputs_tag_sequences=output_tag_sequences,
                                                                 match_alpha_ratio=0.5)
 
-scores_report_str = '\nResults : Accuracy = %1.2f.\n' % acc
+scores_report_str = '\nResults : Accuracy = %1.2f.' % acc
 scores_report_str += '\nmatch_alpha_ratio = %1.1f | F1-100%% = %1.2f, Precision-100%% = %1.2f, Recall-100%% = %1.2f.' \
                     % (0.999, f1_100, precision_100, recall_100)
 scores_report_str += '\nmatch_alpha_ratio = %1.1f | F1-50%% = %1.2f, Precision-50%% = %1.2f, Recall-50%% = %1.2f.' \

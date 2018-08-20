@@ -88,7 +88,7 @@ if __name__ == "__main__":
     args.model = 'BiRNN'
     #args.model = 'BiRNNCNN'
     #args.model = 'BiRNNCNNCRF'
-    args.epoch_num = 50
+    args.epoch_num = 5
     args.rnn_hidden_dim = 100
     #args.batch_size = 1
     #args.gpu = -1
@@ -255,7 +255,7 @@ if __name__ == "__main__":
                                                                     outputs_tag_sequences=outputs_tag_sequences_test,
                                                                     match_alpha_ratio=0.5)
 
-    scores_report_str = 'Results on TEST (best epoch = %d, save_best=%s): Accuracy = %1.2f.\n' % (best_epoch,
+    scores_report_str = '\nResults on TEST (best epoch = %d, save_best=%s): Accuracy = %1.2f.\n' % (best_epoch,
                                                                                                   args.save_best,
                                                                                                   acc_test)
     scores_report_str += '\nmatch_alpha_ratio = %1.1f | F1-100%% = %1.2f, Precision-100%% = %1.2f, Recall-100%% = %1.2f.'\
