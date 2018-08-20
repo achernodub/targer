@@ -77,17 +77,17 @@ if __name__ == "__main__":
         torch.cuda.manual_seed(args.seed_num)
 
     # Custom params here to replace the defaults
-    args.fn_train = 'data/NER/CoNNL_2003_shared_task/train.txt'
-    args.fn_dev = 'data/NER/CoNNL_2003_shared_task/dev.txt'
-    args.fn_test = 'data/NER/CoNNL_2003_shared_task/test.txt'
+    #args.fn_train = 'data/NER/CoNNL_2003_shared_task/train.txt'
+    #args.fn_dev = 'data/NER/CoNNL_2003_shared_task/dev.txt'
+    #args.fn_test = 'data/NER/CoNNL_2003_shared_task/test.txt'
 
     #args.fn_train = 'data/persuasive_essays/Essay_Level/train.dat.abs'
     #args.fn_dev = 'data/persuasive_essays/Essay_Level/dev.dat.abs'
     #args.fn_test = 'data/persuasive_essays/Essay_Level/test.dat.abs'
 
-    #args.model = 'BiRNN'
+    args.model = 'BiRNN'
     #args.model = 'BiRNNCNN'
-    args.model = 'BiRNNCNNCRF'
+    #args.model = 'BiRNNCNNCRF'
     args.epoch_num = 50
     args.rnn_hidden_dim = 100
     #args.batch_size = 1
@@ -95,10 +95,10 @@ if __name__ == "__main__":
     #args.lr_decay = 0.05
     #args.rnn_type = 'LSTM'
     #args.checkpoint_fn = 'tagger_model_BiRNNCNN_NER_nosb.hdf5'
-    args.report_fn = 'report_model_BiRNNCNNCRF.txt'
-    args.checkpoint_fn = 'tagger_model_BiRNNCNNCRF_NER.hdf5'
+    args.report_fn = 'report_model_BiRNN.txt'
+    args.checkpoint_fn = 'tagger_model_BiRNN_NER.hdf5'
     args.save_best = False
-    args.load_word_seq_indexer = 'word_seq_indexer.hdf5'
+    #args.load_word_seq_indexer = 'word_seq_indexer.hdf5'
 
     # Load CoNNL data as sequences of strings of words and corresponding tags
     word_sequences_train, tag_sequences_train = DataIO.read_CoNNL_universal(args.fn_train)
@@ -110,16 +110,16 @@ if __name__ == "__main__":
     tag_seq_indexer.load_vocabulary_from_element_sequences(tag_sequences_train)
 
     # Word_seq_indexer converts lists of lists of words to integer indices and back; optionally contains embeddings
-    if args.load_word_seq_indexer is not None:
-        if os.path.isfile(args.load_word_seq_indexer):
-            word_seq_indexer = torch.load(args.load_word_seq_indexer)
-        else:
-            word_seq_indexer = ElementSeqIndexer(gpu=args.gpu, caseless=args.caseless, load_embeddings=True,
+    if args.load_word_seq_indexer is not None and os.path.isfile(args.load_word_seq_indexer):
+        word_seq_indexer = torch.load(args.load_word_seq_indexer)
+    else:
+        word_seq_indexer = ElementSeqIndexer(gpu=args.gpu, caseless=args.caseless, load_embeddings=True,
                                                  verbose=args.verbose, pad='<pad>', unk='<unk>')
-            word_seq_indexer.load_vocabulary_from_embeddings_file(emb_fn=args.emb_fn, emb_delimiter=args.emb_delimiter)
-            word_seq_indexer.load_vocabulary_from_element_sequences(word_sequences_train)
-            word_seq_indexer.load_vocabulary_from_element_sequences(word_sequences_dev)
-            word_seq_indexer.load_vocabulary_from_element_sequences(word_sequences_test, verbose=True)
+        word_seq_indexer.load_vocabulary_from_embeddings_file(emb_fn=args.emb_fn, emb_delimiter=args.emb_delimiter)
+        word_seq_indexer.load_vocabulary_from_element_sequences(word_sequences_train)
+        word_seq_indexer.load_vocabulary_from_element_sequences(word_sequences_dev)
+        word_seq_indexer.load_vocabulary_from_element_sequences(word_sequences_test, verbose=True)
+        if args.load_word_seq_indexer is not None:
             torch.save(word_seq_indexer, args.load_word_seq_indexer)
 
     # DatasetsBank provides storing the different dataset subsets (train/dev/test) and sampling batches from them
@@ -255,8 +255,10 @@ if __name__ == "__main__":
                                                                     outputs_tag_sequences=outputs_tag_sequences_test,
                                                                     match_alpha_ratio=0.5)
 
-    scores_report_str = 'Results on TEST (best epoch = %d): Accuracy = %1.2f.\n' % (best_epoch, acc_test)
-    scores_report_str = '\nmatch_alpha_ratio = %1.1f | F1-100%% = %1.2f, Precision-100%% = %1.2f, Recall-100%% = %1.2f.'\
+    scores_report_str = 'Results on TEST (best epoch = %d, save_best=%s): Accuracy = %1.2f.\n' % (best_epoch,
+                                                                                                  args.save_best,
+                                                                                                  acc_test)
+    scores_report_str += '\nmatch_alpha_ratio = %1.1f | F1-100%% = %1.2f, Precision-100%% = %1.2f, Recall-100%% = %1.2f.'\
                         % (0.999, f1_100, precision_100, recall_100)
     scores_report_str += '\nmatch_alpha_ratio = %1.1f | F1-50%% = %1.2f, Precision-50%% = %1.2f, Recall-50%% = %1.2f.' \
                          % (0.5, f1_50, precision_50, recall_50)
@@ -264,7 +266,7 @@ if __name__ == "__main__":
 
     # Write scores report to text file
     if args.report_fn is not None:
-        Evaluator.write_scores_report(args.report_fn, args, scores_report_str)
+        Evaluator.write_text_report(args.report_fn, args, scores_report_str)
 
     # Save best tagger to disk
     if args.checkpoint_fn is not None:

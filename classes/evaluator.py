@@ -49,7 +49,7 @@ class Evaluator():
         return F1, Precision, Recall, (TP, FP, FN)
 
     @staticmethod
-    def write_scores_report(fn, args, scores_report_str):
+    def write_text_report(fn, args, scores_report_str):
         text_file = open(fn, mode='w')
         for hyper_param in str(args).replace('Namespace(', '').replace(')', '').split(', '):
             text_file.write('%s\n' % hyper_param)
