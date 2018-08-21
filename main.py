@@ -278,7 +278,7 @@ if __name__ == "__main__":
     from models.tagger_base import TaggerBase
 
     word_sequences, tag_sequences = DataIO.read_CoNNL_dat_abs(args.fn_test)
-    tagger1 = TaggerBase.load(args.fn_checkpoint, gpu=0)
+    tagger1 = TaggerBase.load(args.checkpoint_fn, gpu=0)
 
     # Get tags as sequences of strings
     output_tag_sequences = tagger1.predict_tags_from_words(word_sequences, batch_size=10)

@@ -24,6 +24,12 @@ class TaggerBase(nn.Module):
         else:
             return tensor
 
+    def make_gpu(self):
+        if self.gpu >= 0:
+            self.cuda(device=self.gpu)
+        else:
+            self.cpu()
+
     def clip_gradients(self, clip_grad):
         nn.utils.clip_grad_norm_(self.parameters(), clip_grad)
 
@@ -35,17 +41,11 @@ class TaggerBase(nn.Module):
             idx_seq = list()
             for l in range(len(word_sequences[k])):
                 curr_output = outputs_tensor[k, 1:, l] # ignore the first component of output
-                _, max_no = curr_output.max(0) # argmax
+                #_, max_no = curr_output.max(0) # argmax
+                max_no = curr_output.argmax(dim=0)
                 idx_seq.append(max_no.item() + 1)
             output_idx_sequences.append(idx_seq)
         return output_idx_sequences
-
-    def make_cpu(self):
-        self.cpu()
-
-    def make_gpu(self):
-        if self.gpu > 0:
-            self.cuda(device=self.gpu)
 
     def predict_tags_from_words(self, word_sequences, batch_size=1):
         batch_num = math.floor(len(word_sequences) / batch_size)
@@ -62,16 +62,15 @@ class TaggerBase(nn.Module):
         return output_tag_sequences
 
     def save(self, checkpoint_fn):
-        self.make_cpu()
+        self.cpu()
         torch.save(self, checkpoint_fn)
         self.make_gpu()
 
     @staticmethod
-    def load(fn_checkpoint, gpu=-1):
-        if not os.path.isfile(fn_checkpoint):
+    def load(checkpoint_fn, gpu=-1):
+        if not os.path.isfile(checkpoint_fn):
             raise ValueError('Can''t find tagger in file "%s". Please, run the main script with non-empty \
-                             "--save_best_path" param to create it.' % fn_checkpoint)
-        tagger = torch.load(fn_checkpoint)
-        if gpu >= 0:
-            tagger = tagger.cuda(device=gpu)
+                             "--save_best_path" param to create it.' % checkpoint_fn)
+        tagger = torch.load(checkpoint_fn)
+        tagger.gpu = gpu
         return tagger
