@@ -14,7 +14,7 @@ gpu = 0 # GPU device number, -1  means CPU
 word_sequences, tag_sequences = DataIO.read_CoNNL_dat_abs(fn)
 
 # Load tagger model
-fn_checkpoint = 'tagger_model_BiRNN_NER1.hdf5'
+fn_checkpoint = 'tagger_model_BiRNN_NER2.hdf5'
 tagger = TaggerBase.load(fn_checkpoint, gpu)
 
 # Get tags as sequences of strings

@@ -24,7 +24,7 @@ class TaggerBase(nn.Module):
         else:
             return tensor
 
-    def make_gpu(self):
+    def self_ensure_gpu(self):
         if self.gpu >= 0:
             self.cuda(device=self.gpu)
         else:
@@ -32,6 +32,21 @@ class TaggerBase(nn.Module):
 
     def clip_gradients(self, clip_grad):
         nn.utils.clip_grad_norm_(self.parameters(), clip_grad)
+
+    def save(self, checkpoint_fn):
+        self.cpu()
+        torch.save(self, checkpoint_fn)
+        self.self_ensure_gpu()
+
+    @staticmethod
+    def load(checkpoint_fn, gpu=-1):
+        if not os.path.isfile(checkpoint_fn):
+            raise ValueError('Can''t find tagger in file "%s". Please, run the main script with non-empty \
+                             "--save_best_path" param to create it.' % checkpoint_fn)
+        tagger = torch.load(checkpoint_fn)
+        tagger.gpu = gpu
+        tagger.self_ensure_gpu()
+        return tagger
 
     def predict_idx_from_words(self, word_sequences):
         self.eval()
@@ -59,17 +74,3 @@ class TaggerBase(nn.Module):
             curr_output_tag_sequences = self.tag_seq_indexer.idx2elements(curr_output_idx)
             output_tag_sequences.extend(curr_output_tag_sequences)
         return output_tag_sequences
-
-    def save(self, checkpoint_fn):
-        self.cpu()
-        torch.save(self, checkpoint_fn)
-        self.make_gpu()
-
-    @staticmethod
-    def load(checkpoint_fn, gpu=-1):
-        if not os.path.isfile(checkpoint_fn):
-            raise ValueError('Can''t find tagger in file "%s". Please, run the main script with non-empty \
-                             "--save_best_path" param to create it.' % checkpoint_fn)
-        tagger = torch.load(checkpoint_fn)
-        tagger.gpu = gpu
-        return tagger
