@@ -87,7 +87,7 @@ if __name__ == "__main__":
     args.model = 'BiRNN'
     #args.model = 'BiRNNCNN'
     #args.model = 'BiRNNCNNCRF'
-    args.epoch_num = 2
+    args.epoch_num = 50
     args.rnn_hidden_dim = 100
     #args.batch_size = 1
     #args.gpu = -1
@@ -206,7 +206,7 @@ if __name__ == "__main__":
             #    for tag, out in zip(tag_sequences_train_batch[0], yy[0]):
             #        print(tag, out)
             #exit()
-            if i % 10 == 0 and args.verbose:
+            if i % 50 == 0 and args.verbose:
                 print('-- epoch %d, i = %d/%d, instant loss = %1.4f' % (epoch, i, iterations_num, loss.item()))
             loss_sum += loss.item()
 
