@@ -8,13 +8,14 @@ from models.tagger_base import TaggerBase
 print('Start run_tagger_example.py.')
 
 # Read data in CoNNL-2003 dat.abs format (Eger, 2017)
-fn = 'data/persuasive_essays/Paragraph_Level/test.dat.abs'
+#fn = 'data/persuasive_essays/Paragraph_Level/test.dat.abs'
+fn = 'data/NER/CoNNL_2003_shared_task/test.txt' # NER task
 gpu = 0 # GPU device number, -1  means CPU
 
-word_sequences, tag_sequences = DataIO.read_CoNNL_dat_abs(fn)
+word_sequences, tag_sequences = DataIO.read_CoNNL_universal(fn)
 
 # Load tagger model
-fn_checkpoint = 'tagger_model_BiRNN_NER2.hdf5'
+fn_checkpoint = 'tagger_model_BiRNN_NER_10ep.hdf5'
 tagger = TaggerBase.load(fn_checkpoint, gpu)
 
 # Get tags as sequences of strings

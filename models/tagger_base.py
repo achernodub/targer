@@ -45,7 +45,7 @@ class TaggerBase(nn.Module):
                              "--save_best_path" param to create it.' % checkpoint_fn)
         tagger = torch.load(checkpoint_fn)
         tagger.gpu = gpu
-        tagger.self_ensure_gpu()
+        #tagger.self_ensure_gpu()
         return tagger
 
     def predict_idx_from_words(self, word_sequences):

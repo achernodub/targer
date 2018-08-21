@@ -4,6 +4,7 @@ import argparse
 import copy
 import datetime
 import time
+import os.path
 
 import numpy as np
 import torch
@@ -87,16 +88,16 @@ if __name__ == "__main__":
     args.model = 'BiRNN'
     #args.model = 'BiRNNCNN'
     #args.model = 'BiRNNCNNCRF'
-    args.epoch_num = 50
+    args.epoch_num = 1
     args.rnn_hidden_dim = 100
-    #args.batch_size = 1
+    args.batch_size = 100
     #args.gpu = -1
     #args.lr_decay = 0.05
     #args.rnn_type = 'LSTM'
     #args.checkpoint_fn = 'tagger_model_BiRNNCNN_NER_nosb.hdf5'
-    args.report_fn = 'report_model_BiRNN.txt'
-    args.checkpoint_fn = 'tagger_model_BiRNN_NER.hdf5'
-    #args.save_best = False
+    args.report_fn = 'report_model_temp.txt'
+    args.checkpoint_fn = 'tagger_model_temp.hdf5'
+    args.save_best = False
     #args.load_word_seq_indexer = 'word_seq_indexer.hdf5'
 
     # Load CoNNL data as sequences of strings of words and corresponding tags
@@ -166,7 +167,7 @@ if __name__ == "__main__":
                                    char_window_size=args.char_window_size)
 
     else:
-        raise ValueError('Unknown tagger model, must be one of BiRNN/BiRNNCNN.')
+        raise ValueError('Unknown tagger model, must be one of "BiRNN"/"BiRNNCNN"/"BiRNNCNNCRF".')
 
     optimizer = optim.SGD(list(tagger.parameters()), lr=args.lr, momentum=args.momentum)
     scheduler = LambdaLR(optimizer, lr_lambda=lambda epoch: 1/(1 + args.lr_decay*epoch))
@@ -270,37 +271,5 @@ if __name__ == "__main__":
     # Save best tagger to disk
     if args.checkpoint_fn is not None:
         best_tagger.save(args.checkpoint_fn)
-
-#-----------------------------------
-
-    print('OOOO')
-
-    from models.tagger_base import TaggerBase
-
-    word_sequences, tag_sequences = DataIO.read_CoNNL_dat_abs(args.fn_test)
-    tagger1 = TaggerBase.load(args.checkpoint_fn, gpu=0)
-
-    # Get tags as sequences of strings
-    output_tag_sequences = tagger1.predict_tags_from_words(word_sequences, batch_size=10)
-
-    # Calculate scores
-    outputs_tag_sequences_test = tagger1.predict_tags_from_words(word_sequences)
-    acc = Evaluator.get_accuracy_token_level(targets_tag_sequences=tag_sequences,
-                                             outputs_tag_sequences=output_tag_sequences,
-                                             tag_seq_indexer=tagger1.tag_seq_indexer)
-    f1_100, precision_100, recall_100, _ = Evaluator.get_f1_from_words(targets_tag_sequences=tag_sequences,
-                                                                       outputs_tag_sequences=output_tag_sequences,
-                                                                       match_alpha_ratio=0.999)
-
-    f1_50, precision_50, recall_50, _ = Evaluator.get_f1_from_words(targets_tag_sequences=tag_sequences,
-                                                                    outputs_tag_sequences=output_tag_sequences,
-                                                                    match_alpha_ratio=0.5)
-
-    scores_report_str = '\nResults : Accuracy = %1.2f.' % acc
-    scores_report_str += '\nmatch_alpha_ratio = %1.1f | F1-100%% = %1.2f, Precision-100%% = %1.2f, Recall-100%% = %1.2f.' \
-                         % (0.999, f1_100, precision_100, recall_100)
-    scores_report_str += '\nmatch_alpha_ratio = %1.1f | F1-50%% = %1.2f, Precision-50%% = %1.2f, Recall-50%% = %1.2f.' \
-                         % (0.5, f1_50, precision_50, recall_50)
-    print(scores_report_str)
 
     print('The end!')
