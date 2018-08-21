@@ -1,6 +1,5 @@
 from __future__ import print_function
 
-import os.path
 import torch
 from classes.data_io import DataIO
 from classes.evaluator import Evaluator
@@ -10,19 +9,13 @@ print('Start run_tagger_example.py.')
 
 # Read data in CoNNL-2003 dat.abs format (Eger, 2017)
 fn = 'data/persuasive_essays/Paragraph_Level/test.dat.abs'
+gpu = 0 # GPU device number, -1  means CPU
+
 word_sequences, tag_sequences = DataIO.read_CoNNL_dat_abs(fn)
 
 # Load tagger model
-fn_checkpoint = 'tagger_model_temp.hdf5'
-if os.path.isfile(fn_checkpoint):
-    tagger = TaggerBase.load(fn_checkpoint)
-else:
-    raise ValueError('Can''t find tagger in file "%s". Please, run the main script with non-empty "--save_best_path" param to create it.' % fn_checkpoint)
-
-# GPU device number, -1  means CPU
-gpu = 0
-if gpu >= 0:
-    tagger = tagger.cuda(device=0)
+fn_checkpoint = 'tagger_model_BiRNN_NER1.hdf5'
+tagger = TaggerBase.load(fn_checkpoint, gpu)
 
 # Get tags as sequences of strings
 output_tag_sequences = tagger.predict_tags_from_words(word_sequences, batch_size=10)
@@ -48,6 +41,6 @@ scores_report_str += '\nmatch_alpha_ratio = %1.1f | F1-50%% = %1.2f, Precision-5
 print(scores_report_str)
 
 # Write results to text file
-DataIO.write_CoNNL_dat_abs('out.dat.abs', word_sequences, output_tag_sequences)
+DataIO.write_CoNNL_dat_abs('out_test.dat.abs', word_sequences, output_tag_sequences)
 
 print('\nThe end.')

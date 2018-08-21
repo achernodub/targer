@@ -1,4 +1,6 @@
 import math
+import os.path
+
 import torch
 import torch.nn as nn
 
@@ -54,7 +56,8 @@ class TaggerBase(nn.Module):
                 j = (n + 1)*batch_size
             else:
                 j = len(word_sequences)
-            curr_output_tag_sequences = self.tag_seq_indexer.idx2elements(self.predict_idx_from_words(word_sequences[i:j]))
+            curr_output_idx = self.predict_idx_from_words(word_sequences[i:j])
+            curr_output_tag_sequences = self.tag_seq_indexer.idx2elements(curr_output_idx)
             output_tag_sequences.extend(curr_output_tag_sequences)
         return output_tag_sequences
 
@@ -65,5 +68,10 @@ class TaggerBase(nn.Module):
 
     @staticmethod
     def load(fn_checkpoint, gpu=-1):
+        if not os.path.isfile(fn_checkpoint):
+            raise ValueError('Can''t find tagger in file "%s". Please, run the main script with non-empty \
+                             "--save_best_path" param to create it.' % fn_checkpoint)
         tagger = torch.load(fn_checkpoint)
-        return tagger.cuda(device=gpu)
+        if gpu >= 0:
+            tagger = tagger.cuda(device=gpu)
+        return tagger
