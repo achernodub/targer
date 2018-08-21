@@ -65,7 +65,7 @@ if __name__ == "__main__":
     parser.add_argument('--match_alpha_ratio', type=float, default='0.999',
                         help='Alpha ratio from non-strict matching, options: 0.999 or 0.5')
     parser.add_argument('--save_best', type=bool, default=True, help='Save best on DEV dataset as a final model.')
-    parser.add_argument('-load_word_seq_indexer', type=str, default=None, help='Load word_seq_indexer object from hdf5 file.')
+    parser.add_argument('--load_word_seq_indexer', type=str, default=None, help='Load word_seq_indexer object from hdf5 file.')
 
 
     args = parser.parse_args()
@@ -77,27 +77,27 @@ if __name__ == "__main__":
         torch.cuda.manual_seed(args.seed_num)
 
     # Custom params here to replace the defaults
-    #args.fn_train = 'data/NER/CoNNL_2003_shared_task/train.txt'
-    #args.fn_dev = 'data/NER/CoNNL_2003_shared_task/dev.txt'
-    #args.fn_test = 'data/NER/CoNNL_2003_shared_task/test.txt'
+    args.fn_train = 'data/NER/CoNNL_2003_shared_task/train.txt'
+    args.fn_dev = 'data/NER/CoNNL_2003_shared_task/dev.txt'
+    args.fn_test = 'data/NER/CoNNL_2003_shared_task/test.txt'
 
     #args.fn_train = 'data/persuasive_essays/Essay_Level/train.dat.abs'
     #args.fn_dev = 'data/persuasive_essays/Essay_Level/dev.dat.abs'
     #args.fn_test = 'data/persuasive_essays/Essay_Level/test.dat.abs'
 
-    args.model = 'BiRNN'
+    #args.model = 'BiRNN'
     #args.model = 'BiRNNCNN'
-    #args.model = 'BiRNNCNNCRF'
-    args.epoch_num = 1
+    args.model = 'BiRNNCNNCRF'
+    args.epoch_num = 100
     args.rnn_hidden_dim = 100
-    args.batch_size = 100
+    #args.batch_size = 10
     #args.gpu = -1
     #args.lr_decay = 0.05
     #args.rnn_type = 'LSTM'
     #args.checkpoint_fn = 'tagger_model_BiRNNCNN_NER_nosb.hdf5'
-    args.report_fn = 'report_model_temp.txt'
-    args.checkpoint_fn = 'tagger_model_temp.hdf5'
-    args.save_best = False
+    args.report_fn = 'report_model_NER_100.txt'
+    args.checkpoint_fn = 'tagger_model_NER_100.hdf5'
+    #args.save_best = False
     #args.load_word_seq_indexer = 'word_seq_indexer.hdf5'
 
     # Load CoNNL data as sequences of strings of words and corresponding tags
@@ -255,6 +255,11 @@ if __name__ == "__main__":
                                                                     outputs_tag_sequences=outputs_tag_sequences_test,
                                                                     match_alpha_ratio=0.5)
 
+    connl_report_str = Evaluator.get_f1_from_words_connl_script(word_sequences=datasets_bank.word_sequences_test,
+                                                                targets_tag_sequences=datasets_bank.tag_sequences_test,
+                                                                outputs_tag_sequences=outputs_tag_sequences_test)
+
+    # Prepare text report
     scores_report_str = '\nResults on TEST (best epoch = %d, save_best=%s): Accuracy = %1.2f.' % (best_epoch,
                                                                                                   args.save_best,
                                                                                                   acc_test)
@@ -262,6 +267,7 @@ if __name__ == "__main__":
                         % (0.999, f1_100, precision_100, recall_100)
     scores_report_str += '\nmatch_alpha_ratio = %1.1f | F1-50%% = %1.2f, Precision-50%% = %1.2f, Recall-50%% = %1.2f.' \
                          % (0.5, f1_50, precision_50, recall_50)
+    scores_report_str += '\n' + connl_report_str
     print(scores_report_str)
 
     # Write scores report to text file

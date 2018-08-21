@@ -1,6 +1,10 @@
+import os
+import os.path
+import random
 import torch
 import numpy as np
 from sklearn.metrics import accuracy_score # f1_score, precision_score, recall_score
+from classes.data_io import DataIO
 from classes.tag_component import TagComponent
 
 
@@ -20,6 +24,16 @@ class Evaluator():
         return Evaluator.get_f1_from_components_sequences(targets_tag_components_sequences,
                                                           outputs_tag_components_sequences,
                                                           match_alpha_ratio)
+    @staticmethod
+    def get_f1_from_words_connl_script(word_sequences, targets_tag_sequences, outputs_tag_sequences):
+        fn_out = 'out_temp_%04d.txt' % random.randint(0, 10000)
+        if os.path.isfile(fn_out):
+            os.remove(fn_out)
+        DataIO.write_CoNNL_2003_two_columns(fn_out, word_sequences, targets_tag_sequences, outputs_tag_sequences)
+        cmd = 'perl %s < %s' % (os.path.join('.', 'conlleval'), fn_out)
+        str_out = '\nStandard CoNNL perl script (author: Erik Tjong Kim Sang <erikt@uia.ua.ac.be>, version: 2004-01-26):\n'
+        str_out += ''.join(os.popen(cmd).readlines())
+        return str_out
 
     @staticmethod
     def get_f1_from_components_sequences(targets_tag_components_sequences, outputs_tag_components_sequences, match_alpha_ratio):

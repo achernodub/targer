@@ -60,14 +60,16 @@ class DataIO():
         return word_sequences, tag_sequences
 
     @staticmethod
-    def write_CoNNL_2003(fn, word_sequences, tag_sequences):
+    def write_CoNNL_2003_two_columns(fn, word_sequences, tag_sequences_1, tag_sequences_2):
         text_file = open(fn, mode='w')
         for i, words in enumerate(word_sequences):
-            text_file.write('-DOCSTART- -X- -X-\n')
-            tags_1 = tag_sequences[i]
+            tags_1 = tag_sequences_1[i]
+            tags_2 = tag_sequences_2[i]
             for j, word in enumerate(words):
                 tag_1 = tags_1[j]
-                text_file.write('%s %s\n' % (word, tag_1))
+                tag_2 = tags_2[j]
+                text_file.write('%s %s %s\n' % (word, tag_1, tag_2))
+            text_file.write('\n')
         text_file.close()
 
     @staticmethod
