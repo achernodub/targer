@@ -16,6 +16,7 @@ from classes.data_io import DataIO
 from classes.datasets_bank import DatasetsBank
 from classes.element_seq_indexer import ElementSeqIndexer
 from classes.evaluator import Evaluator
+from classes.utils import write_textfile
 
 from models.tagger_birnn import TaggerBiRNN
 from models.tagger_birnn_cnn import TaggerBiRNNCNN
@@ -229,12 +230,8 @@ if __name__ == "__main__":
 
         epoch_report += connl_report_dev_str
         print(epoch_report)
-
-        report_str += connl_report_dev_str
-        if args.report_fn is not None:
-            with open(args.report_fn, mode='w') as text_file:
-                text_file.write(report_str)
-
+        report_str += epoch_report
+        write_textfile(args.report_fn, report_str)
 
     outputs_tag_sequences_test = best_tagger.predict_tags_from_words(datasets_bank.word_sequences_test, batch_size=100)
     acc_test = Evaluator.get_accuracy_token_level(targets_tag_sequences=datasets_bank.tag_sequences_test,
@@ -268,10 +265,8 @@ if __name__ == "__main__":
     report_str += '\n' + connl_report_test_str
     print(report_str)
 
-    # Write scores report to text file
-    if args.report_fn is not None:
-        with open(args.report_fn, mode='w') as text_file:
-            text_file.write(report_str)
+    # Write final text report
+    write_textfile(args.report_fn, report_str)
 
     # Save best tagger to disk
     if args.checkpoint_fn is not None:

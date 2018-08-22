@@ -20,3 +20,8 @@ def is_number(s):
     except (TypeError, ValueError):
         pass
     return False
+
+def write_textfile(fn, s):
+    if fn is not None:
+        with open(fn, mode='w') as text_file:
+            text_file.write(s)
