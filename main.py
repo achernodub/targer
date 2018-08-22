@@ -80,14 +80,15 @@ if __name__ == "__main__":
     args.fn_train = 'data/NER/CoNNL_2003_shared_task/train.txt'
     args.fn_dev = 'data/NER/CoNNL_2003_shared_task/dev.txt'
     args.fn_test = 'data/NER/CoNNL_2003_shared_task/test.txt'
+    args.load_word_seq_indexer = 'word_seq_indexer_CoNNL_2003.hdf5'
 
     #args.fn_train = 'data/persuasive_essays/Essay_Level/train.dat.abs'
     #args.fn_dev = 'data/persuasive_essays/Essay_Level/dev.dat.abs'
     #args.fn_test = 'data/persuasive_essays/Essay_Level/test.dat.abs'
 
-    #args.model = 'BiRNN'
+    args.model = 'BiRNN'
     #args.model = 'BiRNNCNN'
-    args.model = 'BiRNNCNNCRF'
+    #args.model = 'BiRNNCNNCRF'
     args.epoch_num = 100
     args.rnn_hidden_dim = 100
     #args.batch_size = 10
@@ -95,10 +96,9 @@ if __name__ == "__main__":
     #args.lr_decay = 0.05
     #args.rnn_type = 'LSTM'
     #args.checkpoint_fn = 'tagger_model_BiRNNCNN_NER_nosb.hdf5'
-    args.report_fn = 'report_model_NER_100.txt'
-    args.checkpoint_fn = 'tagger_model_NER_100.hdf5'
+    args.report_fn = 'report_model_BiRNN1_NER_100.txt'
+    args.checkpoint_fn = 'tagger_model_BiRNN1_NER_100.hdf5'
     #args.save_best = False
-    #args.load_word_seq_indexer = 'word_seq_indexer.hdf5'
 
     # Load CoNNL data as sequences of strings of words and corresponding tags
     word_sequences_train, tag_sequences_train = DataIO.read_CoNNL_universal(args.fn_train)
@@ -183,32 +183,16 @@ if __name__ == "__main__":
         loss_sum = 0
         for i, (word_sequences_train_batch, tag_sequences_train_batch) in enumerate(zip(word_sequences_train_batch_list,
                                                                                         tag_sequences_train_batch_list)):
-            tagger.train()
             tagger.zero_grad()
             loss = tagger.get_loss(word_sequences_train_batch, tag_sequences_train_batch)
             loss.backward()
             tagger.clip_gradients(args.clip_grad)
             optimizer.step()
-            #tagger.eval()
-            #yy = tagger.predict_tags_from_words(word_sequences_train_batch)
-            #exit()
-            #if i < 598:
-            #    continue
-            #for kk in range(100):
-            #    tagger.train()
-            #    tagger.zero_grad()
-            #    loss = tagger.get_loss(word_sequences_train_batch, tag_sequences_train_batch)
-            #    loss.backward()
-            #    tagger.clip_gradients(args.clip_grad)
-            #    optimizer.step()
-            #    tagger.eval()
-            #    yy = tagger.predict_tags_from_words(word_sequences_train_batch)
-            #    print('---- k=%d loss=%1.2f -----' % (kk, loss.item()))
-            #    for tag, out in zip(tag_sequences_train_batch[0], yy[0]):
-            #        print(tag, out)
-            #exit()
-            if i % 50 == 0 and args.verbose:
-                print('-- epoch %d, i = %d/%d, instant loss = %1.4f' % (epoch, i, iterations_num, loss.item()))
+            #print('epoch {}'.format(i), end='\r', flush=True)
+            if i % 10 == 0:
+                print('\r-- epoch %d, i = %d/%d (%1.2f%%), loss = %1.4f' % (epoch, i, iterations_num,
+                                                                          i*100.0/iterations_num, loss.item()),
+                                                                          end='', flush=True)
             loss_sum += loss.item()
 
         time_finish = time.time()
