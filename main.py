@@ -173,6 +173,7 @@ if __name__ == "__main__":
     scheduler = LambdaLR(optimizer, lr_lambda=lambda epoch: 1/(1 + args.lr_decay*epoch))
     iterations_num = int(datasets_bank.train_data_num / args.batch_size)
     best_f1_dev = -1
+    report_str = '\n'.join([hp for hp in str(args).replace('Namespace(', '').replace(')', '').split(', ')]) # hyperparams
     for epoch in range(1, args.epoch_num + 1):
         tagger.train()
         if args.lr_decay > 0:
@@ -205,6 +206,10 @@ if __name__ == "__main__":
                                                                    outputs_tag_sequences=outputs_tag_sequences_dev,
                                                                    match_alpha_ratio=0.999)
 
+        connl_report_dev_str = Evaluator.get_f1_from_words_connl_script(word_sequences=datasets_bank.word_sequences_dev,
+                                                                        targets_tag_sequences=datasets_bank.tag_sequences_dev,
+                                                                        outputs_tag_sequences=outputs_tag_sequences_dev)
+
         if f1_dev > best_f1_dev:
             best_epoch_msg = '[BEST] '
             best_epoch = epoch
@@ -214,13 +219,22 @@ if __name__ == "__main__":
         if not args.save_best:
             best_tagger = copy.deepcopy(tagger) # if save_best flag is off then best tagger is the last tagger anyway
 
-        print('\n%sEPOCH %d/%d, DEV dataset: loss = %1.2f, accuracy = %1.2f, F1-100%% = %1.2f  | %d sec.\n' % (best_epoch_msg,
+        epoch_report = '\n%sEPOCH %d/%d, DEV dataset: loss = %1.2f, accuracy = %1.2f, F1-100%% = %1.2f  | %d sec.\n' % (best_epoch_msg,
                                                                                                epoch,
                                                                                                args.epoch_num,
                                                                                                loss_sum,
                                                                                                acc_dev,
                                                                                                f1_dev,
-                                                                                               time.time() - time_start))
+                                                                                               time.time() - time_start)
+
+        epoch_report += connl_report_dev_str
+        print(epoch_report)
+
+        report_str += connl_report_dev_str
+        if args.report_fn is not None:
+            with open(args.report_fn, mode='w') as text_file:
+                text_file.write(report_str)
+
 
     outputs_tag_sequences_test = best_tagger.predict_tags_from_words(datasets_bank.word_sequences_test, batch_size=100)
     acc_test = Evaluator.get_accuracy_token_level(targets_tag_sequences=datasets_bank.tag_sequences_test,
@@ -239,24 +253,25 @@ if __name__ == "__main__":
                                                                     outputs_tag_sequences=outputs_tag_sequences_test,
                                                                     match_alpha_ratio=0.5)
 
-    connl_report_str = Evaluator.get_f1_from_words_connl_script(word_sequences=datasets_bank.word_sequences_test,
-                                                                targets_tag_sequences=datasets_bank.tag_sequences_test,
-                                                                outputs_tag_sequences=outputs_tag_sequences_test)
+    connl_report_test_str = Evaluator.get_f1_from_words_connl_script(word_sequences=datasets_bank.word_sequences_test,
+                                                                     targets_tag_sequences=datasets_bank.tag_sequences_test,
+                                                                     outputs_tag_sequences=outputs_tag_sequences_test)
 
     # Prepare text report
-    scores_report_str = '\nResults on TEST (best epoch = %d, save_best=%s): Accuracy = %1.2f.' % (best_epoch,
-                                                                                                  args.save_best,
-                                                                                                  acc_test)
-    scores_report_str += '\nmatch_alpha_ratio = %1.1f | F1-100%% = %1.2f, Precision-100%% = %1.2f, Recall-100%% = %1.2f.'\
-                        % (0.999, f1_100, precision_100, recall_100)
-    scores_report_str += '\nmatch_alpha_ratio = %1.1f | F1-50%% = %1.2f, Precision-50%% = %1.2f, Recall-50%% = %1.2f.' \
-                         % (0.5, f1_50, precision_50, recall_50)
-    scores_report_str += '\n' + connl_report_str
-    print(scores_report_str)
+    report_str += '\nResults on TEST (best epoch = %d, save_best=%s): Accuracy = %1.2f.' % (best_epoch,
+                                                                                            args.save_best,
+                                                                                            acc_test)
+    report_str += '\nmatch_alpha_ratio = %1.1f | F1-100%% = %1.2f, Precision-100%% = %1.2f, Recall-100%% = %1.2f.' \
+                  % (0.999, f1_100, precision_100, recall_100)
+    report_str += '\nmatch_alpha_ratio = %1.1f | F1-50%% = %1.2f, Precision-50%% = %1.2f, Recall-50%% = %1.2f.' \
+                  % (0.5, f1_50, precision_50, recall_50)
+    report_str += '\n' + connl_report_test_str
+    print(report_str)
 
     # Write scores report to text file
     if args.report_fn is not None:
-        Evaluator.write_text_report(args.report_fn, args, scores_report_str)
+        with open(args.report_fn, mode='w') as text_file:
+            text_file.write(report_str)
 
     # Save best tagger to disk
     if args.checkpoint_fn is not None:

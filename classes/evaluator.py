@@ -62,10 +62,3 @@ class Evaluator():
         F1 = (2 * TP / max(2 * TP + FP + FN, 1))*100
         return F1, Precision, Recall, (TP, FP, FN)
 
-    @staticmethod
-    def write_text_report(fn, args, scores_report_str):
-        text_file = open(fn, mode='w')
-        for hyper_param in str(args).replace('Namespace(', '').replace(')', '').split(', '):
-            text_file.write('%s\n' % hyper_param)
-        text_file.write(scores_report_str)
-        text_file.close()
