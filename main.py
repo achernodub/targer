@@ -42,7 +42,6 @@ if __name__ == "__main__":
     parser.add_argument('--epoch_num', type=int, default=200, help='Number of epochs.')
     parser.add_argument('--rnn_hidden_dim', type=int, default=100, help='Number hidden units in the recurrent layer.')
     parser.add_argument('--rnn_type', default='GRU', help='RNN cell units type: "Vanilla", "LSTM", "GRU".')
-
     parser.add_argument('--char_embeddings_dim', type=int, default=25, help='Char embeddings dim, only for char CNNs.')
     parser.add_argument('--word_len', type=int, default=20, help='Max length of words in characters for char CNNs.')
     parser.add_argument('--char_cnn_filter_num', type=int, default=30, help='Number of filters in Char CNN.')
@@ -97,8 +96,8 @@ if __name__ == "__main__":
     #args.lr_decay = 0.05
     #args.rnn_type = 'LSTM'
     #args.checkpoint_fn = 'tagger_model_BiRNNCNN_NER_nosb.hdf5'
-    args.report_fn = 'report_model_BiRNN1_NER_100.txt'
-    args.checkpoint_fn = 'tagger_model_BiRNN1_NER_100.hdf5'
+    #args.report_fn = 'report_model_BiRNN1_NER_100.txt'
+    #args.checkpoint_fn = 'tagger_model_BiRNN1_NER_100.hdf5'
     #args.save_best = False
 
     # Load CoNNL data as sequences of strings of words and corresponding tags
@@ -174,7 +173,7 @@ if __name__ == "__main__":
     scheduler = LambdaLR(optimizer, lr_lambda=lambda epoch: 1/(1 + args.lr_decay*epoch))
     iterations_num = int(datasets_bank.train_data_num / args.batch_size)
     best_f1_dev = -1
-    report_str = '\n'.join([hp for hp in str(args).replace('Namespace(', '').replace(')', '').split(', ')]) # hyperparams
+    report_str = '\n'.join([hp for hp in str(args).replace('Namespace(', '').replace(')', '').split(', ')])+'\n' # hyperparams
     for epoch in range(1, args.epoch_num + 1):
         tagger.train()
         if args.lr_decay > 0:
@@ -190,7 +189,6 @@ if __name__ == "__main__":
             loss.backward()
             tagger.clip_gradients(args.clip_grad)
             optimizer.step()
-            #print('epoch {}'.format(i), end='\r', flush=True)
             if i % 10 == 0:
                 print('\r-- epoch %d, i = %d/%d (%1.2f%%), loss = %1.4f' % (epoch, i, iterations_num,
                                                                           i*100.0/iterations_num, loss.item()),
