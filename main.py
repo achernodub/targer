@@ -95,8 +95,8 @@ if __name__ == "__main__":
     #args.lr_decay = 0.05
     #args.rnn_type = 'LSTM'
     #args.checkpoint_fn = 'tagger_model_BiRNNCNN_NER_nosb.hdf5'
-    args.report_fn = 'report_model_BiRNN3_NER_100_pat_zero.txt'
-    args.checkpoint_fn = 'tagger_model_BiRNN3_NER_100_pat_zero.hdf5'
+    args.report_fn = 'report_model_BiRNN4_NER.txt'
+    args.checkpoint_fn = 'tagger_model_BiRNN4_NER.hdf5'
 
     # Load CoNNL data as sequences of strings of words and corresponding tags
     word_sequences_train, tag_sequences_train = DataIO.read_CoNNL_universal(args.fn_train)
@@ -104,7 +104,8 @@ if __name__ == "__main__":
     word_sequences_test, tag_sequences_test = DataIO.read_CoNNL_universal(args.fn_test)
 
     # Converts lists of lists of tags to integer indices and back
-    tag_seq_indexer = ElementSeqIndexer(gpu=args.gpu, caseless=False, verbose=args.verbose, pad='<pad>', unk=None)
+    tag_seq_indexer = ElementSeqIndexer(gpu=args.gpu, caseless=False, verbose=args.verbose, pad='<pad>', unk=None,
+                                        zero_digits=False)
     tag_seq_indexer.load_vocabulary_from_element_sequences(tag_sequences_train)
 
     # Word_seq_indexer converts lists of lists of words to integer indices and back; optionally contains embeddings
@@ -114,9 +115,9 @@ if __name__ == "__main__":
         word_seq_indexer = ElementSeqIndexer(gpu=args.gpu, caseless=args.caseless, load_embeddings=True,
                                                  verbose=args.verbose, pad='<pad>', unk='<unk>', zero_digits=True)
         word_seq_indexer.load_vocabulary_from_embeddings_file(emb_fn=args.emb_fn, emb_delimiter=args.emb_delimiter)
-        word_seq_indexer.load_vocabulary_from_element_sequences(word_sequences_train)
-        word_seq_indexer.load_vocabulary_from_element_sequences(word_sequences_dev)
-        word_seq_indexer.load_vocabulary_from_element_sequences(word_sequences_test, verbose=True)
+        #word_seq_indexer.load_vocabulary_from_element_sequences(word_sequences_train)
+        #word_seq_indexer.load_vocabulary_from_element_sequences(word_sequences_dev)
+        #word_seq_indexer.load_vocabulary_from_element_sequences(word_sequences_test, verbose=True)
         if args.load_word_seq_indexer is not None:
             torch.save(word_seq_indexer, args.load_word_seq_indexer)
 

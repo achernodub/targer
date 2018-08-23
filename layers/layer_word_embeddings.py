@@ -4,7 +4,7 @@ from layers.layer_base import LayerBase
 class LayerWordEmbeddings(LayerBase):
     def __init__(self, word_seq_indexer, gpu, freeze_word_embeddings=False):
         super(LayerWordEmbeddings, self).__init__(gpu)
-        embeddings_tensor = word_seq_indexer.get_embeddings_tensor()
+        embeddings_tensor = word_seq_indexer.get_loaded_embeddings_tensor()
         self.embeddings = nn.Embedding.from_pretrained(embeddings=embeddings_tensor, freeze=freeze_word_embeddings)
         self.word_seq_indexer = word_seq_indexer
         self.freeze_embeddings = freeze_word_embeddings

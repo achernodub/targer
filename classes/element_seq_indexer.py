@@ -23,36 +23,37 @@ class ElementSeqIndexer():
         self.out_of_vocabulary_list = list()
         self.element2idx_dict = dict()
         self.idx2element_dict = dict()
-        if pad is not None:
-            self.add_element(pad)
         if load_embeddings:
             self.embeddings_loaded = False
             self.embeddings_dim = 0
-            self.embeddings_list = list()
+            self.embedding_vectors_list = list()
+        if pad is not None:
+            self.add_element(pad)
         if unk is not None:
             self.add_element(unk)
 
-    def elements_list(self):
+    def get_elements_list(self):
         return self.element2idx_dict.keys()
 
     def add_element(self, element):
-        if self.caseless:
-            element = element.lower()
-        if self.zero_digits:
-            element = re.sub('\d', '0', element)
-        idx = len(self.elements_list())
+        element = self.__element_normalization(element)
+        idx = len(self.get_elements_list())
         self.element2idx_dict[element] = idx
         self.idx2element_dict[idx] = element
 
     def __element_exists(self, element):
+        element = self.__element_normalization(element)
+        return (element in self.get_elements_list())
+
+    def __element_normalization(self, element):
         if self.caseless:
             element = element.lower()
         if self.zero_digits:
             element = re.sub('\d', '0', element)
-        return (element in self.elements_list())
+        return element
 
     def __add_emb_vector(self, emb_vector):
-        self.embeddings_list.append(emb_vector)
+        self.embedding_vectors_list.append(emb_vector)
 
     def __get_random_emb_vector(self):
         if self.embeddings_dim == 0:
@@ -86,14 +87,9 @@ class ElementSeqIndexer():
             self.add_element(element)
             self.__add_emb_vector(emb_vector)
         self.embeddings_loaded = True
-        # 3) Generate random embedding for 'unknown' token
-        self.add_element(self.unk)
-        self.__add_emb_vector(self.__get_random_emb_vector())
         if self.verbose:
-            print('%s embeddings file was loaded, %d vectors, dim = %d.' % (emb_fn, len(self.embeddings_list), self.embeddings_dim))
+            print('%s embeddings file was loaded, %d vectors, dim = %d.' % (emb_fn, len(self.embedding_vectors_list), self.embeddings_dim))
 
-    def get_embeddings_tensor(self):
-        return torch.FloatTensor(np.asarray(self.embeddings_list))
 
     def load_vocabulary_from_element_sequences(self, element_sequences, verbose=False):
         if self.load_embeddings and not self.embeddings_loaded:
@@ -109,33 +105,35 @@ class ElementSeqIndexer():
             print('%d elements not found:' % len(self.out_of_vocabulary_list))
             for k, element in enumerate(self.out_of_vocabulary_list):
                 print(' -= %d/%d out of vocabulary token: %s' % (k, len(self.out_of_vocabulary_list), element))
-            print('%d embeddings loaded/generated.' % len(self.embeddings_list))
+            print('%d embeddings loaded/generated.' % len(self.embedding_vectors_list))
+
+    def get_loaded_embeddings_tensor(self):
+        return torch.FloatTensor(np.asarray(self.embedding_vectors_list))
 
     def get_elements_num(self):
-        return len(self.elements_list())
+        return len(self.get_elements_list())
 
     def get_class_num(self):
         if self.pad is not None and self.unk is not None:
-            return len(self.elements_list()) - 2
+            return self.get_elements_num() - 2
         if self.pad is not None or self.unk is not None:
-            return len(self.elements_list()) - 1
-        return len(self.elements_list())
+            return self.get_elements_num() - 1
+        return self.get_elements_num()
 
     def elements2idx(self, element_sequences):
         idx_sequences = []
         for element_seq in element_sequences:
-            element_caseless_seq = [element.lower() if self.caseless else element for element in element_seq]
+            element_normalized_seq = map(self.__element_normalization, element_seq)
+            #element_caseless_seq = [element.lower() if self.caseless else element for element in element_seq]
             idx_seq = list()
-            #idx_seq = [self.element2idx_dict.get(element, self.element2idx_dict[self.unk])
-            #           for element in element_caseless_seq]
-            for element in element_caseless_seq:
+            for element in element_normalized_seq:
                 if element in self.element2idx_dict:
                     idx_seq.append(self.element2idx_dict[element])
                 else:
                     if self.unk is not None:
                         idx_seq.append(self.element2idx_dict[self.unk])
                     else:
-                        idx_seq.append(0) # pad
+                        idx_seq.append(self.element2idx_dict[self.pad])
             idx_sequences.append(idx_seq)
         return idx_sequences
 
@@ -182,10 +180,10 @@ class ElementSeqIndexer():
             unique_characters_set = set()
         if verbose:
             cnt = 0
-        for n, token in enumerate(self.elements_list()):
+        for n, token in enumerate(self.get_elements_list()):
             len_delta = len(unique_characters_set)
             unique_characters_set = unique_characters_set.union(set(token))
             if verbose and len(unique_characters_set) > len_delta:
                 cnt += 1
-                print('n = %d/%d (%d) %s' % (n, len(self.elements_list), cnt, token))
+                print('n = %d/%d (%d) %s' % (n, len(self.get_elements_list), cnt, token))
         return list(unique_characters_set)
