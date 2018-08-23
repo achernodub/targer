@@ -1,6 +1,7 @@
 import string
 
 import numpy as np
+import re
 import torch
 
 class ElementSeqIndexer():
@@ -10,14 +11,15 @@ class ElementSeqIndexer():
         Index 0 stands for the unknown string.
     """
 
-    def __init__(self, gpu=-1, caseless=True, load_embeddings=False, verbose=False, pad='<pad>', unk='<unk>'):
+    def __init__(self, gpu=-1, caseless=True, load_embeddings=False, verbose=False, pad='<pad>', unk='<unk>',
+                 zero_digits=False):
         self.gpu = gpu
         self.caseless = caseless
         self.load_embeddings = load_embeddings
         self.verbose = verbose
         self.pad = pad
         self.unk = unk
-        #self.elements_list = list()
+        self.zero_digits = zero_digits
         self.out_of_vocabulary_list = list()
         self.element2idx_dict = dict()
         self.idx2element_dict = dict()
@@ -36,14 +38,17 @@ class ElementSeqIndexer():
     def add_element(self, element):
         if self.caseless:
             element = element.lower()
+        if self.zero_digits:
+            element = re.sub('\d', '0', element)
         idx = len(self.elements_list())
-        #self.elements_list.append(element)
         self.element2idx_dict[element] = idx
         self.idx2element_dict[idx] = element
 
     def __element_exists(self, element):
         if self.caseless:
             element = element.lower()
+        if self.zero_digits:
+            element = re.sub('\d', '0', element)
         return (element in self.elements_list())
 
     def __add_emb_vector(self, emb_vector):
