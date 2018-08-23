@@ -1,7 +1,6 @@
 from __future__ import print_function
 
 import argparse
-import copy
 import datetime
 import time
 import os.path
@@ -96,8 +95,8 @@ if __name__ == "__main__":
     #args.lr_decay = 0.05
     #args.rnn_type = 'LSTM'
     #args.checkpoint_fn = 'tagger_model_BiRNNCNN_NER_nosb.hdf5'
-    #args.report_fn = 'report_model_BiRNN1_NER_100.txt'
-    #args.checkpoint_fn = 'tagger_model_BiRNN1_NER_100.hdf5'
+    args.report_fn = 'report_model_BiRNN2_NER_100_pat.txt'
+    args.checkpoint_fn = 'tagger_model_BiRNN2_NER_100_pat.hdf5'
 
     # Load CoNNL data as sequences of strings of words and corresponding tags
     word_sequences_train, tag_sequences_train = DataIO.read_CoNNL_universal(args.fn_train)
