@@ -48,8 +48,8 @@ if __name__ == "__main__":
     parser.add_argument('--dropout_ratio', type=float, default=0.5, help='Dropout ratio.')
     parser.add_argument('--clip_grad', type=float, default=5.0, help='Clipping gradients maximum L2 norm.')
     parser.add_argument('--opt_method', default='sgd', help='Optimization method: "sgd", "adam".')
-    parser.add_argument('--lr', type=float, default=0.01, help='Learning rate.')
-    parser.add_argument('--lr_decay', type=float, default=0.05, help='Learning decay rate.') # 0.05
+    parser.add_argument('--lr', type=float, default=0.005, help='Learning rate.')
+    parser.add_argument('--lr_decay', type=float, default=0, help='Learning decay rate.') # 0.05
     parser.add_argument('--momentum', type=float, default=0.9, help='Learning momentum rate.')
     parser.add_argument('--batch_size', type=int, default=10, help='Batch size, samples.')
     parser.add_argument('--verbose', type=bool, default=True, help='Show additional information.')
@@ -85,9 +85,9 @@ if __name__ == "__main__":
     #args.fn_dev = 'data/persuasive_essays/Essay_Level/dev.dat.abs'
     #args.fn_test = 'data/persuasive_essays/Essay_Level/test.dat.abs'
 
-    args.model = 'BiRNN'
+    #args.model = 'BiRNN'
     #args.model = 'BiRNNCNN'
-    #args.model = 'BiRNNCNNCRF'
+    args.model = 'BiRNNCNNCRF'
     args.epoch_num = 100
     args.rnn_hidden_dim = 100
     #args.batch_size = 10
@@ -95,7 +95,7 @@ if __name__ == "__main__":
     #args.lr_decay = 0.05
     #args.rnn_type = 'LSTM'
     #args.checkpoint_fn = 'tagger_model_BiRNNCNN_NER_nosb.hdf5'
-    args.report_fn = 'report_model_BiRNN5_NER.txt'
+    #args.report_fn = 'report_model_BiRNN5_NER.txt'
     #args.report_fn = 'report_model_BiRNNCNN5_NER.txt'
     #args.checkpoint_fn = 'tagger_model_BiRNNCNN5_NER.hdf5'
 
