@@ -227,7 +227,7 @@ if __name__ == "__main__":
         report_str += epoch_report
         write_textfile(args.report_fn, report_str)
         print(epoch_report)
-        print('No improvement during the last %d epochs' % patience_counter)
+        print('No improvement during the last %d epochs\n' % patience_counter)
         if patience_counter > args.patience:
             break
 
