@@ -1,6 +1,7 @@
 import os
 import os.path
 import random
+import time
 import torch
 import numpy as np
 from sklearn.metrics import accuracy_score # f1_score, precision_score, recall_score
@@ -33,6 +34,9 @@ class Evaluator():
         cmd = 'perl %s < %s' % (os.path.join('.', 'conlleval'), fn_out)
         str_out = '\nStandard CoNNL perl script (author: Erik Tjong Kim Sang <erikt@uia.ua.ac.be>, version: 2004-01-26):\n'
         str_out += ''.join(os.popen(cmd).readlines())
+        time.sleep(1)
+        if os.path.exists(fn_out):
+            os.remove(fn_out)
         return str_out
 
     @staticmethod
