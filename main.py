@@ -96,8 +96,8 @@ if __name__ == "__main__":
     #args.rnn_type = 'LSTM'
     #args.checkpoint_fn = 'tagger_model_BiRNNCNN_NER_nosb.hdf5'
     #args.report_fn = 'report_model_BiRNN5_NER.txt'
-    #args.report_fn = 'report_model_BiRNNCNN5_NER.txt'
-    #args.checkpoint_fn = 'tagger_model_BiRNNCNN5_NER.hdf5'
+    args.report_fn = 'report_model_BiRNNCNNCRF6_NER.txt'
+    args.checkpoint_fn = 'tagger_model_BiRNNCNNCRF6_NER.hdf5'
 
     # Load CoNNL data as sequences of strings of words and corresponding tags
     word_sequences_train, tag_sequences_train = DataIO.read_CoNNL_universal(args.fn_train)
