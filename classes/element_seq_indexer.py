@@ -31,8 +31,8 @@ class ElementSeqIndexer():
             self.add_element(pad)
         if unk is not None:
             self.add_element(unk)
-        #if self.zero_digits:
-        #    self.add_element('0')
+        if self.zero_digits:
+            self.add_element('0')
 
     def get_elements_list(self):
         return self.element2idx_dict.keys()
@@ -81,8 +81,8 @@ class ElementSeqIndexer():
             self.__add_emb_vector(self.__get_zero_emb_vector()) # zeros for <pad>
         if self.unk is not None:
             self.__add_emb_vector(self.__get_random_emb_vector()) # randoms for <unk>
-        #if self.zero_digits:
-        #    self.__add_emb_vector(self.__get_random_emb_vector())  # randoms for digits
+        if self.zero_digits:
+            self.__add_emb_vector(self.__get_random_emb_vector())  # randoms for digits
         # 2) Add embeddings from file
         for line in open(emb_fn, 'r'):
             values = line.split(emb_delimiter)
