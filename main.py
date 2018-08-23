@@ -21,6 +21,14 @@ from models.tagger_birnn import TaggerBiRNN
 from models.tagger_birnn_cnn import TaggerBiRNNCNN
 from models.tagger_birnn_cnn_crf import TaggerBiRNNCNNCRF
 
+def tok_num(word_sequences):
+    n = 0
+    for word_seq in word_sequences:
+        for token in word_seq:
+            n += 1
+    return n
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Learning tagging problem using neural networks')
     parser.add_argument('--model', default='BiRNN', help='Tagger model: "BiRNN" or "BiRNNCNN".')
@@ -76,9 +84,13 @@ if __name__ == "__main__":
         torch.cuda.manual_seed(args.seed_num)
 
     # Custom params here to replace the defaults
-    args.fn_train = 'data/NER/CoNNL_2003_shared_task/train.txt'
-    args.fn_dev = 'data/NER/CoNNL_2003_shared_task/dev.txt'
-    args.fn_test = 'data/NER/CoNNL_2003_shared_task/test.txt'
+#    args.fn_train = 'data/NER/CoNNL_2003_shared_task/train.txt'
+#    args.fn_dev = 'data/NER/CoNNL_2003_shared_task/dev.txt'
+#    args.fn_test = 'data/NER/CoNNL_2003_shared_task/test.txt'
+
+    args.fn_train = 'data/NER/NER-CoNNL-2003/eng.train'
+    args.fn_dev = 'data/NER/NER-CoNNL-2003/eng.testa'
+    args.fn_test = 'data/NER/NER-CoNNL-2003/eng.testb'
     #args.load_word_seq_indexer = 'word_seq_indexer_CoNNL_2003.hdf5'
 
     #args.fn_train = 'data/persuasive_essays/Essay_Level/train.dat.abs'
@@ -103,6 +115,10 @@ if __name__ == "__main__":
     word_sequences_train, tag_sequences_train = DataIO.read_CoNNL_universal(args.fn_train)
     word_sequences_dev, tag_sequences_dev = DataIO.read_CoNNL_universal(args.fn_dev)
     word_sequences_test, tag_sequences_test = DataIO.read_CoNNL_universal(args.fn_test)
+
+    print(tok_num(word_sequences_train))
+    print(tok_num(word_sequences_dev))
+    print(tok_num(word_sequences_test))
 
     # Converts lists of lists of tags to integer indices and back
     tag_seq_indexer = ElementSeqIndexer(gpu=args.gpu, caseless=False, verbose=args.verbose, pad='<pad>', unk=None,
