@@ -48,12 +48,12 @@ if __name__ == "__main__":
     parser.add_argument('--dropout_ratio', type=float, default=0.5, help='Dropout ratio.')
     parser.add_argument('--clip_grad', type=float, default=5.0, help='Clipping gradients maximum L2 norm.')
     parser.add_argument('--opt_method', default='sgd', help='Optimization method: "sgd", "adam".')
-    parser.add_argument('--lr', type=float, default=0.005, help='Learning rate.')
+    parser.add_argument('--lr', type=float, default=0.01, help='Learning rate.')
     parser.add_argument('--lr_decay', type=float, default=0, help='Learning decay rate.') # 0.05
     parser.add_argument('--momentum', type=float, default=0.9, help='Learning momentum rate.')
     parser.add_argument('--batch_size', type=int, default=10, help='Batch size, samples.')
     parser.add_argument('--verbose', type=bool, default=True, help='Show additional information.')
-    parser.add_argument('--seed_num', type=int, default=42, help='Random seed number, but 42 is the best forever!')
+    parser.add_argument('--seed_num', type=int, default=43, help='Random seed number, but 42 is the best forever!')
     parser.add_argument('--checkpoint_fn', default=None, help='Path to save the trained model.')
     parser.add_argument('--report_fn', default='report_%d_%02d_%02d_%02d_%02d.txt' % (datetime.datetime.now().year,
                                                                                       datetime.datetime.now().month,
@@ -85,19 +85,19 @@ if __name__ == "__main__":
     #args.fn_dev = 'data/persuasive_essays/Essay_Level/dev.dat.abs'
     #args.fn_test = 'data/persuasive_essays/Essay_Level/test.dat.abs'
 
-    #args.model = 'BiRNN'
+    args.model = 'BiRNN'
     #args.model = 'BiRNNCNN'
     #args.model = 'BiRNNCNNCRF'
-    args.epoch_num = 100
+    args.epoch_num = 50
     args.rnn_hidden_dim = 100
     #args.batch_size = 10
     #args.gpu = -1
-    #args.lr_decay = 0.05
-    #args.rnn_type = 'LSTM'
+    args.lr_decay = 0.05
+    args.rnn_type = 'LSTM'
     #args.checkpoint_fn = 'tagger_model_BiRNNCNN_NER_nosb.hdf5'
     #args.report_fn = 'report_model_BiRNN5_NER.txt'
-    args.report_fn = 'report_model_BiRNNCNNCRF7_NER.txt'
-    args.checkpoint_fn = 'tagger_model_BiRNNCNNCRF7_NER.hdf5'
+    #args.report_fn = 'report_model_BiRNNCNNCRF7_NER.txt'
+    #args.checkpoint_fn = 'tagger_model_BiRNNCNNCRF7_NER.hdf5'
 
     # Load CoNNL data as sequences of strings of words and corresponding tags
     word_sequences_train, tag_sequences_train = DataIO.read_CoNNL_universal(args.fn_train)
