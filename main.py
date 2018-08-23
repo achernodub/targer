@@ -55,7 +55,7 @@ if __name__ == "__main__":
     parser.add_argument('--batch_size', type=int, default=10, help='Batch size, samples.')
     parser.add_argument('--verbose', type=bool, default=True, help='Show additional information.')
     parser.add_argument('--seed_num', type=int, default=42, help='Random seed number, but 42 is the best forever!')
-    parser.add_argument('--checkpoint_fn', default=None, help='Path to save the trained model (best on DEV).')
+    parser.add_argument('--checkpoint_fn', default=None, help='Path to save the trained model.')
     parser.add_argument('--report_fn', default='report_%d_%02d_%02d_%02d_%02d.txt' % (datetime.datetime.now().year,
                                                                                       datetime.datetime.now().month,
                                                                                       datetime.datetime.now().day,
@@ -64,7 +64,7 @@ if __name__ == "__main__":
                                                                                       help='Path to report.')
     parser.add_argument('--match_alpha_ratio', type=float, default='0.999',
                         help='Alpha ratio from non-strict matching, options: 0.999 or 0.5')
-    parser.add_argument('--save_best', type=bool, default=True, help='Save best on DEV dataset as a final model.')
+    parser.add_argument('--patience', type=int, default=10, help='Patience for early stopping.')
     parser.add_argument('--load_word_seq_indexer', type=str, default=None, help='Load word_seq_indexer object from hdf5 file.')
 
 
@@ -98,7 +98,6 @@ if __name__ == "__main__":
     #args.checkpoint_fn = 'tagger_model_BiRNNCNN_NER_nosb.hdf5'
     #args.report_fn = 'report_model_BiRNN1_NER_100.txt'
     #args.checkpoint_fn = 'tagger_model_BiRNN1_NER_100.hdf5'
-    #args.save_best = False
 
     # Load CoNNL data as sequences of strings of words and corresponding tags
     word_sequences_train, tag_sequences_train = DataIO.read_CoNNL_universal(args.fn_train)
@@ -173,6 +172,7 @@ if __name__ == "__main__":
     scheduler = LambdaLR(optimizer, lr_lambda=lambda epoch: 1/(1 + args.lr_decay*epoch))
     iterations_num = int(datasets_bank.train_data_num / args.batch_size)
     best_f1_dev = -1
+    patience_counter = 0
     report_str = '\n'.join([hp for hp in str(args).replace('Namespace(', '').replace(')', '').split(', ')])+'\n' # hyperparams
     for epoch in range(1, args.epoch_num + 1):
         tagger.train()
@@ -211,12 +211,11 @@ if __name__ == "__main__":
 
         if f1_dev > best_f1_dev:
             best_epoch_msg = '[BEST] '
-            best_epoch = epoch
             best_f1_dev = f1_dev
-            best_tagger = copy.deepcopy(tagger)
+            patience_counter = 0
+        else:
+            patience_counter += 1
 
-        if not args.save_best:
-            best_tagger = copy.deepcopy(tagger) # if save_best flag is off then best tagger is the last tagger anyway
 
         epoch_report = '\n%sEPOCH %d/%d, DEV dataset: loss = %1.2f, accuracy = %1.2f, F1-100%% = %1.2f  | %d sec.\n' % (best_epoch_msg,
                                                                                                epoch,
@@ -225,13 +224,15 @@ if __name__ == "__main__":
                                                                                                acc_dev,
                                                                                                f1_dev,
                                                                                                time.time() - time_start)
-
         epoch_report += connl_report_dev_str
-        print(epoch_report)
         report_str += epoch_report
         write_textfile(args.report_fn, report_str)
+        print(epoch_report)
+        print('No improvement during the last % epochs' % patience_counter)
+        if patience_counter > args.patience:
+            break
 
-    outputs_tag_sequences_test = best_tagger.predict_tags_from_words(datasets_bank.word_sequences_test, batch_size=100)
+    outputs_tag_sequences_test = tagger.predict_tags_from_words(datasets_bank.word_sequences_test, batch_size=100)
     acc_test = Evaluator.get_accuracy_token_level(targets_tag_sequences=datasets_bank.tag_sequences_test,
 
 
@@ -253,9 +254,7 @@ if __name__ == "__main__":
                                                                      outputs_tag_sequences=outputs_tag_sequences_test)
 
     # Prepare text report
-    report_str += '\nResults on TEST (best epoch = %d, save_best=%s): Accuracy = %1.2f.' % (best_epoch,
-                                                                                            args.save_best,
-                                                                                            acc_test)
+    report_str += '\nResults on TEST (epoch = %d): Accuracy = %1.2f.' % (epoch, acc_test)
     report_str += '\nmatch_alpha_ratio = %1.1f | F1-100%% = %1.2f, Precision-100%% = %1.2f, Recall-100%% = %1.2f.' \
                   % (0.999, f1_100, precision_100, recall_100)
     report_str += '\nmatch_alpha_ratio = %1.1f | F1-50%% = %1.2f, Precision-50%% = %1.2f, Recall-50%% = %1.2f.' \
@@ -268,6 +267,6 @@ if __name__ == "__main__":
 
     # Save best tagger to disk
     if args.checkpoint_fn is not None:
-        best_tagger.save(args.checkpoint_fn)
+        tagger.save(args.checkpoint_fn)
 
     print('The end!')
