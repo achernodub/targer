@@ -88,15 +88,15 @@ if __name__ == "__main__":
     args.model = 'BiRNN'
     #args.model = 'BiRNNCNN'
     #args.model = 'BiRNNCNNCRF'
-    args.epoch_num = 3
+    args.epoch_num = 100
     args.rnn_hidden_dim = 100
     #args.batch_size = 10
     #args.gpu = -1
     #args.lr_decay = 0.05
     #args.rnn_type = 'LSTM'
     #args.checkpoint_fn = 'tagger_model_BiRNNCNN_NER_nosb.hdf5'
-    #args.report_fn = 'report_model_BiRNN2_NER_100_pat.txt'
-    #args.checkpoint_fn = 'tagger_model_BiRNN2_NER_100_pat.hdf5'
+    args.report_fn = 'report_model_BiRNN3_NER_100_pat_zero.txt'
+    args.checkpoint_fn = 'tagger_model_BiRNN3_NER_100_pat_zero.hdf5'
 
     # Load CoNNL data as sequences of strings of words and corresponding tags
     word_sequences_train, tag_sequences_train = DataIO.read_CoNNL_universal(args.fn_train)
