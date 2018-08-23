@@ -201,8 +201,8 @@ if __name__ == "__main__":
                                                      tag_seq_indexer=tag_seq_indexer)
 
         f1_dev, _, _, _ = Evaluator.get_f1_from_words(targets_tag_sequences=datasets_bank.tag_sequences_dev,
-                                                                   outputs_tag_sequences=outputs_tag_sequences_dev,
-                                                                   match_alpha_ratio=0.999)
+                                                      outputs_tag_sequences=outputs_tag_sequences_dev,
+                                                      match_alpha_ratio=0.999)
 
         connl_report_dev_str = Evaluator.get_f1_from_words_connl_script(word_sequences=datasets_bank.word_sequences_dev,
                                                                         targets_tag_sequences=datasets_bank.tag_sequences_dev,
@@ -215,19 +215,20 @@ if __name__ == "__main__":
         else:
             patience_counter += 1
 
+        epoch_report = '\nDEV dataset' + connl_report_dev_str
 
-        epoch_report = '\n%sEPOCH %d/%d, DEV dataset: loss = %1.2f, accuracy = %1.2f, F1-100%% = %1.2f  | %d sec.\n' % (best_epoch_msg,
+        epoch_report += '\n%sEPOCH %d/%d, DEV dataset: loss = %1.2f, accuracy = %1.2f, F1-100%% = %1.2f  | %d sec.\n' % \
+                                                                                              (best_epoch_msg,
                                                                                                epoch,
                                                                                                args.epoch_num,
                                                                                                loss_sum,
                                                                                                acc_dev,
                                                                                                f1_dev,
                                                                                                time.time() - time_start)
-        epoch_report += '\nDEV dataset' + connl_report_dev_str
         report_str += epoch_report
         write_textfile(args.report_fn, report_str)
         print(epoch_report)
-        print('No improvement during the last %d epochs\n' % patience_counter)
+        print('No improvement during the last %d epochs.\n' % patience_counter)
         if patience_counter > args.patience:
             break
 
