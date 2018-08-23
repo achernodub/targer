@@ -79,7 +79,7 @@ if __name__ == "__main__":
     args.fn_train = 'data/NER/CoNNL_2003_shared_task/train.txt'
     args.fn_dev = 'data/NER/CoNNL_2003_shared_task/dev.txt'
     args.fn_test = 'data/NER/CoNNL_2003_shared_task/test.txt'
-    args.load_word_seq_indexer = 'word_seq_indexer_CoNNL_2003.hdf5'
+    #args.load_word_seq_indexer = 'word_seq_indexer_CoNNL_2003.hdf5'
 
     #args.fn_train = 'data/persuasive_essays/Essay_Level/train.dat.abs'
     #args.fn_dev = 'data/persuasive_essays/Essay_Level/dev.dat.abs'
@@ -88,15 +88,15 @@ if __name__ == "__main__":
     args.model = 'BiRNN'
     #args.model = 'BiRNNCNN'
     #args.model = 'BiRNNCNNCRF'
-    args.epoch_num = 100
+    args.epoch_num = 3
     args.rnn_hidden_dim = 100
     #args.batch_size = 10
     #args.gpu = -1
     #args.lr_decay = 0.05
     #args.rnn_type = 'LSTM'
     #args.checkpoint_fn = 'tagger_model_BiRNNCNN_NER_nosb.hdf5'
-    args.report_fn = 'report_model_BiRNN2_NER_100_pat.txt'
-    args.checkpoint_fn = 'tagger_model_BiRNN2_NER_100_pat.hdf5'
+    #args.report_fn = 'report_model_BiRNN2_NER_100_pat.txt'
+    #args.checkpoint_fn = 'tagger_model_BiRNN2_NER_100_pat.hdf5'
 
     # Load CoNNL data as sequences of strings of words and corresponding tags
     word_sequences_train, tag_sequences_train = DataIO.read_CoNNL_universal(args.fn_train)
@@ -112,7 +112,7 @@ if __name__ == "__main__":
         word_seq_indexer = torch.load(args.load_word_seq_indexer)
     else:
         word_seq_indexer = ElementSeqIndexer(gpu=args.gpu, caseless=args.caseless, load_embeddings=True,
-                                                 verbose=args.verbose, pad='<pad>', unk='<unk>')
+                                                 verbose=args.verbose, pad='<pad>', unk='<unk>', zero_digits=True)
         word_seq_indexer.load_vocabulary_from_embeddings_file(emb_fn=args.emb_fn, emb_delimiter=args.emb_delimiter)
         word_seq_indexer.load_vocabulary_from_element_sequences(word_sequences_train)
         word_seq_indexer.load_vocabulary_from_element_sequences(word_sequences_dev)
@@ -223,7 +223,7 @@ if __name__ == "__main__":
                                                                                                acc_dev,
                                                                                                f1_dev,
                                                                                                time.time() - time_start)
-        epoch_report += 'DEV dataset\n' + connl_report_dev_str
+        epoch_report += '\nDEV dataset' + connl_report_dev_str
         report_str += epoch_report
         write_textfile(args.report_fn, report_str)
         print(epoch_report)
