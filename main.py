@@ -100,16 +100,20 @@ if __name__ == "__main__":
     args.model = 'BiRNN'
     #args.model = 'BiRNNCNN'
     #args.model = 'BiRNNCNNCRF'
-    args.epoch_num = 200
+    args.epoch_num = 50
     args.rnn_hidden_dim = 100
     #args.batch_size = 10
     #args.gpu = -1
     args.lr_decay = 0.05
     args.rnn_type = 'LSTM'
     #args.checkpoint_fn = 'tagger_model_BiRNNCNN_NER_nosb.hdf5'
-    args.report_fn = 'report_model_BiRNN_NER_200.txt'
+    args.report_fn = 'report_model_BiRNN_NER_50_classic.txt'
     #args.report_fn = 'report_model_BiRNNCNNCRF7_NER.txt'
     #args.checkpoint_fn = 'tagger_model_BiRNNCNNCRF7_NER.hdf5'
+
+    #from layers.layer_bilstm import LayerBiLSTM
+    #birnn_layer = LayerBiLSTM(input_dim=10, hidden_dim=5, gpu=0)
+    #exit()
 
     # Load CoNNL data as sequences of strings of words and corresponding tags
     word_sequences_train, tag_sequences_train = DataIO.read_CoNNL_universal(args.fn_train)
