@@ -223,7 +223,7 @@ if __name__ == "__main__":
                                                                                                acc_dev,
                                                                                                f1_dev,
                                                                                                time.time() - time_start)
-        epoch_report += connl_report_dev_str
+        epoch_report += 'DEV dataset\n' + connl_report_dev_str
         report_str += epoch_report
         write_textfile(args.report_fn, report_str)
         print(epoch_report)
