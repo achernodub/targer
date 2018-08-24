@@ -47,6 +47,7 @@ if __name__ == "__main__":
     parser.add_argument('--gpu', type=int, default=0, help='GPU device number, 0 by default, -1  means CPU.')
     parser.add_argument('--caseless', type=bool, default=True, help='Read characters caseless.')
     parser.add_argument('--epoch_num', type=int, default=200, help='Number of epochs.')
+    parser.add_argument('--min_epoch_num', type=int, default=50, help='Minimum number of epochs.')
     parser.add_argument('--rnn_hidden_dim', type=int, default=100, help='Number hidden units in the recurrent layer.')
     parser.add_argument('--rnn_type', default='GRU', help='RNN cell units type: "Vanilla", "LSTM", "GRU".')
     parser.add_argument('--char_embeddings_dim', type=int, default=25, help='Char embeddings dim, only for char CNNs.')
@@ -71,7 +72,7 @@ if __name__ == "__main__":
                                                                                       help='Path to report.')
     parser.add_argument('--match_alpha_ratio', type=float, default='0.999',
                         help='Alpha ratio from non-strict matching, options: 0.999 or 0.5')
-    parser.add_argument('--patience', type=int, default=10, help='Patience for early stopping.')
+    parser.add_argument('--patience', type=int, default=15, help='Patience for early stopping.')
     parser.add_argument('--load_word_seq_indexer', type=str, default=None, help='Load word_seq_indexer object from hdf5 file.')
 
 
@@ -88,32 +89,23 @@ if __name__ == "__main__":
     args.fn_dev = 'data/NER/CoNNL_2003_shared_task/dev.txt'
     args.fn_test = 'data/NER/CoNNL_2003_shared_task/test.txt'
 
-#    args.fn_train = 'data/NER/NER-CoNNL-2003/eng.train'
-#    args.fn_dev = 'data/NER/NER-CoNNL-2003/eng.testa'
-#    args.fn_test = 'data/NER/NER-CoNNL-2003/eng.testb'
-    #args.load_word_seq_indexer = 'word_seq_indexer_CoNNL_2003.hdf5'
-
     #args.fn_train = 'data/persuasive_essays/Essay_Level/train.dat.abs'
     #args.fn_dev = 'data/persuasive_essays/Essay_Level/dev.dat.abs'
     #args.fn_test = 'data/persuasive_essays/Essay_Level/test.dat.abs'
 
-    args.model = 'BiRNN'
+    #args.model = 'BiRNN'
     #args.model = 'BiRNNCNN'
     #args.model = 'BiRNNCNNCRF'
-    args.epoch_num = 50
-    args.rnn_hidden_dim = 100
+    args.epoch_num = 200
+    args.rnn_hidden_dim = 200
     #args.batch_size = 10
     #args.gpu = -1
     args.lr_decay = 0.05
     args.rnn_type = 'LSTM'
     #args.checkpoint_fn = 'tagger_model_BiRNNCNN_NER_nosb.hdf5'
-    args.report_fn = 'report_model_BiRNN_NER_50_classic.txt'
-    #args.report_fn = 'report_model_BiRNNCNNCRF7_NER.txt'
-    #args.checkpoint_fn = 'tagger_model_BiRNNCNNCRF7_NER.hdf5'
-
-    #from layers.layer_bilstm import LayerBiLSTM
-    #birnn_layer = LayerBiLSTM(input_dim=10, hidden_dim=5, gpu=0)
-    #exit()
+    #args.report_fn = 'report_model_BiRNN_NER_50_classic.txt'
+    args.report_fn = 'report_model_BiRNNCNNCRF_8_NER.txt'
+    args.checkpoint_fn = 'tagger_model_BiRNNCNNCRF_8_NER.hdf5'
 
     # Load CoNNL data as sequences of strings of words and corresponding tags
     word_sequences_train, tag_sequences_train = DataIO.read_CoNNL_universal(args.fn_train)
@@ -251,7 +243,7 @@ if __name__ == "__main__":
         write_textfile(args.report_fn, report_str)
         print(epoch_report)
         print('No improvement on DEV during the last %d epochs.\n' % patience_counter)
-        if patience_counter > args.patience:
+        if patience_counter > args.patience and epoch > args.min_epoch_num:
             break
 
     outputs_tag_sequences_test = tagger.predict_tags_from_words(datasets_bank.word_sequences_test, batch_size=100)
