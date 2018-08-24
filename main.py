@@ -15,18 +15,11 @@ from classes.data_io import DataIO
 from classes.datasets_bank import DatasetsBank
 from classes.element_seq_indexer import ElementSeqIndexer
 from classes.evaluator import Evaluator
-from classes.utils import write_textfile
+from classes.utils import *
 
 from models.tagger_birnn import TaggerBiRNN
 from models.tagger_birnn_cnn import TaggerBiRNNCNN
 from models.tagger_birnn_cnn_crf import TaggerBiRNNCNNCRF
-
-def tok_num(word_sequences):
-    n = 0
-    for word_seq in word_sequences:
-        for token in word_seq:
-            n += 1
-    return n
 
 
 if __name__ == "__main__":
@@ -112,9 +105,9 @@ if __name__ == "__main__":
     word_sequences_dev, tag_sequences_dev = DataIO.read_CoNNL_universal(args.fn_dev)
     word_sequences_test, tag_sequences_test = DataIO.read_CoNNL_universal(args.fn_test)
 
-    print(tok_num(word_sequences_train))
-    print(tok_num(word_sequences_dev))
-    print(tok_num(word_sequences_test))
+    print('Loaded train dataset: % samples, % tokens.' % (len(word_sequences_train), token_num(word_sequences_train)))
+    print('Loaded dev dataset: % samples, % tokens.' % (len(word_sequences_dev), token_num(word_sequences_dev)))
+    print('Loaded test dataset: % samples, % tokens.' % (len(word_sequences_test), token_num(word_sequences_test)))
 
     # Converts lists of lists of tags to integer indices and back
     tag_seq_indexer = ElementSeqIndexer(gpu=args.gpu, caseless=False, verbose=args.verbose, pad='<pad>', unk=None,
