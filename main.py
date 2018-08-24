@@ -104,10 +104,9 @@ if __name__ == "__main__":
     word_sequences_train, tag_sequences_train = DataIO.read_CoNNL_universal(args.fn_train)
     word_sequences_dev, tag_sequences_dev = DataIO.read_CoNNL_universal(args.fn_dev)
     word_sequences_test, tag_sequences_test = DataIO.read_CoNNL_universal(args.fn_test)
-
-    print('Loaded train dataset: % samples, % tokens.' % (len(word_sequences_train), token_num(word_sequences_train)))
-    print('Loaded dev dataset: % samples, % tokens.' % (len(word_sequences_dev), token_num(word_sequences_dev)))
-    print('Loaded test dataset: % samples, % tokens.' % (len(word_sequences_test), token_num(word_sequences_test)))
+    print('Loaded train dataset: %d samples, %d tokens.' % (len(word_sequences_train), token_num(word_sequences_train)))
+    print('Loaded dev dataset: %d samples, %d tokens.' % (len(word_sequences_dev), token_num(word_sequences_dev)))
+    print('Loaded test dataset: %d samples, %d tokens.' % (len(word_sequences_test), token_num(word_sequences_test)))
 
     # Converts lists of lists of tags to integer indices and back
     tag_seq_indexer = ElementSeqIndexer(gpu=args.gpu, caseless=False, verbose=args.verbose, pad='<pad>', unk=None,
