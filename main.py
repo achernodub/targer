@@ -78,13 +78,13 @@ if __name__ == "__main__":
         torch.cuda.manual_seed(args.seed_num)
 
     # Custom params here to replace the defaults
-#    args.fn_train = 'data/NER/CoNNL_2003_shared_task/train.txt'
-#    args.fn_dev = 'data/NER/CoNNL_2003_shared_task/dev.txt'
-#    args.fn_test = 'data/NER/CoNNL_2003_shared_task/test.txt'
+    args.fn_train = 'data/NER/CoNNL_2003_shared_task/train.txt'
+    args.fn_dev = 'data/NER/CoNNL_2003_shared_task/dev.txt'
+    args.fn_test = 'data/NER/CoNNL_2003_shared_task/test.txt'
 
-    args.fn_train = 'data/NER/zh/eng.train'
-    args.fn_dev = 'data/NER/zh/eng.testa'
-    args.fn_test = 'data/NER/zh/eng.testb'
+#    args.fn_train = 'data/NER/zh/eng.train'
+#    args.fn_dev = 'data/NER/zh/eng.testa'
+#    args.fn_test = 'data/NER/zh/eng.testb'
 
     #args.fn_train = 'data/persuasive_essays/Essay_Level/train.dat.abs'
     #args.fn_dev = 'data/persuasive_essays/Essay_Level/dev.dat.abs'
@@ -92,25 +92,26 @@ if __name__ == "__main__":
 
     #args.model = 'BiRNN'
     #args.model = 'BiRNNCNN'
-    args.model = 'BiRNNCNNCRF'
-    args.epoch_num = 200
-    args.rnn_hidden_dim = 200
+    #args.model = 'BiRNNCNNCRF'
+    args.epoch_num = 5
+    args.rnn_hidden_dim = 100
     #args.batch_size = 10
     #args.gpu = -1
     args.lr_decay = 0.05
     args.rnn_type = 'LSTM'
     #args.checkpoint_fn = 'tagger_model_BiRNNCNN_NER_nosb.hdf5'
     #args.report_fn = 'report_model_BiRNN_NER_50_classic.txt'
-    args.report_fn = 'report_model_BiRNNCNNCRF_8_NER.txt'
-    args.checkpoint_fn = 'tagger_model_BiRNNCNNCRF_8_NER.hdf5'
+    #args.report_fn = 'report_model_BiRNNCNNCRF_8_NER.txt'
+    #args.checkpoint_fn = 'tagger_model_BiRNNCNNCRF_8_NER.hdf5'
+    args.load_word_seq_indexer = 'word_seq_NER.hdf5'
 
     # Load CoNNL data as sequences of strings of words and corresponding tags
     word_sequences_train, tag_sequences_train = DataIO.read_CoNNL_universal(args.fn_train)
     word_sequences_dev, tag_sequences_dev = DataIO.read_CoNNL_universal(args.fn_dev)
     word_sequences_test, tag_sequences_test = DataIO.read_CoNNL_universal(args.fn_test)
-    print('Loaded train dataset: %d samples, %d tokens.' % (len(word_sequences_train), token_num(word_sequences_train)))
-    print('Loaded dev dataset: %d samples, %d tokens.' % (len(word_sequences_dev), token_num(word_sequences_dev)))
-    print('Loaded test dataset: %d samples, %d tokens.' % (len(word_sequences_test), token_num(word_sequences_test)))
+    print('Loaded train dataset: %d samples, %d tokens.' % (len(word_sequences_train), get_token_num(word_sequences_train)))
+    print('Loaded dev dataset: %d samples, %d tokens.' % (len(word_sequences_dev), get_token_num(word_sequences_dev)))
+    print('Loaded test dataset: %d samples, %d tokens.' % (len(word_sequences_test), get_token_num(word_sequences_test)))
 
     # Converts lists of lists of tags to integer indices and back
     tag_seq_indexer = ElementSeqIndexer(gpu=args.gpu, caseless=False, verbose=args.verbose, pad='<pad>', unk=None,
@@ -239,18 +240,21 @@ if __name__ == "__main__":
         write_textfile(args.report_fn, report_str)
         print(epoch_report)
         print('No improvement on DEV during the last %d epochs.\n' % patience_counter)
+
+        Evaluator.write_report_table('_' + args.report_fn, tagger, epoch,
+                                     word_sequences_train=datasets_bank.word_sequences_train,
+                                     tag_sequences_train=datasets_bank.tag_sequences_train,
+                                     word_sequences_dev=datasets_bank.word_sequences_dev,
+                                     tag_sequences_dev=datasets_bank.tag_sequences_dev,
+                                     word_sequences_test=datasets_bank.word_sequences_test,
+                                     tag_sequences_test=datasets_bank.tag_sequences_test)
+
         if patience_counter > args.patience and epoch > args.min_epoch_num:
             break
 
     outputs_tag_sequences_test = tagger.predict_tags_from_words(datasets_bank.word_sequences_test, batch_size=100)
     acc_test = Evaluator.get_accuracy_token_level(targets_tag_sequences=datasets_bank.tag_sequences_test,
-
-
-
-
-
-
-                                                     outputs_tag_sequences=outputs_tag_sequences_test,
+                                                  outputs_tag_sequences=outputs_tag_sequences_test,
                                                   tag_seq_indexer=tag_seq_indexer)
     f1_100, precision_100, recall_100, _ = Evaluator.get_f1_from_words(targets_tag_sequences=datasets_bank.tag_sequences_test,
                                                                        outputs_tag_sequences=outputs_tag_sequences_test,
