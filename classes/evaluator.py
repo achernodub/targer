@@ -90,5 +90,5 @@ class Evaluator():
         f.write('TRAIN: %s\n' % connl_report_train_str)
         f.write('DEV: %s\n' % connl_report_dev_str)
         f.write('TEST: %s\n' % connl_report_test_str)
-        f.write('-'*40 + '\n')
+        f.write('-'*80 + '\n')
         f.close()
