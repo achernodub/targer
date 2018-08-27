@@ -85,8 +85,10 @@ class Evaluator():
         connl_report_test_str = Evaluator.get_f1_from_words_connl_script(word_sequences_test, tag_sequences_test,
                                                                          outputs_tag_sequences_test)
         f = open(fn_out, 'a')
-        f.write('%05s | %05s | %05s | %05s\n' % ('epoch', 'train', 'dev', 'test'))
-        f.write('%05s | %05s | %05s | %05s\n' % ('%d' % epoch, '%1.2f' % acc_train, '%1.2f' % acc_dev, '%1.2f' % acc_test))
+        f.write('%10s | %10s | %10s | %10s\n' % ('epoch', 'TRAIN acc.', 'DEV acc.', 'TEST acc.'))
+        f.write('-' * 80 + '\n')
+        f.write('%10s | %10s | %10s | %10s\n\n' % ('%d' % epoch, '%1.2f' % acc_train, '%1.2f' % acc_dev,
+                                                   '%1.2f' % acc_test))
         f.write('TRAIN: %s\n' % connl_report_train_str)
         f.write('DEV: %s\n' % connl_report_dev_str)
         f.write('TEST: %s\n' % connl_report_test_str)
