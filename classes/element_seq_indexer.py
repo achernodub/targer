@@ -124,7 +124,6 @@ class ElementSeqIndexer():
         idx_sequences = []
         for element_seq in element_sequences:
             element_normalized_seq = map(self.__element_normalization, element_seq)
-            #element_caseless_seq = [element.lower() if self.caseless else element for element in element_seq]
             idx_seq = list()
             for element in element_normalized_seq:
                 if element in self.element2idx_dict:

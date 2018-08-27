@@ -48,14 +48,14 @@ if __name__ == "__main__":
     parser.add_argument('--char_cnn_filter_num', type=int, default=30, help='Number of filters in Char CNN.')
     parser.add_argument('--char_window_size', type=int, default=3, help='Convolution1D size.')
     parser.add_argument('--dropout_ratio', type=float, default=0.5, help='Dropout ratio.')
-    parser.add_argument('--clip_grad', type=float, default=5.0, help='Clipping gradients maximum L2 norm.')
+    parser.add_argument('--clip_grad', type=float, default=5, help='Clipping gradients maximum L2 norm.')
     parser.add_argument('--opt_method', default='sgd', help='Optimization method: "sgd", "adam".')
-    parser.add_argument('--lr', type=float, default=0.01, help='Learning rate.')
+    parser.add_argument('--lr', type=float, default=0.005, help='Learning rate.')
     parser.add_argument('--lr_decay', type=float, default=0, help='Learning decay rate.') # 0.05
     parser.add_argument('--momentum', type=float, default=0.9, help='Learning momentum rate.')
     parser.add_argument('--batch_size', type=int, default=10, help='Batch size, samples.')
     parser.add_argument('--verbose', type=bool, default=True, help='Show additional information.')
-    parser.add_argument('--seed_num', type=int, default=43, help='Random seed number, but 42 is the best forever!')
+    parser.add_argument('--seed_num', type=int, default=42, help='Random seed number, but 42 is the best forever!')
     parser.add_argument('--checkpoint_fn', default=None, help='Path to save the trained model.')
     parser.add_argument('--report_fn', default='report_%d_%02d_%02d_%02d_%02d.txt' % (datetime.datetime.now().year,
                                                                                       datetime.datetime.now().month,
@@ -65,7 +65,7 @@ if __name__ == "__main__":
                                                                                       help='Path to report.')
     parser.add_argument('--match_alpha_ratio', type=float, default='0.999',
                         help='Alpha ratio from non-strict matching, options: 0.999 or 0.5')
-    parser.add_argument('--patience', type=int, default=15, help='Patience for early stopping.')
+    parser.add_argument('--patience', type=int, default=10, help='Patience for early stopping.')
     parser.add_argument('--load_word_seq_indexer', type=str, default=None, help='Load word_seq_indexer object from hdf5 file.')
 
 
@@ -95,7 +95,7 @@ if __name__ == "__main__":
     #args.model = 'BiRNNCNNCRF'
     args.epoch_num = 5
     args.rnn_hidden_dim = 100
-    #args.batch_size = 10
+    args.batch_size = 1
     #args.gpu = -1
     args.lr_decay = 0.05
     args.rnn_type = 'LSTM'
@@ -237,17 +237,19 @@ if __name__ == "__main__":
                                                                                                f1_dev,
                                                                                                time.time() - time_start)
         report_str += epoch_report
-        write_textfile(args.report_fn, report_str)
-        print(epoch_report)
-        print('No improvement on DEV during the last %d epochs.\n' % patience_counter)
-
-        Evaluator.write_report_table('_' + args.report_fn, tagger, epoch,
+        write_textfile(args.report_fn.replace('.txt', '_I.txt'), report_str) # first report
+        Evaluator.write_report_table(args.report_fn.replace('.txt', '_II.txt'), # second report, more detailed
+                                     tagger, epoch,
                                      word_sequences_train=datasets_bank.word_sequences_train,
                                      tag_sequences_train=datasets_bank.tag_sequences_train,
                                      word_sequences_dev=datasets_bank.word_sequences_dev,
                                      tag_sequences_dev=datasets_bank.tag_sequences_dev,
                                      word_sequences_test=datasets_bank.word_sequences_test,
                                      tag_sequences_test=datasets_bank.tag_sequences_test)
+
+        print(epoch_report)
+        print('No improvement on DEV during the last %d epochs.\n' % patience_counter)
+
 
         if patience_counter > args.patience and epoch > args.min_epoch_num:
             break
