@@ -1,9 +1,9 @@
 import codecs
-from classes.utils import is_number
+from classes.utils import is_number, get_token_num
 
 class DataIO():
     @staticmethod
-    def read_CoNNL_dat_abs(fn, column_no=-1):
+    def read_CoNNL_dat_abs(fn, verbose, column_no=-1):
         word_sequences = list()
         tag_sequences = list()
         curr_words = list()
@@ -22,6 +22,8 @@ class DataIO():
             tag = elements[2].split(':')[0]
             curr_words.append(word)
             curr_tags.append(tag)
+        if verbose:
+            print('Loading from %s: %d samples, %d tokens.' % (fn, len(word_sequences), get_token_num(word_sequences)))
         return word_sequences, tag_sequences
 
     @staticmethod
@@ -33,7 +35,7 @@ class DataIO():
                 text_file.write('\n')
 
     @staticmethod
-    def read_CoNNL_2003(fn, column_no=-1):
+    def read_CoNNL_2003(fn, verbose, column_no=-1):
         word_sequences = list()
         tag_sequences = list()
         with codecs.open(fn, 'r', 'utf-8') as f:
@@ -57,6 +59,8 @@ class DataIO():
             if k == len(lines) - 1:
                 word_sequences.append(curr_words)
                 tag_sequences.append(curr_tags)
+        if verbose:
+            print('Loading from %s: %d samples, %d tokens.' % (fn, len(word_sequences), get_token_num(word_sequences)))
         return word_sequences, tag_sequences
 
     @staticmethod
@@ -79,8 +83,8 @@ class DataIO():
             return is_number(c)
 
     @staticmethod
-    def read_CoNNL_universal(fn,column_no=-1):
+    def read_CoNNL_universal(fn, verbose=True, column_no=-1):
         if DataIO.__is_CoNNL_dat_abs(fn):
-            return DataIO.read_CoNNL_dat_abs(fn, column_no)
+            return DataIO.read_CoNNL_dat_abs(fn, verbose, column_no)
         else:
-            return DataIO.read_CoNNL_2003(fn, column_no)
+            return DataIO.read_CoNNL_2003(fn, verbose, column_no)

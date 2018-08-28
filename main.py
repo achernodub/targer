@@ -93,9 +93,9 @@ if __name__ == "__main__":
     args.model = 'BiRNN'
     #args.model = 'BiRNNCNN'
     #args.model = 'BiRNNCNNCRF'
-    args.epoch_num = 100
+    args.epoch_num = 2
     args.rnn_hidden_dim = 100
-    args.batch_size = 1
+    args.batch_size = 10
     #args.gpu = -1
     args.lr_decay = 0.05
     args.rnn_type = 'LSTM'
@@ -106,12 +106,9 @@ if __name__ == "__main__":
     args.load_word_seq_indexer = 'word_seq_NER.hdf5'
 
     # Load CoNNL data as sequences of strings of words and corresponding tags
-    word_sequences_train, tag_sequences_train = DataIO.read_CoNNL_universal(args.fn_train)
-    word_sequences_dev, tag_sequences_dev = DataIO.read_CoNNL_universal(args.fn_dev)
-    word_sequences_test, tag_sequences_test = DataIO.read_CoNNL_universal(args.fn_test)
-    print('Loaded train dataset: %d samples, %d tokens.' % (len(word_sequences_train), get_token_num(word_sequences_train)))
-    print('Loaded dev dataset: %d samples, %d tokens.' % (len(word_sequences_dev), get_token_num(word_sequences_dev)))
-    print('Loaded test dataset: %d samples, %d tokens.' % (len(word_sequences_test), get_token_num(word_sequences_test)))
+    word_sequences_train, tag_sequences_train = DataIO.read_CoNNL_universal(args.fn_train, verbose=True)
+    word_sequences_dev, tag_sequences_dev = DataIO.read_CoNNL_universal(args.fn_dev, verbose=True)
+    word_sequences_test, tag_sequences_test = DataIO.read_CoNNL_universal(args.fn_test, verbose=True)
 
     # Converts lists of lists of tags to integer indices and back
     tag_seq_indexer = ElementSeqIndexer(gpu=args.gpu, caseless=False, verbose=args.verbose, pad='<pad>', unk=None,
