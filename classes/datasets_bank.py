@@ -18,7 +18,7 @@ class DatasetsBank():
                 if word not in self.words_list:
                     self.words_list.append(word)
         if self.verbose:
-            print('DatasetsBank: len(words_list)=%d' % (len(self.words_list)))
+            print('DatasetsBank: len(words_list) = %d unique words.' % (len(self.words_list)))
 
     def add_train_sequences(self, word_sequences_train, tag_sequences_train):
         self.word_sequences_train = word_sequences_train
