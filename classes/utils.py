@@ -25,3 +25,6 @@ def write_textfile(fn, s):
     if fn is not None:
         with open(fn, mode='w') as text_file:
             text_file.write(s)
+
+def get_token_num(word_sequences):
+    return sum(len(word_seq) for word_seq in word_sequences)

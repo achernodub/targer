@@ -1,3 +1,4 @@
+import codecs
 import os
 import os.path
 import random
@@ -66,3 +67,30 @@ class Evaluator():
         F1 = (2 * TP / max(2 * TP + FP + FN, 1))*100
         return F1, Precision, Recall, (TP, FP, FN)
 
+    @staticmethod
+    def write_report_table(fn_out, tagger, epoch, word_sequences_train, tag_sequences_train, word_sequences_dev,
+                           tag_sequences_dev, word_sequences_test, tag_sequences_test):
+        outputs_tag_sequences_train = tagger.predict_tags_from_words(word_sequences_train, batch_size=100)
+        outputs_tag_sequences_dev = tagger.predict_tags_from_words(word_sequences_dev, batch_size=100)
+        outputs_tag_sequences_test = tagger.predict_tags_from_words(word_sequences_test, batch_size=100)
+
+        acc_train = Evaluator.get_accuracy_token_level(tag_sequences_train, outputs_tag_sequences_train, tagger.tag_seq_indexer)
+        acc_dev = Evaluator.get_accuracy_token_level(tag_sequences_dev, outputs_tag_sequences_dev, tagger.tag_seq_indexer)
+        acc_test = Evaluator.get_accuracy_token_level(tag_sequences_test, outputs_tag_sequences_test, tagger.tag_seq_indexer)
+
+        connl_report_train_str = Evaluator.get_f1_from_words_connl_script(word_sequences_train, tag_sequences_train,
+                                                                          outputs_tag_sequences_train)
+        connl_report_dev_str = Evaluator.get_f1_from_words_connl_script(word_sequences_dev, tag_sequences_dev,
+                                                                        outputs_tag_sequences_dev)
+        connl_report_test_str = Evaluator.get_f1_from_words_connl_script(word_sequences_test, tag_sequences_test,
+                                                                         outputs_tag_sequences_test)
+        f = open(fn_out, 'a')
+        f.write('-' * 80 + '\n')
+        f.write('%10s | %10s | %10s | %10s\n' % ('epoch', 'TRAIN acc.', 'DEV acc.', 'TEST acc.'))
+        f.write('-' * 80 + '\n')
+        f.write('%10s | %10s | %10s | %10s\n\n' % ('%d' % epoch, '%1.2f' % acc_train, '%1.2f' % acc_dev,
+                                                   '%1.2f' % acc_test))
+        f.write('TRAIN: %s\n' % connl_report_train_str)
+        f.write('DEV: %s\n' % connl_report_dev_str)
+        f.write('TEST: %s\n' % connl_report_test_str)
+        f.close()

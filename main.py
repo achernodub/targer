@@ -15,18 +15,11 @@ from classes.data_io import DataIO
 from classes.datasets_bank import DatasetsBank
 from classes.element_seq_indexer import ElementSeqIndexer
 from classes.evaluator import Evaluator
-from classes.utils import write_textfile
+from classes.utils import *
 
 from models.tagger_birnn import TaggerBiRNN
 from models.tagger_birnn_cnn import TaggerBiRNNCNN
 from models.tagger_birnn_cnn_crf import TaggerBiRNNCNNCRF
-
-def tok_num(word_sequences):
-    n = 0
-    for word_seq in word_sequences:
-        for token in word_seq:
-            n += 1
-    return n
 
 
 if __name__ == "__main__":
@@ -47,6 +40,7 @@ if __name__ == "__main__":
     parser.add_argument('--gpu', type=int, default=0, help='GPU device number, 0 by default, -1  means CPU.')
     parser.add_argument('--caseless', type=bool, default=True, help='Read characters caseless.')
     parser.add_argument('--epoch_num', type=int, default=200, help='Number of epochs.')
+    parser.add_argument('--min_epoch_num', type=int, default=50, help='Minimum number of epochs.')
     parser.add_argument('--rnn_hidden_dim', type=int, default=100, help='Number hidden units in the recurrent layer.')
     parser.add_argument('--rnn_type', default='GRU', help='RNN cell units type: "Vanilla", "LSTM", "GRU".')
     parser.add_argument('--char_embeddings_dim', type=int, default=25, help='Char embeddings dim, only for char CNNs.')
@@ -54,14 +48,14 @@ if __name__ == "__main__":
     parser.add_argument('--char_cnn_filter_num', type=int, default=30, help='Number of filters in Char CNN.')
     parser.add_argument('--char_window_size', type=int, default=3, help='Convolution1D size.')
     parser.add_argument('--dropout_ratio', type=float, default=0.5, help='Dropout ratio.')
-    parser.add_argument('--clip_grad', type=float, default=5.0, help='Clipping gradients maximum L2 norm.')
+    parser.add_argument('--clip_grad', type=float, default=5, help='Clipping gradients maximum L2 norm.')
     parser.add_argument('--opt_method', default='sgd', help='Optimization method: "sgd", "adam".')
-    parser.add_argument('--lr', type=float, default=0.01, help='Learning rate.')
+    parser.add_argument('--lr', type=float, default=0.005, help='Learning rate.')
     parser.add_argument('--lr_decay', type=float, default=0, help='Learning decay rate.') # 0.05
     parser.add_argument('--momentum', type=float, default=0.9, help='Learning momentum rate.')
     parser.add_argument('--batch_size', type=int, default=10, help='Batch size, samples.')
     parser.add_argument('--verbose', type=bool, default=True, help='Show additional information.')
-    parser.add_argument('--seed_num', type=int, default=43, help='Random seed number, but 42 is the best forever!')
+    parser.add_argument('--seed_num', type=int, default=42, help='Random seed number, but 42 is the best forever!')
     parser.add_argument('--checkpoint_fn', default=None, help='Path to save the trained model.')
     parser.add_argument('--report_fn', default='report_%d_%02d_%02d_%02d_%02d.txt' % (datetime.datetime.now().year,
                                                                                       datetime.datetime.now().month,
@@ -88,15 +82,9 @@ if __name__ == "__main__":
     args.fn_dev = 'data/NER/CoNNL_2003_shared_task/dev.txt'
     args.fn_test = 'data/NER/CoNNL_2003_shared_task/test.txt'
 
-    #from utils_nlp import convert_conll_from_bio_to_bioes
-    #convert_conll_from_bio_to_bioes(args.fn_train, 'data/NER/CoNNL_2003_shared_task/train.bioes.txt')
-    #convert_conll_from_bio_to_bioes(args.fn_dev, 'data/NER/CoNNL_2003_shared_task/dev.bioes.txt')
-    #convert_conll_from_bio_to_bioes(args.fn_test, 'data/NER/CoNNL_2003_shared_task/test.bioes.txt')
-
-    args.fn_train = 'data/NER/CoNNL_2003_shared_task/train.bioes.txt'
-    args.fn_dev = 'data/NER/CoNNL_2003_shared_task/dev.bioes.txt'
-    args.fn_test = 'data/NER/CoNNL_2003_shared_task/test.bioes.txt'
-    #args.load_word_seq_indexer = 'word_seq_indexer_CoNNL_2003.hdf5'
+#    args.fn_train = 'data/NER/zh/eng.train'
+#    args.fn_dev = 'data/NER/zh/eng.testa'
+#    args.fn_test = 'data/NER/zh/eng.testb'
 
     #args.fn_train = 'data/persuasive_essays/Essay_Level/train.dat.abs'
     #args.fn_dev = 'data/persuasive_essays/Essay_Level/dev.dat.abs'
@@ -105,29 +93,25 @@ if __name__ == "__main__":
     args.model = 'BiRNN'
     #args.model = 'BiRNNCNN'
     #args.model = 'BiRNNCNNCRF'
-    args.epoch_num = 50
+    args.epoch_num = 100
     args.rnn_hidden_dim = 100
-    #args.batch_size = 10
+    args.batch_size = 1
     #args.gpu = -1
     args.lr_decay = 0.05
     args.rnn_type = 'LSTM'
     #args.checkpoint_fn = 'tagger_model_BiRNNCNN_NER_nosb.hdf5'
-    #args.report_fn = 'report_model_BiRNN_NER_300_LSTM.txt'
-    #args.report_fn = 'report_model_BiRNNCNNCRF7_NER.txt'
-    #args.checkpoint_fn = 'tagger_model_BiRNNCNNCRF7_NER.hdf5'
-
-    #from layers.layer_bilstm import LayerBiLSTM
-    #birnn_layer = LayerBiLSTM(input_dim=10, hidden_dim=5, gpu=0)
-    #exit()
+    #args.report_fn = 'report_model_BiRNN_NER_50_classic.txt'
+    #args.report_fn = 'report_model_BiRNNCNNCRF_8_NER.txt'
+    #args.checkpoint_fn = 'tagger_model_BiRNNCNNCRF_8_NER.hdf5'
+    args.load_word_seq_indexer = 'word_seq_NER.hdf5'
 
     # Load CoNNL data as sequences of strings of words and corresponding tags
     word_sequences_train, tag_sequences_train = DataIO.read_CoNNL_universal(args.fn_train)
     word_sequences_dev, tag_sequences_dev = DataIO.read_CoNNL_universal(args.fn_dev)
     word_sequences_test, tag_sequences_test = DataIO.read_CoNNL_universal(args.fn_test)
-
-    print(tok_num(word_sequences_train))
-    print(tok_num(word_sequences_dev))
-    print(tok_num(word_sequences_test))
+    print('Loaded train dataset: %d samples, %d tokens.' % (len(word_sequences_train), get_token_num(word_sequences_train)))
+    print('Loaded dev dataset: %d samples, %d tokens.' % (len(word_sequences_dev), get_token_num(word_sequences_dev)))
+    print('Loaded test dataset: %d samples, %d tokens.' % (len(word_sequences_test), get_token_num(word_sequences_test)))
 
     # Converts lists of lists of tags to integer indices and back
     tag_seq_indexer = ElementSeqIndexer(gpu=args.gpu, caseless=False, verbose=args.verbose, pad='<pad>', unk=None,
@@ -253,21 +237,26 @@ if __name__ == "__main__":
                                                                                                f1_dev,
                                                                                                time.time() - time_start)
         report_str += epoch_report
-        write_textfile(args.report_fn, report_str)
+        write_textfile(args.report_fn.replace('.txt', '_I.txt'), report_str) # first report
+        Evaluator.write_report_table(args.report_fn.replace('.txt', '_II.txt'), # second report, more detailed
+                                     tagger, epoch,
+                                     word_sequences_train=datasets_bank.word_sequences_train,
+                                     tag_sequences_train=datasets_bank.tag_sequences_train,
+                                     word_sequences_dev=datasets_bank.word_sequences_dev,
+                                     tag_sequences_dev=datasets_bank.tag_sequences_dev,
+                                     word_sequences_test=datasets_bank.word_sequences_test,
+                                     tag_sequences_test=datasets_bank.tag_sequences_test)
+
         print(epoch_report)
         print('No improvement on DEV during the last %d epochs.\n' % patience_counter)
-        if patience_counter > args.patience:
+
+
+        if patience_counter > args.patience and epoch > args.min_epoch_num:
             break
 
     outputs_tag_sequences_test = tagger.predict_tags_from_words(datasets_bank.word_sequences_test, batch_size=100)
     acc_test = Evaluator.get_accuracy_token_level(targets_tag_sequences=datasets_bank.tag_sequences_test,
-
-
-
-
-
-
-                                                     outputs_tag_sequences=outputs_tag_sequences_test,
+                                                  outputs_tag_sequences=outputs_tag_sequences_test,
                                                   tag_seq_indexer=tag_seq_indexer)
     f1_100, precision_100, recall_100, _ = Evaluator.get_f1_from_words(targets_tag_sequences=datasets_bank.tag_sequences_test,
                                                                        outputs_tag_sequences=outputs_tag_sequences_test,
