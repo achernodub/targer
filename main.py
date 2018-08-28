@@ -88,9 +88,14 @@ if __name__ == "__main__":
     args.fn_dev = 'data/NER/CoNNL_2003_shared_task/dev.txt'
     args.fn_test = 'data/NER/CoNNL_2003_shared_task/test.txt'
 
-#    args.fn_train = 'data/NER/NER-CoNNL-2003/eng.train'
-#    args.fn_dev = 'data/NER/NER-CoNNL-2003/eng.testa'
-#    args.fn_test = 'data/NER/NER-CoNNL-2003/eng.testb'
+    #from utils_nlp import convert_conll_from_bio_to_bioes
+    #convert_conll_from_bio_to_bioes(args.fn_train, 'data/NER/CoNNL_2003_shared_task/train.bioes.txt')
+    #convert_conll_from_bio_to_bioes(args.fn_dev, 'data/NER/CoNNL_2003_shared_task/dev.bioes.txt')
+    #convert_conll_from_bio_to_bioes(args.fn_test, 'data/NER/CoNNL_2003_shared_task/test.bioes.txt')
+
+    args.fn_train = 'data/NER/CoNNL_2003_shared_task/train.bioes.txt'
+    args.fn_dev = 'data/NER/CoNNL_2003_shared_task/dev.bioes.txt'
+    args.fn_test = 'data/NER/CoNNL_2003_shared_task/test.bioes.txt'
     #args.load_word_seq_indexer = 'word_seq_indexer_CoNNL_2003.hdf5'
 
     #args.fn_train = 'data/persuasive_essays/Essay_Level/train.dat.abs'
@@ -107,7 +112,7 @@ if __name__ == "__main__":
     args.lr_decay = 0.05
     args.rnn_type = 'LSTM'
     #args.checkpoint_fn = 'tagger_model_BiRNNCNN_NER_nosb.hdf5'
-    args.report_fn = 'report_model_BiRNN_NER_50_classic.txt'
+    #args.report_fn = 'report_model_BiRNN_NER_300_LSTM.txt'
     #args.report_fn = 'report_model_BiRNNCNNCRF7_NER.txt'
     #args.checkpoint_fn = 'tagger_model_BiRNNCNNCRF7_NER.hdf5'
 
