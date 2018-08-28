@@ -31,14 +31,14 @@ if __name__ == "__main__":
                         help='Dev data in CoNNL-2003 format, it is used to find best model during the training.')
     parser.add_argument('--fn_test', default='data/persuasive_essays/Paragraph_Level/test.dat.abs',
                         help='Test data in CoNNL-2003 format, it is used to obtain the final accuracy/F1 score.')
-    parser.add_argument('--emb_fn', default='embeddings/glove.6B.100d.txt', help='Path to embeddings file.')
-    parser.add_argument('--emb_delimiter', default=' ', help='Delimiter for embeddings file.')
-    parser.add_argument('--freeze_word_embeddings', type=bool, default=False, help='False to continue training the \
-                                                                                    word embeddings.')
+    parser.add_argument('--emb_fn', default='embeddings/glove.6B.100d.txt', help='Path to word embeddings file.')
+    parser.add_argument('--emb_dim', type=int, default=100, help='Dimension of word embeddings file.')
+    parser.add_argument('--emb_delimiter', default=' ', help='Delimiter for word embeddings file.')
+    parser.add_argument('--freeze_word_embeddings', type=bool, default=False, help='False to continue training the \                                                                                    word embeddings.')
     parser.add_argument('--freeze_char_embeddings', type=bool, default=False,
                         help='False to continue training the char embeddings.')
     parser.add_argument('--gpu', type=int, default=0, help='GPU device number, 0 by default, -1  means CPU.')
-    parser.add_argument('--caseless', type=bool, default=True, help='Read characters caseless.')
+    parser.add_argument('--check_for_lowercase', type=bool, default=True, help='Read characters caseless.')
     parser.add_argument('--epoch_num', type=int, default=200, help='Number of epochs.')
     parser.add_argument('--min_epoch_num', type=int, default=50, help='Minimum number of epochs.')
     parser.add_argument('--rnn_hidden_dim', type=int, default=100, help='Number hidden units in the recurrent layer.')
@@ -110,8 +110,21 @@ if __name__ == "__main__":
     word_sequences_dev, tag_sequences_dev = DataIO.read_CoNNL_universal(args.fn_dev, verbose=True)
     word_sequences_test, tag_sequences_test = DataIO.read_CoNNL_universal(args.fn_test, verbose=True)
 
+    # DatasetsBank provides storing the different dataset subsets (train/dev/test) and sampling batches from them
+    datasets_bank = DatasetsBank(verbose=True)
+    datasets_bank.add_train_sequences(word_sequences_train, tag_sequences_train)
+    datasets_bank.add_dev_sequences(word_sequences_dev, tag_sequences_dev)
+    datasets_bank.add_test_sequences(word_sequences_test, tag_sequences_test)
+
+    # Word_seq_indexer converts lists of lists of words to integer indices and back
+    word_seq_indexer = ElementSeqIndexer(gpu=args.gpu, check_for_lowercase=args.check_for_lowercase, zero_digits=True,
+                                         pad='<pad>', unk='<unk>', load_embeddings=True, embeddings_dim=args.emb_dim,
+                                         verbose=True)
+
+    exit()
+
     # Converts lists of lists of tags to integer indices and back
-    tag_seq_indexer = ElementSeqIndexer(gpu=args.gpu, caseless=False, verbose=args.verbose, pad='<pad>', unk=None,
+    tag_seq_indexer = ElementSeqIndexer(gpu=args.gpu, check_for_lowercase=False, verbose=args.verbose, pad='<pad>', unk=None,
                                         zero_digits=False)
     tag_seq_indexer.load_vocabulary_from_element_sequences(tag_sequences_train)
 
@@ -119,7 +132,7 @@ if __name__ == "__main__":
     if args.load_word_seq_indexer is not None and os.path.isfile(args.load_word_seq_indexer):
         word_seq_indexer = torch.load(args.load_word_seq_indexer)
     else:
-        word_seq_indexer = ElementSeqIndexer(gpu=args.gpu, caseless=args.caseless, load_embeddings=True,
+        word_seq_indexer = ElementSeqIndexer(gpu=args.gpu, check_for_lowercase=args.check_for_lowercase, load_embeddings=True,
                                                  verbose=args.verbose, pad='<pad>', unk='<unk>', zero_digits=True)
         word_seq_indexer.load_vocabulary_from_embeddings_file(emb_fn=args.emb_fn, emb_delimiter=args.emb_delimiter)
         #word_seq_indexer.load_vocabulary_from_element_sequences(word_sequences_train)
@@ -127,12 +140,6 @@ if __name__ == "__main__":
         #word_seq_indexer.load_vocabulary_from_element_sequences(word_sequences_test, verbose=True)
         if args.load_word_seq_indexer is not None:
             torch.save(word_seq_indexer, args.load_word_seq_indexer)
-
-    # DatasetsBank provides storing the different dataset subsets (train/dev/test) and sampling batches from them
-    datasets_bank = DatasetsBank()
-    datasets_bank.add_train_sequences(word_sequences_train, tag_sequences_train)
-    datasets_bank.add_dev_sequences(word_sequences_dev, tag_sequences_dev)
-    datasets_bank.add_test_sequences(word_sequences_test, tag_sequences_test)
 
     if args.model == 'BiRNN':
         tagger = TaggerBiRNN(word_seq_indexer=word_seq_indexer,

@@ -20,8 +20,8 @@ class LayerCharEmbeddings(LayerBase):
         if unique_characters_list is None:
             unique_characters_list = list(string.printable)
         for c in unique_characters_list:
-            self.char_seq_indexer.add_element(c)
-        self.char_seq_indexer.add_element(self.char_seq_indexer.unk)
+            self.char_seq_indexer.__add_element(c)
+        self.char_seq_indexer.__add_element(self.char_seq_indexer.unk)
         # Init character embedding
         self.embeddings = nn.Embedding(num_embeddings=self.char_seq_indexer.get_elements_num(),
                                        embedding_dim=char_embeddings_dim,

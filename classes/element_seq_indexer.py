@@ -11,59 +11,68 @@ class ElementSeqIndexer():
         Index 0 stands for the unknown string.
     """
 
-    def __init__(self, gpu=-1, check_for_lowercase=True, load_embeddings=False, verbose=False, pad='<pad>', unk='<unk>',
-                 zero_digits=False):
+    def __init__(self, gpu=-1, check_for_lowercase=True, zero_digits=False, pad='<pad>', unk='<unk>',
+                 load_embeddings=False, embeddings_dim=0, verbose=True):
         self.gpu = gpu
         self.check_for_lowercase = check_for_lowercase
-        self.load_embeddings = load_embeddings
-        self.verbose = verbose
+        self.zero_digits = zero_digits
         self.pad = pad
         self.unk = unk
-        self.zero_digits = zero_digits
+        self.load_embeddings = load_embeddings
+        self.embeddings_dim = embeddings_dim
+        self.verbose = verbose
         self.out_of_vocabulary_list = list()
         self.element2idx_dict = dict()
         self.idx2element_dict = dict()
         if load_embeddings:
             self.embeddings_loaded = False
-            self.embeddings_dim = 0
             self.embedding_vectors_list = list()
         if pad is not None:
-            self.add_element(pad)
+            self.pad_idx = self.__add_element(pad)
+            if load_embeddings:
+                self.__add_emb_vector(self.__get_zero_emb_vector())
         if unk is not None:
-            self.add_element(unk)
+            self.unk_idx = self.__add_element(unk)
+            if load_embeddings:
+                self.__add_emb_vector(self.__get_random_emb_vector())
+
+    def __element_exists(self, element):
+        return element in self.element2idx_dict.keys()
 
     def get_elements_list(self):
         return self.element2idx_dict.keys()
 
-    def add_element(self, element):
-        element = self.__element_normalization(element)
+    def __add_element(self, element):
         idx = len(self.get_elements_list())
         self.element2idx_dict[element] = idx
         self.idx2element_dict[idx] = element
-
-    def __element_exists(self, element):
-        element = self.__element_normalization(element)
-        return (element in self.get_elements_list())
-
-    def __element_normalization(self, element):
-        if self.check_for_lowercase:
-            element = element.lower()
-        if self.zero_digits:
-            element = re.sub('\d', '0', element)
-        return element
+        return idx
 
     def __add_emb_vector(self, emb_vector):
         self.embedding_vectors_list.append(emb_vector)
+
+    def __get_zero_emb_vector(self):
+        if self.embeddings_dim == 0:
+            raise ValueError('embeddings_dim is not known.')
+        return [0 for _ in range(self.embeddings_dim)]
 
     def __get_random_emb_vector(self):
         if self.embeddings_dim == 0:
             raise ValueError('embeddings_dim is not known.')
         return np.random.uniform(-np.sqrt(3.0 / self.embeddings_dim), np.sqrt(3.0 / self.embeddings_dim), self.embeddings_dim).tolist()
 
-    def __get_zero_emb_vector(self):
-        if self.embeddings_dim == 0:
-            raise ValueError('embeddings_dim is not known.')
-        return [0 for _ in range(self.embeddings_dim)]
+      
+
+
+
+
+    '''def __element_normalization(self, element):
+        if self.check_for_lowercase:
+            element = element.lower()
+        if self.zero_digits:
+            element = re.sub('\d', '0', element)
+        return element'''
+
 
     def load_vocabulary_from_embeddings_file(self, emb_fn, emb_delimiter):
         if not self.load_embeddings:
@@ -84,7 +93,7 @@ class ElementSeqIndexer():
             values = line.split(emb_delimiter)
             element = values[0]
             emb_vector = list(map(lambda t: float(t), filter(lambda n: n and not n.isspace(), values[1:])))
-            self.add_element(element)
+            self.__add_element(element)
             self.__add_emb_vector(emb_vector)
         self.embeddings_loaded = True
         if self.verbose:
@@ -97,7 +106,7 @@ class ElementSeqIndexer():
         for element_seq in element_sequences:
             for element in element_seq:
                 if not self.__element_exists(element):
-                    self.add_element(element)
+                    self.__add_element(element)
                     self.out_of_vocabulary_list.append(element)
                     if self.load_embeddings:
                         self.__add_emb_vector(self.__get_random_emb_vector())
