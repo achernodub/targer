@@ -1,5 +1,5 @@
 import codecs
-from classes.utils import is_number, get_token_num
+from classes.utils import is_number, get_words_num
 
 class DataIO():
     @staticmethod
@@ -23,7 +23,7 @@ class DataIO():
             curr_words.append(word)
             curr_tags.append(tag)
         if verbose:
-            print('Loading from %s: %d samples, %d tokens.' % (fn, len(word_sequences), get_token_num(word_sequences)))
+            print('Loading from %s: %d samples, %d tokens.' % (fn, len(word_sequences), get_words_num(word_sequences)))
         return word_sequences, tag_sequences
 
     @staticmethod
@@ -60,7 +60,7 @@ class DataIO():
                 word_sequences.append(curr_words)
                 tag_sequences.append(curr_tags)
         if verbose:
-            print('Loading from %s: %d samples, %d tokens.' % (fn, len(word_sequences), get_token_num(word_sequences)))
+            print('Loading from %s: %d samples, %d words.' % (fn, len(word_sequences), get_words_num(word_sequences)))
         return word_sequences, tag_sequences
 
     @staticmethod

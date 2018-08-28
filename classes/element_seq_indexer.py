@@ -11,10 +11,10 @@ class ElementSeqIndexer():
         Index 0 stands for the unknown string.
     """
 
-    def __init__(self, gpu=-1, caseless=True, load_embeddings=False, verbose=False, pad='<pad>', unk='<unk>',
+    def __init__(self, gpu=-1, check_for_lowercase=True, load_embeddings=False, verbose=False, pad='<pad>', unk='<unk>',
                  zero_digits=False):
         self.gpu = gpu
-        self.caseless = caseless
+        self.check_for_lowercase = check_for_lowercase
         self.load_embeddings = load_embeddings
         self.verbose = verbose
         self.pad = pad
@@ -46,7 +46,7 @@ class ElementSeqIndexer():
         return (element in self.get_elements_list())
 
     def __element_normalization(self, element):
-        if self.caseless:
+        if self.check_for_lowercase:
             element = element.lower()
         if self.zero_digits:
             element = re.sub('\d', '0', element)

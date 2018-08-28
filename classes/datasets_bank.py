@@ -8,22 +8,33 @@ class DatasetsBank():
                           2) sampling batches from the train dataset subset
     """
 
-#    def __init__(self, word_seq_indexer, tag_seq_indexer):
-#        self.word_seq_indexer = word_seq_indexer
-#        self.tag_seq_indexer = tag_seq_indexer
+    def __init__(self, verbose=True):
+        self.verbose = verbose
+        self.words_list = list()
+
+    def __expand_words_list(self, word_sequences):
+        for word_seq in word_sequences:
+            for word in word_seq:
+                if word not in self.words_list:
+                    self.words_list.append(word)
+        if self.verbose:
+            print('DatasetsBank: len(words_list)=%d' % (len(self.words_list)))
 
     def add_train_sequences(self, word_sequences_train, tag_sequences_train):
         self.word_sequences_train = word_sequences_train
         self.tag_sequences_train = tag_sequences_train
+        self.__expand_words_list(word_sequences_train)
         self.train_data_num = len(word_sequences_train)
 
     def add_dev_sequences(self, word_sequences_dev, tag_sequences_dev):
         self.word_sequences_dev = word_sequences_dev
         self.tag_sequences_dev = tag_sequences_dev
+        self.__expand_words_list(word_sequences_dev)
 
     def add_test_sequences(self, word_sequences_test, tag_sequences_test):
         self.word_sequences_test = word_sequences_test
         self.tag_sequences_test = tag_sequences_test
+        self.__expand_words_list(word_sequences_test)
 
     def __get_train_batch(self, batch_indices):
         word_sequences_train_batch = [self.word_sequences_train[i] for i in batch_indices]

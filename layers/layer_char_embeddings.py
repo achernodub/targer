@@ -15,7 +15,7 @@ class LayerCharEmbeddings(LayerBase):
         self.freeze_char_embeddings = freeze_char_embeddings
         self.word_len = word_len # standard len to pad
         # Init character sequences indexer
-        self.char_seq_indexer = ElementSeqIndexer(gpu = gpu, caseless=True, load_embeddings=False, pad='<pad>',
+        self.char_seq_indexer = ElementSeqIndexer(gpu = gpu, check_for_lowercase=True, load_embeddings=False, pad='<pad>',
                                                   unk='<unk>')
         if unique_characters_list is None:
             unique_characters_list = list(string.printable)
