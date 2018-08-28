@@ -61,7 +61,7 @@ class ElementSeqIndexer():
             raise ValueError('embeddings_dim is not known.')
         return np.random.uniform(-np.sqrt(3.0 / self.embeddings_dim), np.sqrt(3.0 / self.embeddings_dim), self.embeddings_dim).tolist()
 
-      
+
 
 
 
