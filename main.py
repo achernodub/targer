@@ -93,9 +93,9 @@ if __name__ == "__main__":
     args.model = 'BiRNN'
     #args.model = 'BiRNNCNN'
     #args.model = 'BiRNNCNNCRF'
-    args.epoch_num = 2
+    args.epoch_num = 5
     args.rnn_hidden_dim = 100
-    args.batch_size = 10
+    args.batch_size = 1
     #args.gpu = -1
     args.lr_decay = 0.05
     args.rnn_type = 'LSTM'
@@ -103,7 +103,7 @@ if __name__ == "__main__":
     #args.report_fn = 'report_model_BiRNN_NER_50_classic.txt'
     #args.report_fn = 'report_model_BiRNNCNNCRF_8_NER.txt'
     #args.checkpoint_fn = 'tagger_model_BiRNNCNNCRF_8_NER.hdf5'
-    args.load_word_seq_indexer = 'word_seq_NER.hdf5'
+    #args.load_word_seq_indexer = 'word_seq_NER.hdf5'
 
     # Load CoNNL data as sequences of strings of words and corresponding tags
     word_sequences_train, tag_sequences_train = DataIO.read_CoNNL_universal(args.fn_train, verbose=True)
@@ -121,25 +121,27 @@ if __name__ == "__main__":
                                          pad='<pad>', unk='<unk>', load_embeddings=True, embeddings_dim=args.emb_dim,
                                          verbose=True)
 
-    exit()
+    word_seq_indexer.load_vocabulary_from_embeddings_file_and_unique_words_list(emb_fn=args.emb_fn,
+                                                                                emb_delimiter=args.emb_delimiter,
+                                                                                unique_words_list=datasets_bank.unique_words_list)
 
     # Converts lists of lists of tags to integer indices and back
-    tag_seq_indexer = ElementSeqIndexer(gpu=args.gpu, check_for_lowercase=False, verbose=args.verbose, pad='<pad>', unk=None,
-                                        zero_digits=False)
-    tag_seq_indexer.load_vocabulary_from_element_sequences(tag_sequences_train)
+    tag_seq_indexer = ElementSeqIndexer(gpu=args.gpu, check_for_lowercase=False, zero_digits=False,
+                                        pad='<pad>', unk=None, load_embeddings=False, verbose=True)
 
-    # Word_seq_indexer converts lists of lists of words to integer indices and back; optionally contains embeddings
-    if args.load_word_seq_indexer is not None and os.path.isfile(args.load_word_seq_indexer):
-        word_seq_indexer = torch.load(args.load_word_seq_indexer)
-    else:
-        word_seq_indexer = ElementSeqIndexer(gpu=args.gpu, check_for_lowercase=args.check_for_lowercase, load_embeddings=True,
-                                                 verbose=args.verbose, pad='<pad>', unk='<unk>', zero_digits=True)
-        word_seq_indexer.load_vocabulary_from_embeddings_file(emb_fn=args.emb_fn, emb_delimiter=args.emb_delimiter)
-        #word_seq_indexer.load_vocabulary_from_element_sequences(word_sequences_train)
-        #word_seq_indexer.load_vocabulary_from_element_sequences(word_sequences_dev)
-        #word_seq_indexer.load_vocabulary_from_element_sequences(word_sequences_test, verbose=True)
-        if args.load_word_seq_indexer is not None:
-            torch.save(word_seq_indexer, args.load_word_seq_indexer)
+    tag_seq_indexer.load_vocabulary_from_tag_sequences(tag_sequences_train)
+
+    #if args.load_word_seq_indexer is not None and os.path.isfile(args.load_word_seq_indexer):
+    #    word_seq_indexer = torch.load(args.load_word_seq_indexer)
+    #else:
+    #    word_seq_indexer = ElementSeqIndexer(gpu=args.gpu, check_for_lowercase=args.check_for_lowercase, load_embeddings=True,
+    #                                             verbose=args.verbose, pad='<pad>', unk='<unk>', zero_digits=True)
+    #    word_seq_indexer.load_vocabulary_from_embeddings_file(emb_fn=args.emb_fn, emb_delimiter=args.emb_delimiter)
+    #    #word_seq_indexer.load_vocabulary_from_element_sequences(word_sequences_train)
+    #    #word_seq_indexer.load_vocabulary_from_element_sequences(word_sequences_dev)
+    #    #word_seq_indexer.load_vocabulary_from_element_sequences(word_sequences_test, verbose=True)
+    #    if args.load_word_seq_indexer is not None:
+    #        torch.save(word_seq_indexer, args.load_word_seq_indexer)
 
     if args.model == 'BiRNN':
         tagger = TaggerBiRNN(word_seq_indexer=word_seq_indexer,

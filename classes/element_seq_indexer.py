@@ -12,7 +12,7 @@ class ElementSeqIndexer():
     """
 
     def __init__(self, gpu=-1, check_for_lowercase=True, zero_digits=False, pad='<pad>', unk='<unk>',
-                 load_embeddings=False, embeddings_dim=0, verbose=True):
+                 load_embeddings=False, embeddings_dim=0, verbose=False):
         self.gpu = gpu
         self.check_for_lowercase = check_for_lowercase
         self.zero_digits = zero_digits
@@ -40,7 +40,7 @@ class ElementSeqIndexer():
         return element in self.element2idx_dict.keys()
 
     def get_elements_list(self):
-        return self.element2idx_dict.keys()
+        return list(self.element2idx_dict.keys())
 
     def __add_element(self, element):
         idx = len(self.get_elements_list())
@@ -61,18 +61,47 @@ class ElementSeqIndexer():
             raise ValueError('embeddings_dim is not known.')
         return np.random.uniform(-np.sqrt(3.0 / self.embeddings_dim), np.sqrt(3.0 / self.embeddings_dim), self.embeddings_dim).tolist()
 
+    @staticmethod
+    def __load_emb_dict_from_file(emb_fn, emb_delimiter):
+        emb_dict = dict()
+        for line in open(emb_fn, 'r'):
+            values = line.split(emb_delimiter)
+            word = values[0]
+            emb_vector = list(map(lambda t: float(t), filter(lambda n: n and not n.isspace(), values[1:])))
+            emb_dict[word] = emb_vector
+        return emb_dict
 
-
-
-
-
-    '''def __element_normalization(self, element):
-        if self.check_for_lowercase:
-            element = element.lower()
-        if self.zero_digits:
-            element = re.sub('\d', '0', element)
-        return element'''
-
+    def load_vocabulary_from_embeddings_file_and_unique_words_list(self, emb_fn, emb_delimiter, unique_words_list):
+        emb_dict = ElementSeqIndexer.__load_emb_dict_from_file(emb_fn, emb_delimiter)
+        original_words_num = 0
+        lowercase_words_num = 0
+        zero_digits_replaced_num = 0
+        zero_digits_replaced_lowercase_num = 0
+        for word in unique_words_list:
+            if word in emb_dict.keys():
+                self.__add_element(word)
+                self.__add_emb_vector(emb_dict[word])
+                original_words_num += 1
+            elif self.check_for_lowercase and word.lower() in emb_dict.keys():
+                self.__add_element(word)
+                self.__add_emb_vector(emb_dict[word.lower()])
+                lowercase_words_num += 1
+            elif self.zero_digits and re.sub('\d', '0', word) in emb_dict.keys():
+                self.__add_element(word)
+                self.__add_emb_vector(emb_dict[re.sub('\d', '0', word)])
+                zero_digits_replaced_num += 1
+            elif self.check_for_lowercase and self.zero_digits and re.sub('\d', '0', word.lower()) in emb_dict.keys():
+                self.__add_element(word.lower)
+                self.__add_emb_vector(emb_dict[re.sub('\d', '0', word.lower())])
+                zero_digits_replaced_lowercase_num += 1
+            else:
+                continue
+        if self.verbose:
+            print('\nload_vocabulary_from_embeddings_file_and_unique_words_list:')
+            print(' -- original_words_num = %d' % original_words_num)
+            print(' -- lowercase_words_num = %d' % lowercase_words_num)
+            print(' -- zero_digits_replaced_num = %d' % zero_digits_replaced_num)
+            print(' -- zero_digits_replaced_lowercase_num = %d' % zero_digits_replaced_lowercase_num)
 
     def load_vocabulary_from_embeddings_file(self, emb_fn, emb_delimiter):
         if not self.load_embeddings:
@@ -116,6 +145,18 @@ class ElementSeqIndexer():
                 print(' -= %d/%d out of vocabulary token: %s' % (k, len(self.out_of_vocabulary_list), element))
             print('%d embeddings loaded/generated.' % len(self.embedding_vectors_list))
 
+
+    def load_vocabulary_from_tag_sequences(self, tag_sequences):
+        assert self.load_embeddings == False
+        for tag_seq in tag_sequences:
+            for tag in tag_seq:
+                if not self.__element_exists(tag):
+                    self.__add_element(tag)
+        if self.verbose:
+            print('\nload_vocabulary_from_tag_sequences:')
+            print(' -- class_num = %d' % self.get_class_num())
+            print(' --', self.element2idx_dict)
+
     def get_loaded_embeddings_tensor(self):
         return torch.FloatTensor(np.asarray(self.embedding_vectors_list))
 
@@ -132,9 +173,9 @@ class ElementSeqIndexer():
     def elements2idx(self, element_sequences):
         idx_sequences = []
         for element_seq in element_sequences:
-            element_normalized_seq = map(self.__element_normalization, element_seq)
+            #element_normalized_seq = map(self.__element_normalization, element_seq)
             idx_seq = list()
-            for element in element_normalized_seq:
+            for element in element_seq:
                 if element in self.element2idx_dict:
                     idx_seq.append(self.element2idx_dict[element])
                 else:
