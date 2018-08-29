@@ -93,12 +93,12 @@ if __name__ == "__main__":
     #args.model = 'BiRNN'
     #args.model = 'BiRNNCNN'
     args.model = 'BiRNNCNNCRF'
-    args.epoch_num = 10
+    args.epoch_num = 100
     args.rnn_hidden_dim = 100
     args.batch_size = 10
     #args.gpu = -1
-    args.lr = 0.01
-    args.lr_decay = 0
+    args.lr = 0.015
+    args.lr_decay = 0.05
     args.rnn_type = 'LSTM'
     #args.checkpoint_fn = 'tagger_model_BiRNNCNN_NER_nosb.hdf5'
     #args.report_fn = 'report_model_BiRNN_NER_50_classic.txt'
