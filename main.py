@@ -93,7 +93,7 @@ if __name__ == "__main__":
     #args.model = 'BiRNN'
     #args.model = 'BiRNNCNN'
     args.model = 'BiRNNCNNCRF'
-    args.epoch_num = 100
+    args.epoch_num = 101
     args.rnn_hidden_dim = 100
     args.batch_size = 1
     #args.gpu = -1
