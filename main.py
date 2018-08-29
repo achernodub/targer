@@ -104,6 +104,7 @@ if __name__ == "__main__":
     #args.report_fn = 'report_model_BiRNNCNNCRF_8_NER.txt'
     #args.checkpoint_fn = 'tagger_model_BiRNNCNNCRF_8_NER.hdf5'
     #args.load_word_seq_indexer = 'word_seq_NER.hdf5'
+    #
 
     # Load CoNNL data as sequences of strings of words and corresponding tags
     word_sequences_train, tag_sequences_train = DataIO.read_CoNNL_universal(args.fn_train, verbose=True)
