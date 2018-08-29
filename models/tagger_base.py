@@ -31,7 +31,8 @@ class TaggerBase(nn.Module):
             self.cpu()
 
     def clip_gradients(self, clip_grad):
-        nn.utils.clip_grad_norm_(self.parameters(), clip_grad)
+        #pass
+        nn.utils.clip_grad_norm_(self.parameters(), clip_grad) ###############################
 
     def save(self, checkpoint_fn):
         self.cpu()

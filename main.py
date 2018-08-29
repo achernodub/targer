@@ -90,15 +90,15 @@ if __name__ == "__main__":
     #args.fn_dev = 'data/persuasive_essays/Essay_Level/dev.dat.abs'
     #args.fn_test = 'data/persuasive_essays/Essay_Level/test.dat.abs'
 
-    args.model = 'BiRNN'
+    #args.model = 'BiRNN'
     #args.model = 'BiRNNCNN'
-    #args.model = 'BiRNNCNNCRF'
-    args.epoch_num = 50
+    args.model = 'BiRNNCNNCRF'
+    args.epoch_num = 10
     args.rnn_hidden_dim = 100
     args.batch_size = 10
     #args.gpu = -1
-    args.lr = 0.015
-    args.lr_decay = 0.05
+    args.lr = 0.01
+    args.lr_decay = 0
     args.rnn_type = 'LSTM'
     #args.checkpoint_fn = 'tagger_model_BiRNNCNN_NER_nosb.hdf5'
     #args.report_fn = 'report_model_BiRNN_NER_50_classic.txt'
@@ -244,7 +244,7 @@ if __name__ == "__main__":
                                                                                                f1_dev,
                                                                                                time.time() - time_start)
         report_str += epoch_report
-        write_textfile(args.report_fn.replace('.txt', '_I.txt'), report_str) # first report
+        #write_textfile(args.report_fn.replace('.txt', '_I.txt'), report_str) # first report
         Evaluator.write_report_table(args.report_fn.replace('.txt', '_II.txt'), # second report, more detailed
                                      tagger, epoch,
                                      word_sequences_train=datasets_bank.word_sequences_train,

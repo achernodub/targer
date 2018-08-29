@@ -28,21 +28,21 @@ class ElementSeqIndexer():
             self.embeddings_loaded = False
             self.embedding_vectors_list = list()
         if pad is not None:
-            self.pad_idx = self.__add_element(pad)
+            self.pad_idx = self.add_element(pad)
             if load_embeddings:
                 self.__add_emb_vector(self.__get_zero_emb_vector())
         if unk is not None:
-            self.unk_idx = self.__add_element(unk)
+            self.unk_idx = self.add_element(unk)
             if load_embeddings:
                 self.__add_emb_vector(self.__get_random_emb_vector())
-
-    def __element_exists(self, element):
-        return element in self.element2idx_dict.keys()
 
     def get_elements_list(self):
         return list(self.element2idx_dict.keys())
 
-    def __add_element(self, element):
+    def element_exists(self, element):
+        return element in self.element2idx_dict.keys()
+
+    def add_element(self, element):
         idx = len(self.get_elements_list())
         self.element2idx_dict[element] = idx
         self.idx2element_dict[idx] = element
@@ -79,19 +79,19 @@ class ElementSeqIndexer():
         zero_digits_replaced_lowercase_num = 0
         for word in unique_words_list:
             if word in emb_dict.keys():
-                self.__add_element(word)
+                self.add_element(word)
                 self.__add_emb_vector(emb_dict[word])
                 original_words_num += 1
             elif self.check_for_lowercase and word.lower() in emb_dict.keys():
-                self.__add_element(word)
+                self.add_element(word)
                 self.__add_emb_vector(emb_dict[word.lower()])
                 lowercase_words_num += 1
             elif self.zero_digits and re.sub('\d', '0', word) in emb_dict.keys():
-                self.__add_element(word)
+                self.add_element(word)
                 self.__add_emb_vector(emb_dict[re.sub('\d', '0', word)])
                 zero_digits_replaced_num += 1
             elif self.check_for_lowercase and self.zero_digits and re.sub('\d', '0', word.lower()) in emb_dict.keys():
-                self.__add_element(word.lower)
+                self.add_element(word)
                 self.__add_emb_vector(emb_dict[re.sub('\d', '0', word.lower())])
                 zero_digits_replaced_lowercase_num += 1
             else:
@@ -122,7 +122,7 @@ class ElementSeqIndexer():
             values = line.split(emb_delimiter)
             element = values[0]
             emb_vector = list(map(lambda t: float(t), filter(lambda n: n and not n.isspace(), values[1:])))
-            self.__add_element(element)
+            self.add_element(element)
             self.__add_emb_vector(emb_vector)
         self.embeddings_loaded = True
         if self.verbose:
@@ -134,8 +134,8 @@ class ElementSeqIndexer():
             raise ValueError('Embeddings are not loaded.')
         for element_seq in element_sequences:
             for element in element_seq:
-                if not self.__element_exists(element):
-                    self.__add_element(element)
+                if not self.element_exists(element):
+                    self.add_element(element)
                     self.out_of_vocabulary_list.append(element)
                     if self.load_embeddings:
                         self.__add_emb_vector(self.__get_random_emb_vector())
@@ -150,8 +150,8 @@ class ElementSeqIndexer():
         assert self.load_embeddings == False
         for tag_seq in tag_sequences:
             for tag in tag_seq:
-                if not self.__element_exists(tag):
-                    self.__add_element(tag)
+                if not self.element_exists(tag):
+                    self.add_element(tag)
         if self.verbose:
             print('\nload_vocabulary_from_tag_sequences:')
             print(' -- class_num = %d' % self.get_class_num())
@@ -229,10 +229,10 @@ class ElementSeqIndexer():
             unique_characters_set = set()
         if verbose:
             cnt = 0
-        for n, token in enumerate(self.get_elements_list()):
+        for n, word in enumerate(self.get_elements_list()):
             len_delta = len(unique_characters_set)
-            unique_characters_set = unique_characters_set.union(set(token))
+            unique_characters_set = unique_characters_set.union(set(word))
             if verbose and len(unique_characters_set) > len_delta:
                 cnt += 1
-                print('n = %d/%d (%d) %s' % (n, len(self.get_elements_list), cnt, token))
+                print('n = %d/%d (%d) %s' % (n, len(self.get_elements_list), cnt, word))
         return list(unique_characters_set)
