@@ -90,16 +90,22 @@ if __name__ == "__main__":
     #args.fn_dev = 'data/persuasive_essays/Essay_Level/dev.dat.abs'
     #args.fn_test = 'data/persuasive_essays/Essay_Level/test.dat.abs'
 
-    #args.model = 'BiRNN'
+    args.model = 'BiRNN'
     #args.model = 'BiRNNCNN'
-    args.model = 'BiRNNCNNCRF'
-    args.epoch_num = 101
+    #args.model = 'BiRNNCNNCRF'
     args.rnn_hidden_dim = 100
+    args.rnn_type = 'LSTM'
+
+    args.epoch_num = 100
     args.batch_size = 1
-    #args.gpu = -1
     args.lr = 0.005
     args.lr_decay = 0
-    args.rnn_type = 'LSTM'
+
+    #args.epoch_num = 50
+    #args.batch_size = 10
+    #args.lr = 0.015
+    #args.lr_decay = 0.05
+
     #args.checkpoint_fn = 'tagger_model_BiRNNCNN_NER_nosb.hdf5'
     #args.report_fn = 'report_model_BiRNN_NER_50_classic.txt'
     #args.report_fn = 'report_model_BiRNNCNNCRF_8_NER.txt'
@@ -125,6 +131,9 @@ if __name__ == "__main__":
     word_seq_indexer.load_vocabulary_from_embeddings_file_and_unique_words_list(emb_fn=args.emb_fn,
                                                                                 emb_delimiter=args.emb_delimiter,
                                                                                 unique_words_list=datasets_bank.unique_words_list)
+
+    print('len(word_seq_indexer.element2idx_dict)', len(word_seq_indexer.element2idx_dict))
+    print('len(word_seq_indexer.idx2element_dict)', len(word_seq_indexer.idx2element_dict))
 
     # Converts lists of lists of tags to integer indices and back
     tag_seq_indexer = ElementSeqIndexer(gpu=args.gpu, check_for_lowercase=False, zero_digits=False,
