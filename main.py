@@ -101,7 +101,7 @@ if __name__ == "__main__":
     #args.lr = 0.005
     #args.lr_decay = 0
 
-    args.epoch_num = 50
+    args.epoch_num = 200
     args.batch_size = 10
     args.lr = 0.015
     args.lr_decay = 0.05
@@ -131,7 +131,7 @@ if __name__ == "__main__":
     word_seq_indexer.load_vocabulary_from_embeddings_file_and_unique_words_list(emb_fn=args.emb_fn,
                                                                                 emb_delimiter=args.emb_delimiter,
                                                                                 unique_words_list=datasets_bank.unique_words_list)
-
+    exit()
     # Converts lists of lists of tags to integer indices and back
     tag_seq_indexer = ElementSeqIndexer(gpu=args.gpu, check_for_lowercase=False, zero_digits=False,
                                         pad='<pad>', unk=None, load_embeddings=False, verbose=True)
