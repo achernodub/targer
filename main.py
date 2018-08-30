@@ -90,21 +90,21 @@ if __name__ == "__main__":
     #args.fn_dev = 'data/persuasive_essays/Essay_Level/dev.dat.abs'
     #args.fn_test = 'data/persuasive_essays/Essay_Level/test.dat.abs'
 
-    args.model = 'BiRNN'
-    #args.model = 'BiRNNCNN'
+    #args.model = 'BiRNN'
+    args.model = 'BiRNNCNN'
     #args.model = 'BiRNNCNNCRF'
     args.rnn_hidden_dim = 100
     args.rnn_type = 'LSTM'
 
-    args.epoch_num = 100
-    args.batch_size = 1
-    args.lr = 0.005
-    args.lr_decay = 0
+    #args.epoch_num = 100
+    #args.batch_size = 1
+    #args.lr = 0.005
+    #args.lr_decay = 0
 
-    #args.epoch_num = 50
-    #args.batch_size = 10
-    #args.lr = 0.015
-    #args.lr_decay = 0.05
+    args.epoch_num = 50
+    args.batch_size = 10
+    args.lr = 0.015
+    args.lr_decay = 0.05
 
     #args.checkpoint_fn = 'tagger_model_BiRNNCNN_NER_nosb.hdf5'
     #args.report_fn = 'report_model_BiRNN_NER_50_classic.txt'

@@ -59,8 +59,9 @@ class TaggerBiRNNCNN(TaggerBase):
         z_char_cnn = self.char_cnn_layer(z_char_embed_d)
         z = torch.cat((z_word_embed_d, z_char_cnn), dim=2)
         rnn_output_h = self.birnn_layer(z)
-        rnn_output_h_d = self.dropout(rnn_output_h) # shape: batch_size x max_seq_len x rnn_hidden_dim*2
-        z_rnn_out = self.lin_layer(rnn_output_h_d).permute(0, 2, 1) # shape: batch_size x class_num + 1 x max_seq_len
+        #rnn_output_h_d = self.dropout(rnn_output_h) # shape: batch_size x max_seq_len x rnn_hidden_dim*2
+        #z_rnn_out = self.lin_layer(rnn_output_h_d).permute(0, 2, 1) # shape: batch_size x class_num + 1 x max_seq_len
+        z_rnn_out = self.lin_layer(rnn_output_h).permute(0, 2, 1) # shape: batch_size x class_num + 1 x max_seq_len
         y = self.log_softmax_layer(z_rnn_out)
         return y
 
