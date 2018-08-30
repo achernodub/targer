@@ -3,6 +3,8 @@ import string
 import numpy as np
 import re
 import torch
+from jellyfish import soundex
+from autocorrect import spell
 
 class ElementSeqIndexer():
     """
@@ -77,6 +79,15 @@ class ElementSeqIndexer():
         lowercase_words_num = 0
         zero_digits_replaced_num = 0
         zero_digits_replaced_lowercase_num = 0
+        soundex_replaced_num = 0
+        soundex_dict = dict()
+        for word_emb in emb_dict.keys():
+            try:
+                word_emb_soundex_hash = soundex(word_emb)
+                soundex_dict[word_emb_soundex_hash] = word_emb
+            except:
+                continue
+        self.out_of_vocabulary_words_list = list()
         for word in unique_words_list:
             if word in emb_dict.keys():
                 self.add_element(word)
@@ -94,7 +105,19 @@ class ElementSeqIndexer():
                 self.add_element(word)
                 self.__add_emb_vector(emb_dict[re.sub('\d', '0', word.lower())])
                 zero_digits_replaced_lowercase_num += 1
+            elif spell(word) in emb_dict.keys():
+                self.add_element(word)
+                self.__add_emb_vector(emb_dict[spell(word)])
+                print('word = %s, spell(word) = %s' % (word, spell(word)))
+                soundex_replaced_num += 1
+            #elif soundex(word) in soundex_dict.keys():
+            #        soundex_word = soundex_dict[soundex(word)]
+            #        self.add_element(word)
+            #        self.__add_emb_vector(emb_dict[soundex_word])
+            #        #print('word=%s, soundex_word=%s' % (word, soundex_word))
+            #        soundex_replaced_num += 1
             else:
+                self.out_of_vocabulary_words_list.append(word)
                 continue
         if self.verbose:
             print('\nload_vocabulary_from_embeddings_file_and_unique_words_list:')
@@ -102,6 +125,13 @@ class ElementSeqIndexer():
             print(' -- lowercase_words_num = %d' % lowercase_words_num)
             print(' -- zero_digits_replaced_num = %d' % zero_digits_replaced_num)
             print(' -- zero_digits_replaced_lowercase_num = %d' % zero_digits_replaced_lowercase_num)
+            print(' -- soundex_replaced_num = %d' % soundex_replaced_num)
+            print(' -- len(out_of_vocabulary_words_list) = %d' % len(self.out_of_vocabulary_words_list))
+            print('    First 50 OOV words:')
+            for i, oov_word in enumerate(self.out_of_vocabulary_words_list):
+                print('        out_of_vocabulary_words_list[%d] = %s' % (i, oov_word))
+                if i > 50:
+                    break
 
     def load_vocabulary_from_embeddings_file(self, emb_fn, emb_delimiter):
         if not self.load_embeddings:
