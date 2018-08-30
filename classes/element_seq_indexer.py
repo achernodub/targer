@@ -3,7 +3,7 @@ import string
 import numpy as np
 import re
 import torch
-from jellyfish import soundex
+#from jellyfish import soundex
 from autocorrect import spell
 
 class ElementSeqIndexer():
