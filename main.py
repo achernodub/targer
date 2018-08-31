@@ -165,8 +165,9 @@ if __name__ == "__main__":
     patience_counter = 0
     report_fn = 'report_%s_%s_batch%d_%dep.txt' % (get_datetime_str(), args.model, args.batch_size, args.epoch_num)
     report_str = extract_settings(args)
+    eport_str += '\n micro-f1 scores'
     report_str += '\n %s | %5s | %5s | %5s' % ('epoch', 'train', 'dev', 'test')
-    report_str += '\n-'*80
+    report_str += '\n'+ '-'*80
     print('\nStart training...')
     for epoch in range(1, args.epoch_num + 1):
         tagger.train()
