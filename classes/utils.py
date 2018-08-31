@@ -30,9 +30,6 @@ def write_textfile(fn, s):
 def get_words_num(word_sequences):
     return sum(len(word_seq) for word_seq in word_sequences)
 
-def extract_settings(args):
-    return '\n'.join([hp for hp in str(args).replace('Namespace(', '').replace(')', '').split(', ')]) + '\n'
-
 def get_datetime_str():
     d = datetime.datetime.now()
     return '%02d_%02d_%02d_%02d_%02d' % (d.year, d.month, d.day, d.hour, d.minute)

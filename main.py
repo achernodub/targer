@@ -12,6 +12,7 @@ from classes.data_io import DataIO
 from classes.datasets_bank import DatasetsBank
 from classes.element_seq_indexer import ElementSeqIndexer
 from classes.evaluator import Evaluator
+from classes.report import Report
 from classes.utils import *
 
 from models.tagger_birnn import TaggerBiRNN
@@ -84,7 +85,7 @@ if __name__ == "__main__":
     #args.lr = 0.005
     #args.lr_decay = 0
 
-    args.epoch_num = 3
+    args.epoch_num = 5
     args.batch_size = 10
     args.lr = 0.015
     args.lr_decay = 0.05
@@ -164,10 +165,7 @@ if __name__ == "__main__":
     best_f1_dev = -1
     patience_counter = 0
     report_fn = 'report_%s_%s_batch%d_%dep.txt' % (get_datetime_str(), args.model, args.batch_size, args.epoch_num)
-    report_str = 'Evaluation, micro-f1 scores.\n\n'
-    report_str += extract_settings(args)
-    report_str += '\n %5s | %5s | %5s | %5s' % ('epoch', 'train', 'dev', 'test')
-    report_str += '\n'+ '-'*32
+    report = Report(report_fn, args)
     print('\nStart training...\n')
     for epoch in range(1, args.epoch_num + 1):
         tagger.train()
@@ -193,9 +191,7 @@ if __name__ == "__main__":
         acc_train, acc_dev, acc_test = Evaluator.get_accuracy_train_dev_test(tagger, datasets_bank)
         print('\n== eval train / dev / test micro-f1: %1.2f / %1.2f / %1.2f, acc: %1.2f%% / %1.2f%% / %1.2f%%.' %
               (f1_train, f1_dev, f1_test, acc_train, acc_dev, acc_test))
-        report_str += '\n %5s | %5s | %5s | %5s' % ('%d' % epoch, '%1.2f' % f1_train, '%1.2f' % f1_dev, '%1.2f' % f1_test)
-
-        write_textfile(report_fn, report_str)
+        report.write_epoch_scores(epoch, f1_train, f1_dev, f1_test)
 
         # Early stopping
         if f1_dev > best_f1_dev:
@@ -213,14 +209,11 @@ if __name__ == "__main__":
     if args.checkpoint_fn is not None:
         tagger.save(args.checkpoint_fn)
 
-    # Make final evaluation
+    # Make final evaluation of trained tagger
     output_tag_sequences_test = tagger.predict_tags_from_words(datasets_bank.word_sequences_test)
     f1_test_final, _ = Evaluator.get_f1_connl_script(tagger=tagger,
                                                      word_sequences=datasets_bank.word_sequences_test,
                                                      targets_tag_sequences=datasets_bank.tag_sequences_test,
                                                      outputs_tag_sequences=output_tag_sequences_test)
-
-    report_str += '\n' + '-' * 32
-    report_str += '\n Final eval micro-f1 on test: %1.2f' % f1_test_final
-    write_textfile(report_fn, report_str)
-    print(report_str)
+    report.write_final_score(f1_test_final)
+    print(report.text)
