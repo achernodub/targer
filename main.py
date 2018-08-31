@@ -53,12 +53,6 @@ if __name__ == "__main__":
     parser.add_argument('--verbose', type=bool, default=True, help='Show additional information.')
     parser.add_argument('--seed_num', type=int, default=42, help='Random seed number, but 42 is the best forever!')
     parser.add_argument('--checkpoint_fn', default=None, help='Path to save the trained model.')
-    parser.add_argument('--report_fn', default='report_%d_%02d_%02d_%02d_%02d.txt' % (datetime.datetime.now().year,
-                                                                                      datetime.datetime.now().month,
-                                                                                      datetime.datetime.now().day,
-                                                                                      datetime.datetime.now().hour,
-                                                                                      datetime.datetime.now().minute),
-                                                                                      help='Path to report.')
     parser.add_argument('--match_alpha_ratio', type=float, default='0.999',
                         help='Alpha ratio from non-strict matching, options: 0.999 or 0.5')
     parser.add_argument('--patience', type=int, default=10, help='Patience for early stopping.')
@@ -70,11 +64,14 @@ if __name__ == "__main__":
     if args.gpu >= 0:
         torch.cuda.set_device(args.gpu)
         torch.cuda.manual_seed(args.seed_num)
+    report_fn = 'report_%s_%dep_%02d_%02d_%02d_%02d.txt' % (args.model, args.epoch_num, datetime.datetime.now().year,
+                                                            datetime.datetime.now().month, datetime.datetime.now().day,
+                                                            datetime.datetime.now().hour, datetime.datetime.now().minute)
 
     # Custom params here to replace the defaults
-    args.fn_train = 'data/NER/CoNNL_2003_shared_task/train.txt'
-    args.fn_dev = 'data/NER/CoNNL_2003_shared_task/dev.txt'
-    args.fn_test = 'data/NER/CoNNL_2003_shared_task/test.txt'
+    #args.fn_train = 'data/NER/CoNNL_2003_shared_task/train.txt'
+    #args.fn_dev = 'data/NER/CoNNL_2003_shared_task/dev.txt'
+    #args.fn_test = 'data/NER/CoNNL_2003_shared_task/test.txt'
 
     #args.fn_train = 'data/persuasive_essays/Essay_Level/train.dat.abs'
     #args.fn_dev = 'data/persuasive_essays/Essay_Level/dev.dat.abs'
@@ -170,6 +167,7 @@ if __name__ == "__main__":
     iterations_num = int(datasets_bank.train_data_num / args.batch_size)
     best_f1_dev = -1
     patience_counter = 0
+    report_str = extract_settings(args) + '\n'
     print('\nStart training...')
     for epoch in range(1, args.epoch_num + 1):
         tagger.train()
@@ -195,15 +193,18 @@ if __name__ == "__main__":
         acc_train, acc_dev, acc_test = Evaluator.get_accuracy_train_dev_test(tagger, datasets_bank)
         print('\n== eval train/dev/test micro-f1: %1.2f/%1.2f/%1.2f, acc: %1.2f%%/%1.2f%%/%1.2f%%.' %
               (f1_train, f1_dev, f1_test, acc_train, acc_dev, acc_test))
+        report_str += '\nepoch %03d micro-f1: train/dev/test %1.2f/%1.2f/%1.2f' % (epoch, f1_train, f1_dev, f1_test)
+        write_textfile(report_fn, report_str)
 
         # Early stopping
         if f1_dev > best_f1_dev:
             best_f1_dev = f1_dev
             patience_counter = 0
-            print('## [BEST epoch], %d seconds.' % (time.time() - time_start))
+            print('## [BEST epoch], %d seconds.\n' % (time.time() - time_start))
         else:
             patience_counter += 1
-            print('## [no improvement on DEV during the last %d epochs].' % (patience_counter, (time.time()-time_start)))
+            print('## [no improvement on DEV during the last %d epochs, %d seconds.].\n' % (patience_counter,
+                                                                                           (time.time()-time_start)))
         if patience_counter > args.patience and epoch > args.min_epoch_num:
             break
 
