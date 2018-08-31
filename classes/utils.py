@@ -34,5 +34,5 @@ def extract_settings(args):
     return '\n'.join([hp for hp in str(args).replace('Namespace(', '').replace(')', '').split(', ')]) + '\n'
 
 def get_datetime_str():
-    dt = datetime.datetime.now()
-    return '%02d_%02d_%02d_%02d_%02d.txt' % (dt.year, dt.month, dt.day, dt.hour, dt.minute)
+    d = datetime.datetime.now()
+    return '%02d_%02d_%02d_%02d_%02d' % (d.year, d.month, d.day, d.hour, d.minute)
