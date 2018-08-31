@@ -64,11 +64,7 @@ if __name__ == "__main__":
     if args.gpu >= 0:
         torch.cuda.set_device(args.gpu)
         torch.cuda.manual_seed(args.seed_num)
-    report_fn = 'report_%s_%dep_%02d_%02d_%02d_%02d.txt' % (args.model, args.epoch_num, datetime.datetime.now().year,
-                                                            datetime.datetime.now().month, datetime.datetime.now().day,
-                                                            datetime.datetime.now().hour, datetime.datetime.now().minute)
 
-    # Custom params here to replace the defaults
     #args.fn_train = 'data/NER/CoNNL_2003_shared_task/train.txt'
     #args.fn_dev = 'data/NER/CoNNL_2003_shared_task/dev.txt'
     #args.fn_test = 'data/NER/CoNNL_2003_shared_task/test.txt'
@@ -167,6 +163,7 @@ if __name__ == "__main__":
     iterations_num = int(datasets_bank.train_data_num / args.batch_size)
     best_f1_dev = -1
     patience_counter = 0
+    report_fn = 'report_%s_batch%d_%dep_%s.txt' % (args.model, args.batch_size, args.epoch_num, get_datetime_str())
     report_str = extract_settings(args) + '\n'
     print('\nStart training...')
     for epoch in range(1, args.epoch_num + 1):
