@@ -168,7 +168,7 @@ if __name__ == "__main__":
     report_str += extract_settings(args)
     report_str += '\n %5s | %5s | %5s | %5s' % ('epoch', 'train', 'dev', 'test')
     report_str += '\n'+ '-'*32
-    print('\nStart training...')
+    print('\nStart training...\n')
     for epoch in range(1, args.epoch_num + 1):
         tagger.train()
         if args.lr_decay > 0:
