@@ -74,8 +74,8 @@ if __name__ == "__main__":
     #args.fn_dev = 'data/persuasive_essays/Essay_Level/dev.dat.abs'
     #args.fn_test = 'data/persuasive_essays/Essay_Level/test.dat.abs'
 
-    args.model = 'BiRNN'
-    #args.model = 'BiRNNCNN'
+    #args.model = 'BiRNN'
+    args.model = 'BiRNNCNN'
     #args.model = 'BiRNNCNNCRF'
     args.rnn_hidden_dim = 100
     #args.rnn_type = 'LSTM'
