@@ -164,7 +164,7 @@ if __name__ == "__main__":
     best_f1_dev = -1
     patience_counter = 0
     report_fn = 'report_%s_%s_batch%d_%dep.txt' % (get_datetime_str(), args.model, args.batch_size, args.epoch_num)
-    report_str = '\nEvaluation, micro-f1 scores.\n'
+    report_str = 'Evaluation, micro-f1 scores.\n\n'
     report_str += extract_settings(args)
     report_str += '\n %5s | %5s | %5s | %5s' % ('epoch', 'train', 'dev', 'test')
     report_str += '\n'+ '-'*32
@@ -213,4 +213,14 @@ if __name__ == "__main__":
     if args.checkpoint_fn is not None:
         tagger.save(args.checkpoint_fn)
 
-    print('The end!')
+    # Make final evaluation
+    output_tag_sequences_test = tagger.predict_tags_from_words(datasets_bank.word_sequences_test)
+    f1_test_final, _ = Evaluator.get_f1_connl_script(tagger=tagger,
+                                                     word_sequences=datasets_bank.word_sequences_test,
+                                                     targets_tag_sequences=datasets_bank.tag_sequences_test,
+                                                     outputs_tag_sequences=output_tag_sequences_test)
+
+    report_str += '\n' + '-' * 32
+    report_str += '\n Final eval micro-f1 on test: %1.2f' % f1_test_final
+    write_textfile(report_fn, report_str)
+    print(report_str)
