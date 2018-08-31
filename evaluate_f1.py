@@ -19,9 +19,9 @@ args = parser.parse_args()
 _, target_tag_sequences = DataIO.read_CoNNL_dat_abs(args.target)
 _, output_tag_sequences = DataIO.read_CoNNL_dat_abs(args.output)
 
-F1, Precision, Recall, (TP, FP, FN) = Evaluator.get_f1_from_words(targets_tag_sequences=target_tag_sequences,
-                                                                  outputs_tag_sequences=output_tag_sequences,
-                                                                  match_alpha_ratio=args.match_alpha_ratio)
+F1, Precision, Recall, (TP, FP, FN) = Evaluator.get_f1_components_from_words(targets_tag_sequences=target_tag_sequences,
+                                                                             outputs_tag_sequences=output_tag_sequences,
+                                                                             match_alpha_ratio=args.match_alpha_ratio)
 print('target file = "%s", output file = "%s", match_alpha_ratio = %1.3f' % (args.target, args.output,
                                                                              args.match_alpha_ratio))
 print('# TP = %d, FP = %d, FN = %d, F1 = %1.2f' % (TP, FP, FN, F1))

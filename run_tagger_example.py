@@ -22,16 +22,16 @@ tagger = TaggerBase.load(fn_checkpoint, gpu)
 outputs_tag_sequences = tagger.predict_tags_from_words(word_sequences, batch_size=10)
 
 # Calculate scores
-acc = Evaluator.get_accuracy_token_level(targets_tag_sequences=targets_tag_sequences,
-                                         outputs_tag_sequences=outputs_tag_sequences,
-                                         tag_seq_indexer=tagger.tag_seq_indexer)
-f1_100, precision_100, recall_100, _ = Evaluator.get_f1_from_words(targets_tag_sequences=targets_tag_sequences,
-                                                                   outputs_tag_sequences=outputs_tag_sequences,
-                                                                   match_alpha_ratio=0.999)
+acc = Evaluator.__get_accuracy_from_sequences_token_level(targets_tag_sequences=targets_tag_sequences,
+                                                          outputs_tag_sequences=outputs_tag_sequences,
+                                                          tag_seq_indexer=tagger.tag_seq_indexer)
+f1_100, precision_100, recall_100, _ = Evaluator.get_f1_components_from_words(targets_tag_sequences=targets_tag_sequences,
+                                                                              outputs_tag_sequences=outputs_tag_sequences,
+                                                                              match_alpha_ratio=0.999)
 
-f1_50, precision_50, recall_50, _ = Evaluator.get_f1_from_words(targets_tag_sequences=targets_tag_sequences,
-                                                                outputs_tag_sequences=outputs_tag_sequences,
-                                                                match_alpha_ratio=0.5)
+f1_50, precision_50, recall_50, _ = Evaluator.get_f1_components_from_words(targets_tag_sequences=targets_tag_sequences,
+                                                                           outputs_tag_sequences=outputs_tag_sequences,
+                                                                           match_alpha_ratio=0.5)
 
 connl_report_str = Evaluator.get_f1_from_words_connl_script(word_sequences=word_sequences,
                                                             targets_tag_sequences=targets_tag_sequences,

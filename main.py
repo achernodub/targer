@@ -21,7 +21,6 @@ from models.tagger_birnn import TaggerBiRNN
 from models.tagger_birnn_cnn import TaggerBiRNNCNN
 from models.tagger_birnn_cnn_crf import TaggerBiRNNCNNCRF
 
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Learning tagging problem using neural networks')
     parser.add_argument('--model', default='BiRNN', help='Tagger model: "BiRNN" or "BiRNNCNN".')
@@ -82,17 +81,13 @@ if __name__ == "__main__":
     args.fn_dev = 'data/NER/CoNNL_2003_shared_task/dev.txt'
     args.fn_test = 'data/NER/CoNNL_2003_shared_task/test.txt'
 
-#    args.fn_train = 'data/NER/zh/eng.train'
-#    args.fn_dev = 'data/NER/zh/eng.testa'
-#    args.fn_test = 'data/NER/zh/eng.testb'
-
     #args.fn_train = 'data/persuasive_essays/Essay_Level/train.dat.abs'
     #args.fn_dev = 'data/persuasive_essays/Essay_Level/dev.dat.abs'
     #args.fn_test = 'data/persuasive_essays/Essay_Level/test.dat.abs'
 
-    #args.model = 'BiRNN'
+    args.model = 'BiRNN'
     #args.model = 'BiRNNCNN'
-    args.model = 'BiRNNCNNCRF'
+    #args.model = 'BiRNNCNNCRF'
     args.rnn_hidden_dim = 100
     args.rnn_type = 'LSTM'
 
@@ -101,14 +96,12 @@ if __name__ == "__main__":
     #args.lr = 0.005
     #args.lr_decay = 0
 
-    args.epoch_num = 50
+    args.epoch_num = 5
     args.batch_size = 10
     args.lr = 0.015
     args.lr_decay = 0.05
 
     #args.checkpoint_fn = 'tagger_model_BiRNNCNN_NER_nosb.hdf5'
-    #args.report_fn = 'report_model_BiRNN_NER_50_classic.txt'
-    #args.report_fn = 'report_model_BiRNNCNNCRF_8_NER.txt'
     #args.checkpoint_fn = 'tagger_model_BiRNNCNNCRF_8_NER.hdf5'
     #args.load_word_seq_indexer = 'word_seq_NER.hdf5'
 
@@ -127,28 +120,15 @@ if __name__ == "__main__":
     word_seq_indexer = ElementSeqIndexer(gpu=args.gpu, check_for_lowercase=args.check_for_lowercase, zero_digits=True,
                                          pad='<pad>', unk='<unk>', load_embeddings=True, embeddings_dim=args.emb_dim,
                                          verbose=True)
-
     word_seq_indexer.load_vocabulary_from_embeddings_file_and_unique_words_list(emb_fn=args.emb_fn,
                                                                                 emb_delimiter=args.emb_delimiter,
                                                                                 unique_words_list=datasets_bank.unique_words_list)
     # Converts lists of lists of tags to integer indices and back
     tag_seq_indexer = ElementSeqIndexer(gpu=args.gpu, check_for_lowercase=False, zero_digits=False,
                                         pad='<pad>', unk=None, load_embeddings=False, verbose=True)
-
     tag_seq_indexer.load_vocabulary_from_tag_sequences(tag_sequences_train)
 
-    #if args.load_word_seq_indexer is not None and os.path.isfile(args.load_word_seq_indexer):
-    #    word_seq_indexer = torch.load(args.load_word_seq_indexer)
-    #else:
-    #    word_seq_indexer = ElementSeqIndexer(gpu=args.gpu, check_for_lowercase=args.check_for_lowercase, load_embeddings=True,
-    #                                             verbose=args.verbose, pad='<pad>', unk='<unk>', zero_digits=True)
-    #    word_seq_indexer.load_vocabulary_from_embeddings_file(emb_fn=args.emb_fn, emb_delimiter=args.emb_delimiter)
-    #    #word_seq_indexer.load_vocabulary_from_element_sequences(word_sequences_train)
-    #    #word_seq_indexer.load_vocabulary_from_element_sequences(word_sequences_dev)
-    #    #word_seq_indexer.load_vocabulary_from_element_sequences(word_sequences_test, verbose=True)
-    #    if args.load_word_seq_indexer is not None:
-    #        torch.save(word_seq_indexer, args.load_word_seq_indexer)
-
+    # Select model
     if args.model == 'BiRNN':
         tagger = TaggerBiRNN(word_seq_indexer=word_seq_indexer,
                              tag_seq_indexer=tag_seq_indexer,
@@ -195,13 +175,12 @@ if __name__ == "__main__":
     iterations_num = int(datasets_bank.train_data_num / args.batch_size)
     best_f1_dev = -1
     patience_counter = 0
-    report_str = '\n'.join([hp for hp in str(args).replace('Namespace(', '').replace(')', '').split(', ')])+'\n' # hyperparams
+    print('\nStart training...')
     for epoch in range(1, args.epoch_num + 1):
         tagger.train()
         if args.lr_decay > 0:
             scheduler.step()
         time_start = time.time()
-        best_epoch_msg = ''
         word_sequences_train_batch_list, tag_sequences_train_batch_list = datasets_bank.get_train_batches(args.batch_size)
         loss_sum = 0
         for i, (word_sequences_train_batch, tag_sequences_train_batch) in enumerate(zip(word_sequences_train_batch_list,
@@ -211,89 +190,29 @@ if __name__ == "__main__":
             loss.backward()
             tagger.clip_gradients(args.clip_grad)
             optimizer.step()
+            #if i > 200: break
             if i % 10 == 0:
-                print('\r-- epoch %d, i = %d/%d (%1.2f%%), loss = %1.4f' % (epoch, i, iterations_num,
-                                                                          i*100.0/iterations_num, loss.item()),
-                                                                          end='', flush=True)
-            loss_sum += loss.item()
+                print('\r-- epoch %d/%d, batch %d/%d (%1.2f%%), loss = %1.4f' % (epoch, args.epoch_num, i, iterations_num,
+                                                                                 i*100.0/iterations_num, loss.item()),
+                                                                                 end='', flush=True)
+        # Evaluate tagger
+        f1_train, f1_dev, f1_test = Evaluator.get_f1_connl_train_dev_test(tagger, datasets_bank)
+        acc_train, acc_dev, acc_test = Evaluator.get_accuracy_train_dev_test(tagger, datasets_bank)
+        print('\n== eval train\\dev\\test micro-f1: %1.2f\\%1.2f\\%1.2f, acc: %1.2f\\%1.2f\\%1.2f; %d seconds.' %
+              (f1_train, f1_dev, f1_test, acc_train, acc_dev, acc_test, time.time() - time_start))
 
-        time_finish = time.time()
-        outputs_tag_sequences_dev = tagger.predict_tags_from_words(datasets_bank.word_sequences_dev, batch_size=100)
-        acc_dev = Evaluator.get_accuracy_token_level(targets_tag_sequences=datasets_bank.tag_sequences_dev,
-                                                     outputs_tag_sequences=outputs_tag_sequences_dev,
-                                                     tag_seq_indexer=tag_seq_indexer)
-
-        f1_dev, _, _, _ = Evaluator.get_f1_from_words(targets_tag_sequences=datasets_bank.tag_sequences_dev,
-                                                      outputs_tag_sequences=outputs_tag_sequences_dev,
-                                                      match_alpha_ratio=0.999)
-
-        connl_report_dev_str = Evaluator.get_f1_from_words_connl_script(word_sequences=datasets_bank.word_sequences_dev,
-                                                                        targets_tag_sequences=datasets_bank.tag_sequences_dev,
-                                                                        outputs_tag_sequences=outputs_tag_sequences_dev)
-
+        # Early stopping
         if f1_dev > best_f1_dev:
-            best_epoch_msg = '[BEST] '
             best_f1_dev = f1_dev
             patience_counter = 0
+            print('** [BEST]')
         else:
             patience_counter += 1
-
-        epoch_report = '\nDEV dataset' + connl_report_dev_str
-
-        epoch_report += '\n%sEPOCH %d/%d, DEV dataset: loss = %1.2f, accuracy = %1.2f, F1-100%% = %1.2f  | %d sec.\n' % \
-                                                                                              (best_epoch_msg,
-                                                                                               epoch,
-                                                                                               args.epoch_num,
-                                                                                               loss_sum,
-                                                                                               acc_dev,
-                                                                                               f1_dev,
-                                                                                               time.time() - time_start)
-        report_str += epoch_report
-        #write_textfile(args.report_fn.replace('.txt', '_I.txt'), report_str) # first report
-        Evaluator.write_report_table(args.report_fn.replace('.txt', '_II.txt'), # second report, more detailed
-                                     tagger, epoch,
-                                     word_sequences_train=datasets_bank.word_sequences_train,
-                                     tag_sequences_train=datasets_bank.tag_sequences_train,
-                                     word_sequences_dev=datasets_bank.word_sequences_dev,
-                                     tag_sequences_dev=datasets_bank.tag_sequences_dev,
-                                     word_sequences_test=datasets_bank.word_sequences_test,
-                                     tag_sequences_test=datasets_bank.tag_sequences_test)
-
-        print(epoch_report)
-        print('No improvement on DEV during the last %d epochs.\n' % patience_counter)
-
-
+            print('** [No improvement on DEV during the last %d epochs.]' % patience_counter)
         if patience_counter > args.patience and epoch > args.min_epoch_num:
             break
 
-    outputs_tag_sequences_test = tagger.predict_tags_from_words(datasets_bank.word_sequences_test, batch_size=100)
-    acc_test = Evaluator.get_accuracy_token_level(targets_tag_sequences=datasets_bank.tag_sequences_test,
-                                                  outputs_tag_sequences=outputs_tag_sequences_test,
-                                                  tag_seq_indexer=tag_seq_indexer)
-    f1_100, precision_100, recall_100, _ = Evaluator.get_f1_from_words(targets_tag_sequences=datasets_bank.tag_sequences_test,
-                                                                       outputs_tag_sequences=outputs_tag_sequences_test,
-                                                                       match_alpha_ratio=0.999)
-    f1_50, precision_50, recall_50, _ = Evaluator.get_f1_from_words(targets_tag_sequences=datasets_bank.tag_sequences_test,
-                                                                    outputs_tag_sequences=outputs_tag_sequences_test,
-                                                                    match_alpha_ratio=0.5)
-
-    connl_report_test_str = Evaluator.get_f1_from_words_connl_script(word_sequences=datasets_bank.word_sequences_test,
-                                                                     targets_tag_sequences=datasets_bank.tag_sequences_test,
-                                                                     outputs_tag_sequences=outputs_tag_sequences_test)
-
-    # Prepare text report
-    report_str += '\nResults on TEST (epoch = %d): Accuracy = %1.2f.' % (epoch, acc_test)
-    report_str += '\nmatch_alpha_ratio = %1.1f | F1-100%% = %1.2f, Precision-100%% = %1.2f, Recall-100%% = %1.2f.' \
-                  % (0.999, f1_100, precision_100, recall_100)
-    report_str += '\nmatch_alpha_ratio = %1.1f | F1-50%% = %1.2f, Precision-50%% = %1.2f, Recall-50%% = %1.2f.' \
-                  % (0.5, f1_50, precision_50, recall_50)
-    report_str += '\n' + connl_report_test_str
-    print(report_str)
-
-    # Write final text report
-    write_textfile(args.report_fn, report_str)
-
-    # Save best tagger to disk
+    # Save final tagger to disk
     if args.checkpoint_fn is not None:
         tagger.save(args.checkpoint_fn)
 
