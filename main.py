@@ -56,7 +56,7 @@ if __name__ == "__main__":
     parser.add_argument('--checkpoint_fn', default=None, help='Path to save the trained model.')
     parser.add_argument('--match_alpha_ratio', type=float, default='0.999',
                         help='Alpha ratio from non-strict matching, options: 0.999 or 0.5')
-    parser.add_argument('--patience', type=int, default=10, help='Patience for early stopping.')
+    parser.add_argument('--patience', type=int, default=15, help='Patience for early stopping.')
     parser.add_argument('--load_word_seq_indexer', type=str, default=None, help='Load word_seq_indexer object from hdf5\ '
                                                                                 'file.')
     args = parser.parse_args()
@@ -66,9 +66,9 @@ if __name__ == "__main__":
         torch.cuda.set_device(args.gpu)
         torch.cuda.manual_seed(args.seed_num)
 
-    #args.fn_train = 'data/NER/CoNNL_2003_shared_task/train.txt'
-    #args.fn_dev = 'data/NER/CoNNL_2003_shared_task/dev.txt'
-    #args.fn_test = 'data/NER/CoNNL_2003_shared_task/test.txt'
+    args.fn_train = 'data/NER/CoNNL_2003_shared_task/train.txt'
+    args.fn_dev = 'data/NER/CoNNL_2003_shared_task/dev.txt'
+    args.fn_test = 'data/NER/CoNNL_2003_shared_task/test.txt'
 
     #args.fn_train = 'data/persuasive_essays/Essay_Level/train.dat.abs'
     #args.fn_dev = 'data/persuasive_essays/Essay_Level/dev.dat.abs'
@@ -78,14 +78,14 @@ if __name__ == "__main__":
     #args.model = 'BiRNNCNN'
     #args.model = 'BiRNNCNNCRF'
     args.rnn_hidden_dim = 100
-    args.rnn_type = 'LSTM'
+    #args.rnn_type = 'LSTM'
 
     #args.epoch_num = 100
     #args.batch_size = 1
     #args.lr = 0.005
     #args.lr_decay = 0
 
-    args.epoch_num = 5
+    args.epoch_num = 200
     args.batch_size = 10
     args.lr = 0.015
     args.lr_decay = 0.05

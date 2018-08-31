@@ -10,9 +10,9 @@ class Report():
         self.__save()
 
     def __save(self):
-        write_textfile(self.report_fn, self.text)
+        write_textfile(self.fn, self.text)
 
-    def write_epoch_scores(self, epoch, f1_train, f1_dev, f1_test)
+    def write_epoch_scores(self, epoch, f1_train, f1_dev, f1_test):
         self.text += '\n %5s | %5s | %5s | %5s' % ('%d' % epoch, '%1.2f' % f1_train, '%1.2f' % f1_dev,
                                                          '%1.2f' % f1_test)
         self.__save()
