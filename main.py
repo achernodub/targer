@@ -1,13 +1,10 @@
 from __future__ import print_function
 
 import argparse
-import datetime
 import time
-import os.path
 
 import numpy as np
 import torch
-import torch.nn as nn
 import torch.optim as optim
 from torch.optim.lr_scheduler import LambdaLR
 
@@ -65,11 +62,9 @@ if __name__ == "__main__":
     parser.add_argument('--match_alpha_ratio', type=float, default='0.999',
                         help='Alpha ratio from non-strict matching, options: 0.999 or 0.5')
     parser.add_argument('--patience', type=int, default=10, help='Patience for early stopping.')
-    parser.add_argument('--load_word_seq_indexer', type=str, default=None, help='Load word_seq_indexer object from hdf5 file.')
-
-
+    parser.add_argument('--load_word_seq_indexer', type=str, default=None, help='Load word_seq_indexer object from hdf5\ '
+                                                                                'file.')
     args = parser.parse_args()
-
     np.random.seed(args.seed_num)
     torch.manual_seed(args.seed_num)
     if args.gpu >= 0:
@@ -96,7 +91,7 @@ if __name__ == "__main__":
     #args.lr = 0.005
     #args.lr_decay = 0
 
-    args.epoch_num = 5
+    args.epoch_num = 10
     args.batch_size = 10
     args.lr = 0.015
     args.lr_decay = 0.05
@@ -192,23 +187,23 @@ if __name__ == "__main__":
             optimizer.step()
             #if i > 200: break
             if i % 10 == 0:
-                print('\r-- epoch %d/%d, batch %d/%d (%1.2f%%), loss = %1.4f' % (epoch, args.epoch_num, i, iterations_num,
+                print('\r-- epoch %d/%d, batch %d/%d (%1.2f%%), loss = %1.4f.' % (epoch, args.epoch_num, i, iterations_num,
                                                                                  i*100.0/iterations_num, loss.item()),
                                                                                  end='', flush=True)
         # Evaluate tagger
         f1_train, f1_dev, f1_test = Evaluator.get_f1_connl_train_dev_test(tagger, datasets_bank)
         acc_train, acc_dev, acc_test = Evaluator.get_accuracy_train_dev_test(tagger, datasets_bank)
-        print('\n== eval train\\dev\\test micro-f1: %1.2f\\%1.2f\\%1.2f, acc: %1.2f\\%1.2f\\%1.2f; %d seconds.' %
-              (f1_train, f1_dev, f1_test, acc_train, acc_dev, acc_test, time.time() - time_start))
+        print('\n== eval train/dev/test micro-f1: %1.2f/%1.2f/%1.2f, acc: %1.2f%%/%1.2f%%/%1.2f%%.' %
+              (f1_train, f1_dev, f1_test, acc_train, acc_dev, acc_test))
 
         # Early stopping
         if f1_dev > best_f1_dev:
             best_f1_dev = f1_dev
             patience_counter = 0
-            print('** [BEST]')
+            print('## [BEST epoch], %d seconds.' % (time.time() - time_start))
         else:
             patience_counter += 1
-            print('** [No improvement on DEV during the last %d epochs.]' % patience_counter)
+            print('## [no improvement on DEV during the last %d epochs].' % (patience_counter, (time.time()-time_start)))
         if patience_counter > args.patience and epoch > args.min_epoch_num:
             break
 

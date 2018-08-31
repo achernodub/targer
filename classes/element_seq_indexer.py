@@ -130,7 +130,7 @@ class ElementSeqIndexer():
             print('    First 50 OOV words:')
             for i, oov_word in enumerate(self.out_of_vocabulary_words_list):
                 print('        out_of_vocabulary_words_list[%d] = %s' % (i, oov_word))
-                if i < 50:
+                if i > 49:
                     break
 
     def load_vocabulary_from_embeddings_file(self, emb_fn, emb_delimiter):
