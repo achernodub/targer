@@ -105,7 +105,7 @@ class ElementSeqIndexer():
                 self.add_element(word)
                 self.__add_emb_vector(emb_dict[re.sub('\d', '0', word.lower())])
                 zero_digits_replaced_lowercase_num += 1
-            elif spell(word) in emb_dict.keys():
+            elif 2 == 1 and spell(word) in emb_dict.keys():
                 self.add_element(word)
                 self.__add_emb_vector(emb_dict[spell(word)])
                 print('word = %s, spell(word) = %s' % (word, spell(word)))
