@@ -1,5 +1,3 @@
-from classes.utils import write_textfile
-
 class Report():
     def __init__(self, fn, args, score_name='f1'):
         self.fn = fn
@@ -12,7 +10,9 @@ class Report():
         self.__save()
 
     def __save(self):
-        write_textfile(self.fn, self.text)
+        if self.fn is not None:
+            with open(self.fn, mode='w') as text_file:
+                text_file.write(self.text)
 
     def write_epoch_scores(self, epoch, f1_train, f1_dev, f1_test):
         self.text += '\n %5s | %5s | %5s | %5s' % ('%d' % epoch, '%1.2f' % f1_train, '%1.2f' % f1_dev,
