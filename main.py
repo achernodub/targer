@@ -10,7 +10,11 @@ from torch.optim.lr_scheduler import LambdaLR
 
 from classes.data_io import DataIO
 from classes.datasets_bank import DatasetsBank
-from classes.element_seq_indexer import ElementSeqIndexer
+
+from seq_indexers.seq_indexer_base import SeqIndexerBase
+from seq_indexers.seq_indexer_word import SeqIndexerWord
+from seq_indexers.seq_indexer_tag import SeqIndexerTag
+
 from classes.evaluator import Evaluator
 from classes.report import Report
 from classes.utils import *
@@ -74,8 +78,8 @@ if __name__ == "__main__":
     #args.fn_dev = 'data/persuasive_essays/Essay_Level/dev.dat.abs'
     #args.fn_test = 'data/persuasive_essays/Essay_Level/test.dat.abs'
 
-    args.model = 'BiRNN'
-    #args.model = 'BiRNNCNN'
+    #args.model = 'BiRNN'
+    args.model = 'BiRNNCNN'
     #args.model = 'BiRNNCNNCRF'
     args.rnn_hidden_dim = 100
     #args.rnn_type = 'LSTM'
@@ -106,15 +110,13 @@ if __name__ == "__main__":
     datasets_bank.add_test_sequences(word_sequences_test, tag_sequences_test)
 
     # Word_seq_indexer converts lists of lists of words to integer indices and back
-    word_seq_indexer = ElementSeqIndexer(gpu=args.gpu, check_for_lowercase=args.check_for_lowercase, zero_digits=True,
-                                         pad='<pad>', unk='<unk>', load_embeddings=True, embeddings_dim=args.emb_dim,
-                                         verbose=True)
+    word_seq_indexer = SeqIndexerWord(gpu=args.gpu, check_for_lowercase=args.check_for_lowercase,
+                                      embeddings_dim=args.emb_dim, verbose=True)
     word_seq_indexer.load_vocabulary_from_embeddings_file_and_unique_words_list(emb_fn=args.emb_fn,
-                                                                                emb_delimiter=args.emb_delimiter,
-                                                                                unique_words_list=datasets_bank.unique_words_list)
+                                     emb_delimiter=args.emb_delimiter, unique_words_list=datasets_bank.unique_words_list)
+
     # Converts lists of lists of tags to integer indices and back
-    tag_seq_indexer = ElementSeqIndexer(gpu=args.gpu, check_for_lowercase=False, zero_digits=False,
-                                        pad='<pad>', unk=None, load_embeddings=False, verbose=True)
+    tag_seq_indexer = SeqIndexerTag(gpu=args.gpu)
     tag_seq_indexer.load_vocabulary_from_tag_sequences(tag_sequences_train)
 
     # Select model

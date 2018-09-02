@@ -4,8 +4,8 @@ import torch
 import torch.nn as nn
 
 from layers.layer_base import LayerBase
-from classes.element_seq_indexer import ElementSeqIndexer
-from classes.utils import flatten
+from seq_indexers.seq_indexer_char import SeqIndexerChar
+
 
 class LayerCharEmbeddings(LayerBase):
     def __init__(self, gpu, char_embeddings_dim, freeze_char_embeddings=False, word_len=20, unique_characters_list=None):
@@ -15,8 +15,7 @@ class LayerCharEmbeddings(LayerBase):
         self.freeze_char_embeddings = freeze_char_embeddings
         self.word_len = word_len # standard len to pad
         # Init character sequences indexer
-        self.char_seq_indexer = ElementSeqIndexer(gpu=gpu, check_for_lowercase=False, zero_digits=False, pad='<pad>',
-                                                  unk='<unk>', load_embeddings=False, verbose=True)
+        self.char_seq_indexer = SeqIndexerChar(gpu=gpu)
         if unique_characters_list is None:
             unique_characters_list = list(string.printable)
         for c in unique_characters_list:
@@ -38,9 +37,7 @@ class LayerCharEmbeddings(LayerBase):
         input_tensor = self.tensor_ensure_gpu(torch.zeros(batch_num, max_seq_len, self.word_len, dtype=torch.long))
         for n, curr_char_seq in enumerate(char_sequences):
             curr_seq_len = len(curr_char_seq)
-            curr_char_seq_tensor = self.char_seq_indexer.elements2tensor(curr_char_seq,
-                                                                         align='center',
-                                                                         word_len=self.word_len) # curr_seq_len x word_len
+            curr_char_seq_tensor = self.char_seq_indexer.get_char_tensor(curr_char_seq, self.word_len) # curr_seq_len x word_len
             input_tensor[n, :curr_seq_len, :] = curr_char_seq_tensor
         char_embeddings_feature = self.embeddings(input_tensor)
         return char_embeddings_feature.permute(0, 1, 3, 2) # shape: batch_num x max_seq_len x char_embeddings_dim x word_len
