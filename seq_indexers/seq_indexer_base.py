@@ -8,8 +8,8 @@ from autocorrect import spell
 
 class SeqIndexerBase():
     """
-    SeqIndexer converts list of lists of strings to to the list of lists of integer indices and back.
-    Strings could be either words, tags or characters. Indices are stored into internal vocabularies.
+    SeqIndexer converts list of lists of string items to to the list of lists of integer indices and back.
+    Items could be either words, tags or characters.
     """
 
     def __init__(self, gpu=-1, check_for_lowercase=True, zero_digits=False, pad='<pad>', unk='<unk>',

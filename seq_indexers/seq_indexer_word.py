@@ -73,3 +73,18 @@ class SeqIndexerWord(SeqIndexerBase):
                 print('        out_of_vocabulary_words_list[%d] = %s' % (i, oov_word))
                 if i > 49:
                     break
+
+    def get_unique_characters_list(self, verbose=False, init_by_printable_characters=True):
+        if init_by_printable_characters:
+            unique_characters_set = set(string.printable)
+        else:
+            unique_characters_set = set()
+        if verbose:
+            cnt = 0
+        for n, word in enumerate(self.get_items_list()):
+            len_delta = len(unique_characters_set)
+            unique_characters_set = unique_characters_set.union(set(word))
+            if verbose and len(unique_characters_set) > len_delta:
+                cnt += 1
+                print('n = %d/%d (%d) %s' % (n, len(self.get_items_list), cnt, word))
+        return list(unique_characters_set)
