@@ -51,6 +51,6 @@ class TaggerBiRNN(TaggerBase):
 
     def get_loss(self, word_sequences_train_batch, tag_sequences_train_batch):
         outputs_tensor_train_batch_one_hot = self.forward(word_sequences_train_batch)
-        targets_tensor_train_batch = self.tag_seq_indexer.elements2tensor(tag_sequences_train_batch)
+        targets_tensor_train_batch = self.tag_seq_indexer.items2tensor(tag_sequences_train_batch)
         loss = self.nll_loss(outputs_tensor_train_batch_one_hot, targets_tensor_train_batch)
         return loss

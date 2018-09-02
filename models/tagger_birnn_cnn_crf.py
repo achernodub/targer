@@ -66,7 +66,7 @@ class TaggerBiRNNCNNCRF(TaggerBase):
         return features_rnn
 
     def get_loss(self, word_sequences_train_batch, tag_sequences_train_batch):
-        targets_tensor_train_batch = self.tag_seq_indexer.elements2tensor(tag_sequences_train_batch)
+        targets_tensor_train_batch = self.tag_seq_indexer.items2tensor(tag_sequences_train_batch)
         features_rnn = self._forward_birnn_cnn(word_sequences_train_batch) # batch_num x max_seq_len x class_num
         neg_log_likelihood = self.layer_crf.get_neg_loglikelihood(features_rnn, targets_tensor_train_batch)
         return neg_log_likelihood

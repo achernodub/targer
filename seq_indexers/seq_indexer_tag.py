@@ -15,9 +15,9 @@ class SeqIndexerTag(SeqIndexerBase):
         assert self.load_embeddings == False
         for tag_seq in tag_sequences:
             for tag in tag_seq:
-                if not self.element_exists(tag):
-                    self.add_element(tag)
+                if not self.item_exists(tag):
+                    self.add_item(tag)
         if self.verbose:
             print('\nload_vocabulary_from_tag_sequences:')
             print(' -- class_num = %d' % self.get_class_num())
-            print(' --', self.element2idx_dict)
+            print(' --', self.item2idx_dict)

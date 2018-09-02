@@ -71,6 +71,6 @@ class TaggerBase(nn.Module):
             else:
                 j = len(word_sequences)
             curr_output_idx = self.predict_idx_from_words(word_sequences[i:j])
-            curr_output_tag_sequences = self.tag_seq_indexer.idx2elements(curr_output_idx)
+            curr_output_tag_sequences = self.tag_seq_indexer.idx2items(curr_output_idx)
             output_tag_sequences.extend(curr_output_tag_sequences)
         return output_tag_sequences

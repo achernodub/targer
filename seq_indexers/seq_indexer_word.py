@@ -30,19 +30,19 @@ class SeqIndexerWord(SeqIndexerBase):
         self.out_of_vocabulary_words_list = list()
         for word in unique_words_list:
             if word in emb_dict.keys():
-                self.add_element(word)
+                self.add_item(word)
                 self.add_emb_vector(emb_dict[word])
                 original_words_num += 1
             elif self.check_for_lowercase and word.lower() in emb_dict.keys():
-                self.add_element(word)
+                self.add_item(word)
                 self.add_emb_vector(emb_dict[word.lower()])
                 lowercase_words_num += 1
             elif self.zero_digits and re.sub('\d', '0', word) in emb_dict.keys():
-                self.add_element(word)
+                self.add_item(word)
                 self.add_emb_vector(emb_dict[re.sub('\d', '0', word)])
                 zero_digits_replaced_num += 1
             elif self.check_for_lowercase and self.zero_digits and re.sub('\d', '0', word.lower()) in emb_dict.keys():
-                self.add_element(word)
+                self.add_item(word)
                 self.add_emb_vector(emb_dict[re.sub('\d', '0', word.lower())])
                 zero_digits_replaced_lowercase_num += 1
             elif 2 == 1 and spell(word) in emb_dict.keys():

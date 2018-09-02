@@ -13,8 +13,8 @@ from classes.tag_component import TagComponent
 class Evaluator():
     @staticmethod
     def __get_accuracy_from_sequences_token_level(targets_tag_sequences, outputs_tag_sequences, tag_seq_indexer):
-        targets_idx = tag_seq_indexer.elements2idx(targets_tag_sequences)
-        outputs_idx = tag_seq_indexer.elements2idx(outputs_tag_sequences)
+        targets_idx = tag_seq_indexer.items2idx(targets_tag_sequences)
+        outputs_idx = tag_seq_indexer.items2idx(outputs_tag_sequences)
         y_true = [i for sequence in targets_idx for i in sequence]
         y_pred = [i for sequence in outputs_idx for i in sequence]
         return accuracy_score(y_true, y_pred) * 100
