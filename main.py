@@ -74,8 +74,8 @@ if __name__ == "__main__":
     #args.fn_dev = 'data/persuasive_essays/Essay_Level/dev.dat.abs'
     #args.fn_test = 'data/persuasive_essays/Essay_Level/test.dat.abs'
 
-    #args.model = 'BiRNN'
-    args.model = 'BiRNNCNN'
+    args.model = 'BiRNN'
+    #args.model = 'BiRNNCNN'
     #args.model = 'BiRNNCNNCRF'
     args.rnn_hidden_dim = 100
     #args.rnn_type = 'LSTM'
@@ -85,7 +85,7 @@ if __name__ == "__main__":
     #args.lr = 0.005
     #args.lr_decay = 0
 
-    args.epoch_num = 200
+    args.epoch_num = 4
     args.batch_size = 10
     args.lr = 0.015
     args.lr_decay = 0.05
@@ -165,7 +165,7 @@ if __name__ == "__main__":
     best_f1_dev = -1
     patience_counter = 0
     report_fn = 'report_%s_%s_batch%d_%dep.txt' % (get_datetime_str(), args.model, args.batch_size, args.epoch_num)
-    report = Report(report_fn, args)
+    report = Report(report_fn, args, score_name='micro-f1')
     print('\nStart training...\n')
     for epoch in range(1, args.epoch_num + 1):
         tagger.train()

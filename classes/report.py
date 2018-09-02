@@ -1,9 +1,11 @@
 from classes.utils import write_textfile
 
 class Report():
-    def __init__(self, fn, args):
+    def __init__(self, fn, args, score_name='f1'):
         self.fn = fn
-        self.text = 'Evaluation, micro-f1 scores.\n\n'
+        self.args = args
+        self.score_name = score_name
+        self.text = 'Evaluation, %s scores.\n\n' % score_name
         self.text += '\n'.join([hp for hp in str(args).replace('Namespace(', '').replace(')', '').split(', ')])
         self.text += '\n\n %5s | %5s | %5s | %5s' % ('epoch', 'train', 'dev', 'test')
         self.text += '\n' + '-' * 40
@@ -19,5 +21,5 @@ class Report():
 
     def write_final_score(self, f1_test_final):
         self.text += '\n' + '-' * 40
-        self.text += '\n Final eval on test: micro-f1 = %1.2f' % f1_test_final
+        self.text += '\n Final eval on test: %s = %1.2f' % (self.score_name, f1_test_final)
         self.__save()
