@@ -9,17 +9,17 @@ class Report():
         self.text += '\n' + '-' * 40
         self.__save()
 
-    def __save(self):
-        if self.fn is not None:
-            with open(self.fn, mode='w') as text_file:
-                text_file.write(self.text)
-
-    def write_epoch_scores(self, epoch, f1_train, f1_dev, f1_test):
-        self.text += '\n %5s | %5s | %5s | %5s' % ('%d' % epoch, '%1.2f' % f1_train, '%1.2f' % f1_dev,
-                                                         '%1.2f' % f1_test)
+    def write_epoch_scores(self, epoch, score_train, score_dev, score_test):
+        self.text += '\n %5s | %5s | %5s | %5s' % \
+                     ('%d'% epoch, '%1.2f' % score_train, '%1.2f' % score_dev, '%1.2f' % score_test)
         self.__save()
 
     def write_final_score(self, f1_test_final):
         self.text += '\n' + '-' * 40
         self.text += '\n Final eval on test: %s = %1.2f' % (self.score_name, f1_test_final)
         self.__save()
+
+    def __save(self):
+        if self.fn is not None:
+            with open(self.fn, mode='w') as text_file:
+                text_file.write(self.text)
