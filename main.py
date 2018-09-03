@@ -2,6 +2,7 @@ from __future__ import print_function
 
 import argparse
 import time
+from math import ceil
 
 import numpy as np
 import torch
@@ -20,11 +21,12 @@ from classes.utils import *
 
 from models.tagger_birnn import TaggerBiRNN
 from models.tagger_birnn_cnn import TaggerBiRNNCNN
+from models.tagger_birnn_crf import TaggerBiRNNCRF
 from models.tagger_birnn_cnn_crf import TaggerBiRNNCNNCRF
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Learning tagging problem using neural networks')
-    parser.add_argument('--model', default='BiRNN', help='Tagger model: "BiRNN" or "BiRNNCNN".')
+    parser.add_argument('--model', default='BiRNN', help='Tagger model: "BiRNN", "BiRNNCNN", "BiRNNCRF", "BiRNNCNNCRF".')
     parser.add_argument('--fn_train', default='data/persuasive_essays/Paragraph_Level/train.dat.abs',
                         help='Train data in CoNNL-2003 format.')
     parser.add_argument('--fn_dev', default='data/persuasive_essays/Paragraph_Level/dev.dat.abs',
@@ -78,7 +80,8 @@ if __name__ == "__main__":
     #args.fn_test = 'data/persuasive_essays/Essay_Level/test.dat.abs'
 
     #args.model = 'BiRNN'
-    args.model = 'BiRNNCNN'
+    #args.model = 'BiRNNCNN'
+    args.model = 'BiRNNCRF'
     #args.model = 'BiRNNCNNCRF'
     args.rnn_hidden_dim = 100
     #args.rnn_type = 'LSTM'
@@ -143,6 +146,15 @@ if __name__ == "__main__":
                                 word_len=args.word_len,
                                 char_cnn_filter_num=args.char_cnn_filter_num,
                                 char_window_size=args.char_window_size)
+    elif args.model == 'BiRNNCRF':
+        tagger = TaggerBiRNNCRF(word_seq_indexer=word_seq_indexer,
+                                tag_seq_indexer=tag_seq_indexer,
+                                class_num=tag_seq_indexer.get_class_num(),
+                                rnn_hidden_dim=args.rnn_hidden_dim,
+                                freeze_word_embeddings=args.freeze_word_embeddings,
+                                dropout_ratio=args.dropout_ratio,
+                                rnn_type=args.rnn_type,
+                                gpu=args.gpu)
     elif args.model == 'BiRNNCNNCRF':
         tagger = TaggerBiRNNCNNCRF(word_seq_indexer=word_seq_indexer,
                                    tag_seq_indexer=tag_seq_indexer,
@@ -157,7 +169,6 @@ if __name__ == "__main__":
                                    word_len=args.word_len,
                                    char_cnn_filter_num=args.char_cnn_filter_num,
                                    char_window_size=args.char_window_size)
-
     else:
         raise ValueError('Unknown tagger model, must be one of "BiRNN"/"BiRNNCNN"/"BiRNNCNNCRF".')
 
@@ -186,7 +197,8 @@ if __name__ == "__main__":
             #if i > 100: break
             if i % 10 == 0:
                 print('\r-- epoch %d/%d, batch %d/%d (%1.2f%%), loss = %1.4f.' % (epoch, args.epoch_num, i + 1,
-                                                                                  iterations_num, i*100.0/iterations_num,
+                                                                                  iterations_num,
+                                                                                  ceil(i*100.0/iterations_num),
                                                                                   loss.item()), end='', flush=True)
         # Evaluate tagger
         f1_train, f1_dev, f1_test = Evaluator.get_f1_connl_train_dev_test(tagger, datasets_bank)
