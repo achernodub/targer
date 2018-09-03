@@ -48,6 +48,7 @@ class Evaluator():
             os.remove(fn_out)
         if outputs_tag_sequences is None:
             outputs_tag_sequences = tagger.predict_tags_from_words(word_sequences)
+
         DataIO.write_CoNNL_2003_two_columns(fn_out, word_sequences, targets_tag_sequences, outputs_tag_sequences)
         cmd = 'perl %s < %s' % (os.path.join('.', 'conlleval'), fn_out)
         connl_str = '\nStandard CoNNL perl script (author: Erik Tjong Kim Sang <erikt@uia.ua.ac.be>, version: 2004-01-26):\n'

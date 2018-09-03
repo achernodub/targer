@@ -31,11 +31,11 @@ class SeqIndexerBase():
         if pad is not None:
             self.pad_idx = self.add_item(pad)
             if load_embeddings:
-                self.add_emb_vector(self.get_zero_emb_vector())
+                self.add_emb_vector(self.generate_zero_emb_vector())
         if unk is not None:
             self.unk_idx = self.add_item(unk)
             if load_embeddings:
-                self.add_emb_vector(self.get_random_emb_vector())
+                self.add_emb_vector(self.generate_random_emb_vector())
 
     def get_items_list(self):
         return list(self.item2idx_dict.keys())
@@ -59,31 +59,6 @@ class SeqIndexerBase():
             return self.get_items_count() - 1
         return self.get_items_count()
 
-    def add_emb_vector(self, emb_vector):
-        self.embedding_vectors_list.append(emb_vector)
-
-    def get_zero_emb_vector(self):
-        if self.embeddings_dim == 0:
-            raise ValueError('embeddings_dim is not known.')
-        return [0 for _ in range(self.embeddings_dim)]
-
-    def get_random_emb_vector(self):
-        if self.embeddings_dim == 0:
-            raise ValueError('embeddings_dim is not known.')
-        return np.random.uniform(-np.sqrt(3.0 / self.embeddings_dim), np.sqrt(3.0 / self.embeddings_dim), self.embeddings_dim).tolist()
-
-    def load_emb_dict_from_file(self, emb_fn, emb_delimiter):
-        emb_dict = dict()
-        for line in open(emb_fn, 'r'):
-            values = line.split(emb_delimiter)
-            word = values[0]
-            emb_vector = list(map(lambda t: float(t), filter(lambda n: n and not n.isspace(), values[1:])))
-            emb_dict[word] = emb_vector
-        return emb_dict
-
-    def get_loaded_embeddings_tensor(self):
-        return torch.FloatTensor(np.asarray(self.embedding_vectors_list))
-
     def items2idx(self, item_sequences):
         idx_sequences = []
         for item_seq in item_sequences:
@@ -105,6 +80,10 @@ class SeqIndexerBase():
             item_seq = [self.idx2item_dict[idx] for idx in idx_seq]
             item_sequences.append(item_seq)
         return item_sequences
+
+    def items2tensor(self, item_sequences, align='left', word_len=-1):
+        idx = self.items2idx(item_sequences)
+        return self.idx2tensor(idx, align, word_len)
 
     def idx2tensor(self, idx_sequences, align='left', word_len=-1):
         batch_size = len(idx_sequences)
@@ -130,7 +109,3 @@ class SeqIndexerBase():
         if self.gpu >= 0:
             tensor = tensor.cuda(device=self.gpu)
         return tensor
-
-    def items2tensor(self, item_sequences, align='left', word_len=-1):
-        idx = self.items2idx(item_sequences)
-        return self.idx2tensor(idx, align, word_len)

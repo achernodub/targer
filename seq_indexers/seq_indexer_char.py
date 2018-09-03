@@ -3,17 +3,16 @@ import numpy as np
 import re
 import torch
 
-from seq_indexers.seq_indexer_base import SeqIndexerBase
+from seq_indexers.seq_indexer_base_embeddings import SeqIndexerBaseEmbeddings
 
-class SeqIndexerChar(SeqIndexerBase):
+class SeqIndexerBaseChar(SeqIndexerBaseEmbeddings):
     def __init__(self, gpu):
-        super(SeqIndexerChar, self).__init__(gpu)
-        SeqIndexerBase.__init__(self, gpu=gpu, check_for_lowercase=False, zero_digits=False, pad='<pad>',
-                                unk='<unk>', load_embeddings=False, verbose=True)
+        SeqIndexerBaseEmbeddings.__init__(self, gpu=gpu, check_for_lowercase=False, zero_digits=False, pad='<pad>',
+                                          unk='<unk>', load_embeddings=False, embeddings_dim=0, verbose=True)
 
     def add_char(self, c):
         if not self.item_exists(c):
             self.add_item(c)
 
     def get_char_tensor(self, curr_char_seq, word_len):
-        return SeqIndexerBase.items2tensor(self, curr_char_seq, align='center', word_len=word_len)  # curr_seq_len x word_len
+        return SeqIndexerBaseEmbeddings.items2tensor(self, curr_char_seq, align='center', word_len=word_len)  # curr_seq_len x word_len

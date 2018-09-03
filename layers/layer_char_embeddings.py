@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 
 from layers.layer_base import LayerBase
-from seq_indexers.seq_indexer_char import SeqIndexerChar
+from seq_indexers.seq_indexer_char import SeqIndexerBaseChar
 
 
 class LayerCharEmbeddings(LayerBase):
@@ -15,7 +15,7 @@ class LayerCharEmbeddings(LayerBase):
         self.freeze_char_embeddings = freeze_char_embeddings
         self.word_len = word_len # standard len to pad
         # Init character sequences indexer
-        self.char_seq_indexer = SeqIndexerChar(gpu=gpu)
+        self.char_seq_indexer = SeqIndexerBaseChar(gpu=gpu)
         if unique_characters_list is None:
             unique_characters_list = list(string.printable)
         for c in unique_characters_list:

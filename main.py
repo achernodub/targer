@@ -11,7 +11,6 @@ from torch.optim.lr_scheduler import LambdaLR
 from classes.data_io import DataIO
 from classes.datasets_bank import DatasetsBank
 
-from seq_indexers.seq_indexer_base import SeqIndexerBase
 from seq_indexers.seq_indexer_word import SeqIndexerWord
 from seq_indexers.seq_indexer_tag import SeqIndexerTag
 
@@ -84,15 +83,15 @@ if __name__ == "__main__":
     args.rnn_hidden_dim = 100
     #args.rnn_type = 'LSTM'
 
-    #args.epoch_num = 100
-    #args.batch_size = 1
-    #args.lr = 0.005
-    #args.lr_decay = 0
+    args.epoch_num = 5#100
+    args.batch_size = 1
+    args.lr = 0.005
+    args.lr_decay = 0
 
-    args.epoch_num = 4
-    args.batch_size = 10
-    args.lr = 0.015
-    args.lr_decay = 0.05
+    #args.epoch_num = 3
+    #args.batch_size = 10
+    #args.lr = 0.015
+    #args.lr_decay = 0.05
 
     #args.checkpoint_fn = 'tagger_model_BiRNNCNN_NER_nosb.hdf5'
     #args.checkpoint_fn = 'tagger_model_BiRNNCNNCRF_8_NER.hdf5'
@@ -109,17 +108,18 @@ if __name__ == "__main__":
     datasets_bank.add_dev_sequences(word_sequences_dev, tag_sequences_dev)
     datasets_bank.add_test_sequences(word_sequences_test, tag_sequences_test)
 
-    # Word_seq_indexer converts lists of lists of words to integer indices and back
+    # Word_seq_indexer converts lists of lists of words to lists of lists of integer indices and back
     word_seq_indexer = SeqIndexerWord(gpu=args.gpu, check_for_lowercase=args.check_for_lowercase,
                                       embeddings_dim=args.emb_dim, verbose=True)
-    word_seq_indexer.load_vocabulary_from_embeddings_file_and_unique_words_list(emb_fn=args.emb_fn,
-                                     emb_delimiter=args.emb_delimiter, unique_words_list=datasets_bank.unique_words_list)
+    word_seq_indexer.load_items_from_embeddings_file_and_unique_words_list(emb_fn=args.emb_fn,
+                                                                           emb_delimiter=args.emb_delimiter,
+                                                                           unique_words_list=datasets_bank.unique_words_list)
 
-    # Converts lists of lists of tags to integer indices and back
+    # Tag_seq_indexer converts lists of lists of tags to lists of lists of integer indices and back
     tag_seq_indexer = SeqIndexerTag(gpu=args.gpu)
-    tag_seq_indexer.load_vocabulary_from_tag_sequences(tag_sequences_train)
+    tag_seq_indexer.load_items_from_tag_sequences(tag_sequences_train)
 
-    # Select model
+    # Select model type
     if args.model == 'BiRNN':
         tagger = TaggerBiRNN(word_seq_indexer=word_seq_indexer,
                              tag_seq_indexer=tag_seq_indexer,
@@ -183,11 +183,11 @@ if __name__ == "__main__":
             loss.backward()
             tagger.clip_gradients(args.clip_grad)
             optimizer.step()
-            #if i > 200: break
+            #if i > 100: break
             if i % 10 == 0:
-                print('\r-- epoch %d/%d, batch %d/%d (%1.2f%%), loss = %1.4f.' % (epoch, args.epoch_num, i, iterations_num,
-                                                                                 i*100.0/iterations_num, loss.item()),
-                                                                                 end='', flush=True)
+                print('\r-- epoch %d/%d, batch %d/%d (%1.2f%%), loss = %1.4f.' % (epoch, args.epoch_num, i + 1,
+                                                                                  iterations_num, i*100.0/iterations_num,
+                                                                                  loss.item()), end='', flush=True)
         # Evaluate tagger
         f1_train, f1_dev, f1_test = Evaluator.get_f1_connl_train_dev_test(tagger, datasets_bank)
         acc_train, acc_dev, acc_test = Evaluator.get_accuracy_train_dev_test(tagger, datasets_bank)

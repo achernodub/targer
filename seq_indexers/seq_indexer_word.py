@@ -5,16 +5,16 @@ import torch
 #from jellyfish import soundex
 from autocorrect import spell
 
-from seq_indexers.seq_indexer_base import SeqIndexerBase
+from seq_indexers.seq_indexer_base_embeddings import SeqIndexerBaseEmbeddings
 
-class SeqIndexerWord(SeqIndexerBase):
-    def __init__(self, gpu, check_for_lowercase, embeddings_dim, verbose):
-        super(SeqIndexerWord, self).__init__(gpu, check_for_lowercase, embeddings_dim, verbose)
-        SeqIndexerBase.__init__(self, gpu=gpu, check_for_lowercase=check_for_lowercase, zero_digits=True, pad='<pad>',
-                                unk='<unk>', load_embeddings=True, embeddings_dim=embeddings_dim, verbose=verbose)
+class SeqIndexerWord(SeqIndexerBaseEmbeddings):
+    def __init__(self, gpu=-1, check_for_lowercase=True, embeddings_dim=0, verbose=True):
+        SeqIndexerBaseEmbeddings.__init__(self, gpu=gpu, check_for_lowercase=check_for_lowercase, zero_digits=True,
+                                          pad='<pad>', unk='<unk>', load_embeddings=True, embeddings_dim=embeddings_dim,
+                                          verbose=verbose)
 
-    def load_vocabulary_from_embeddings_file_and_unique_words_list(self, emb_fn, emb_delimiter, unique_words_list):
-        emb_dict = SeqIndexerBase.load_emb_dict_from_file(self, emb_fn, emb_delimiter)
+    def load_items_from_embeddings_file_and_unique_words_list(self, emb_fn, emb_delimiter, unique_words_list):
+        emb_dict = SeqIndexerBaseEmbeddings.load_emb_dict_from_file(self, emb_fn, emb_delimiter)
         original_words_num = 0
         lowercase_words_num = 0
         zero_digits_replaced_num = 0
