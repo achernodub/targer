@@ -5,13 +5,116 @@ import torch.nn.functional as F
 from layers.layer_base import LayerBase
 
 class LayerCRF(LayerBase):
-    def __init__(self, gpu, states_num):
+    def __init__(self, gpu, states_num, pad_idx, sos_idx):
+        super(LayerCRF, self).__init__(gpu)
+        self.states_num = states_num
+        self.pad_idx = pad_idx
+        self.sos_idx = sos_idx
+        self.trans = nn.Parameter(torch.zeros(states_num, states_num, dtype=torch.float)) # transition scores from j to i
+        nn.init.normal_(self.trans, -1, 0.1)
+        self.trans.data[sos_idx, :] = -9999.0
+        self.trans.data[:, pad_idx] = -9999.0
+        self.trans.data[pad_idx, :] = -9999.0
+        self.trans.data[pad_idx, pad_idx] = 0.0
+
+    def is_cuda(self):
+        return self.transition_matrix.is_cuda
+
+    def numerator(self, rnn_features, target, mask): # calculate the score of a given sequence
+        #print('x_features.shape', x_features.shape) # 11, 263, 10 # batch_size x max_seq_len x tipa_class_num
+        #print('target.shape', target.shape) # 11, 263 # batch_size x max_seq_len
+        #print('mask.shape',  .shape) # 11, 263 # batch_size x max_seq_len
+
+        batch_num, max_seq_len = mask.shape
+
+        score = Tensor(batch_num).fill_(0.)
+        target = torch.cat([LongTensor(batch_num, 1).fill_(self.sos_idx), target], 1)
+        for t in range(rnn_features.size(1)): # iterate through the sequence
+            mask_t = mask[:, t]
+            emit = torch.cat([rnn_features[b, t, target[b, t + 1]].unsqueeze(0) for b in range(batch_num)])
+            emit1_list = list()
+            for b in range(batch_num):
+                curr_emit = rnn_features[b, t, target[b, t + 1]].unsqueeze(0)
+                emit1_list.append(curr_emit)
+            emit1 = torch.cat(emit1_list)
+            trans = torch.cat([self.trans[seq[t + 1], seq[t]].unsqueeze(0) for seq in target]) * mask_t
+            trans1_list = list()
+            for seq in target:
+                curr_trans1 = self.trans[seq[t + 1], seq[t]]
+                curr_trans2 = curr_trans1.unsqueeze(0)
+                trans1_list.append(curr_trans2)
+            trans1 = torch.cat(trans1_list)*mask_t
+            score = score + emit + trans
+            ###score = score + emit1 + trans1
+        return score
+
+    def denominator(self, features_rnn_compressed, mask): # forward algorithm
+        batch_num, max_seq_len = mask.shape
+        # y = batch x max_seq_len x tags_num = 11 x 263 x 10
+        # initialize forward variables in log space
+        score = Tensor(batch_num, self.states_num).fill_(-10000.)
+        score[:, self.sos_idx] = 0.
+        for t in range(features_rnn_compressed.size(1)): # iterate through the sequence
+            mask_t = mask[:, t].unsqueeze(-1).expand_as(score)
+            score_t = score.unsqueeze(1).expand(-1, *self.trans.size())
+            emit = features_rnn_compressed[:, t].unsqueeze(-1).expand_as(score_t)
+            trans = self.trans.unsqueeze(0).expand_as(score_t)
+            score_t = log_sum_exp(score_t + emit + trans)
+            score = score_t * mask_t + score * (1 - mask_t)
+        score = log_sum_exp(score)
+        return score # partition function
+
+    def decode(self, features_rnn_compressed, mask): # Viterbi decoding
+        # initialize backpointers and viterbi variables in log space
+        batch_num, max_seq_len = mask.shape
+        bptr = LongTensor()
+        score = Tensor(batch_num, self.states_num).fill_(-10000.)
+        score[:, self.sos_idx] = 0.
+
+        for t in range(features_rnn_compressed.size(1)): # iterate through the sequence
+            # backpointers and viterbi variables at this timestep
+            bptr_t = LongTensor()
+            score_t = Tensor()
+            for i in range(self.states_num): # for each next tag
+                m = [e.unsqueeze(1) for e in torch.max(score + self.trans[i], 1)]
+                bptr_t = torch.cat((bptr_t, m[1]), 1) # best previous tags
+                score_t = torch.cat((score_t, m[0]), 1) # best transition scores
+            bptr = torch.cat((bptr, bptr_t.unsqueeze(1)), 1)
+            score = score_t + features_rnn_compressed[:, t] # plus emission scores
+        best_score, best_tag = torch.max(score, 1)
+        # back-tracking
+        bptr = bptr.tolist()
+        best_path = [[i] for i in best_tag.tolist()]
+        for b in range(batch_num):
+            x = best_tag[b] # best tag
+            l = int(scalar(mask[b].sum()))
+            for bptr_t in reversed(bptr[b][:l]):
+                x = bptr_t[x]
+                best_path[b].append(x)
+            best_path[b].pop()
+            best_path[b].reverse()
+        return best_path
+
+    #def forward(self, y, mask):
+    #    # y = batch x max_seq_len x tags_num
+    #    batch_num, max_seq_len, _ = y.shape
+    #    idx_sequences = self.decode(y, mask)
+    #    out = torch.zeros(1, self.num_tags, max_seq_len)  # # batch_size x num_class+1 x max_seq_len
+    #    for idx_seq in idx_sequences:
+    #        for k, idx in enumerate(idx_seq):
+    #            out[0, idx, k] = 1
+    #    out.cuda()
+    #    return out
+
+
+
+    '''def __init__(self, gpu, states_num):
         super(LayerCRF, self).__init__(gpu)
         self.states_num = states_num
         self.START_STATE = 0 # the first one
         self.transition_matrix = nn.Parameter(torch.zeros(states_num, states_num))
         nn.init.normal_(self.transition_matrix, -1, 0.1)
-        self.transition_matrix.data[self.START_STATE, :] = -100500.
+        self.transition_matrix.data[self.START_STATE, :] = -10000.
 
     def is_cuda(self):
         return self.transition_matrix.is_cuda
@@ -133,4 +236,33 @@ class LayerCRF(LayerBase):
                 for k in range(seq_len):
                     c = idx_sequences[n][k]
                     outputs_tensor[n, c, k] = 1
-        return outputs_tensor
+        return outputs_tensor'''
+
+CUDA = True
+
+def Tensor(*args):
+    x = torch.Tensor(*args)
+    return x.cuda() if CUDA else x
+
+def LongTensor(*args):
+    x = torch.LongTensor(*args)
+    return x.cuda() if CUDA else x
+
+def randn(*args):
+    x = torch.randn(*args)
+    return x.cuda() if CUDA else x
+
+def zeros(*args):
+    x = torch.zeros(*args)
+    return x.cuda() if CUDA else x
+
+def scalar(x):
+    return x.view(-1).data.tolist()[0]
+
+def argmax(x): # for 1D tensor
+    return scalar(torch.max(x, 0)[1])
+
+def log_sum_exp(x):
+    max_score, _ = torch.max(x, -1)
+    max_score_broadcast = max_score.unsqueeze(-1).expand_as(x)
+    return max_score + torch.log(torch.sum(torch.exp(x - max_score_broadcast), -1))

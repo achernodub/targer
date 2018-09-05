@@ -12,7 +12,7 @@ from classes.tag_component import TagComponent
 
 class Evaluator():
     @staticmethod
-    def __get_accuracy_from_sequences_token_level(targets_tag_sequences, outputs_tag_sequences, tag_seq_indexer):
+    def get_accuracy_from_sequences_token_level(targets_tag_sequences, outputs_tag_sequences, tag_seq_indexer):
         targets_idx = tag_seq_indexer.items2idx(targets_tag_sequences)
         outputs_idx = tag_seq_indexer.items2idx(outputs_tag_sequences)
         y_true = [i for sequence in targets_idx for i in sequence]
@@ -20,25 +20,13 @@ class Evaluator():
         return accuracy_score(y_true, y_pred) * 100
 
     @staticmethod
-    def get_acuracy_token_level(tagger, word_sequences, targets_tag_sequences):
-        outputs_tag_sequences = tagger.predict_tags_from_words(word_sequences=word_sequences, batch_size=100)
-        acc = Evaluator.__get_accuracy_from_sequences_token_level(targets_tag_sequences=targets_tag_sequences,
-                                                                  outputs_tag_sequences=outputs_tag_sequences,
-                                                                  tag_seq_indexer=tagger.tag_seq_indexer)
+    def get_acuracy_token_level(tagger, word_sequences, targets_tag_sequences, outputs_tag_sequences=None):
+        if outputs_tag_sequences is None:
+            outputs_tag_sequences = tagger.predict_tags_from_words(word_sequences=word_sequences, batch_size=1)
+        acc = Evaluator.get_accuracy_from_sequences_token_level(targets_tag_sequences=targets_tag_sequences,
+                                                                outputs_tag_sequences=outputs_tag_sequences,
+                                                                tag_seq_indexer=tagger.tag_seq_indexer)
         return acc
-
-    @staticmethod
-    def get_accuracy_train_dev_test(tagger, datasets_bank):
-        acc_train = Evaluator.get_acuracy_token_level(tagger=tagger,
-                                                      word_sequences=datasets_bank.word_sequences_train,
-                                                      targets_tag_sequences=datasets_bank.tag_sequences_train)
-        acc_dev = Evaluator.get_acuracy_token_level(tagger=tagger,
-                                                    word_sequences=datasets_bank.word_sequences_dev,
-                                                    targets_tag_sequences=datasets_bank.tag_sequences_dev)
-        acc_test = Evaluator.get_acuracy_token_level(tagger=tagger,
-                                                     word_sequences=datasets_bank.word_sequences_test,
-                                                     targets_tag_sequences=datasets_bank.tag_sequences_test)
-        return acc_train, acc_dev, acc_test
 
     @staticmethod
     def get_f1_connl_script(tagger, word_sequences, targets_tag_sequences, outputs_tag_sequences=None, fn_out=None):
@@ -60,17 +48,38 @@ class Evaluator():
         return f1, connl_str
 
     @staticmethod
-    def get_f1_connl_train_dev_test(tagger, datasets_bank):
+    def get_evaluation_train_dev_test(tagger, datasets_bank, batch_size=1):
+        outputs_tag_sequences_train = tagger.predict_tags_from_words(word_sequences=datasets_bank.word_sequences_train,
+                                                                     batch_size=batch_size)
+        outputs_tag_sequences_dev = tagger.predict_tags_from_words(word_sequences=datasets_bank.word_sequences_dev,
+                                                                     batch_size=batch_size)
+        outputs_tag_sequences_test = tagger.predict_tags_from_words(word_sequences=datasets_bank.word_sequences_test,
+                                                                     batch_size=batch_size)
         f1_train, _ = Evaluator.get_f1_connl_script(tagger=tagger,
                                                     word_sequences=datasets_bank.word_sequences_train,
-                                                    targets_tag_sequences=datasets_bank.tag_sequences_train)
+                                                    targets_tag_sequences=datasets_bank.tag_sequences_train,
+                                                    outputs_tag_sequences=outputs_tag_sequences_train)
         f1_dev, _ = Evaluator.get_f1_connl_script(tagger=tagger,
                                                   word_sequences=datasets_bank.word_sequences_dev,
-                                                  targets_tag_sequences=datasets_bank.tag_sequences_dev)
+                                                  targets_tag_sequences=datasets_bank.tag_sequences_dev,
+                                                  outputs_tag_sequences=outputs_tag_sequences_dev)
         f1_test, _ = Evaluator.get_f1_connl_script(tagger=tagger,
                                                    word_sequences=datasets_bank.word_sequences_test,
-                                                   targets_tag_sequences=datasets_bank.tag_sequences_test)
-        return f1_train, f1_dev, f1_test
+                                                   targets_tag_sequences=datasets_bank.tag_sequences_test,
+                                                   outputs_tag_sequences=outputs_tag_sequences_test)
+        acc_train = Evaluator.get_acuracy_token_level(tagger=tagger,
+                                                      word_sequences=datasets_bank.word_sequences_train,
+                                                      targets_tag_sequences=datasets_bank.tag_sequences_train,
+                                                      outputs_tag_sequences=outputs_tag_sequences_train)
+        acc_dev = Evaluator.get_acuracy_token_level(tagger=tagger,
+                                                    word_sequences=datasets_bank.word_sequences_dev,
+                                                    targets_tag_sequences=datasets_bank.tag_sequences_dev,
+                                                    outputs_tag_sequences=outputs_tag_sequences_dev)
+        acc_test = Evaluator.get_acuracy_token_level(tagger=tagger,
+                                                     word_sequences=datasets_bank.word_sequences_test,
+                                                     targets_tag_sequences=datasets_bank.tag_sequences_test,
+                                                     outputs_tag_sequences=outputs_tag_sequences_test)
+        return f1_train, f1_dev, f1_test, acc_train, acc_dev, acc_test
 
     @staticmethod
     def get_f1_components_from_words(targets_tag_sequences, outputs_tag_sequences, match_alpha_ratio=0.999):

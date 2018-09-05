@@ -21,10 +21,10 @@ class DatasetsBank():
             print('DatasetsBank: len(unique_words_list) = %d unique words.' % (len(self.unique_words_list)))
 
     def add_train_sequences(self, word_sequences_train, tag_sequences_train):
+        self.train_data_num = len(word_sequences_train)
         self.word_sequences_train = word_sequences_train
         self.tag_sequences_train = tag_sequences_train
         self.__add_to_unique_words_list(word_sequences_train)
-        self.train_data_num = len(word_sequences_train)
 
     def add_dev_sequences(self, word_sequences_dev, tag_sequences_dev):
         self.word_sequences_dev = word_sequences_dev

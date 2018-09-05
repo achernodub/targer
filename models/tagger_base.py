@@ -48,6 +48,9 @@ class TaggerBase(nn.Module):
         #tagger.self_ensure_gpu()
         return tagger
 
+    def forward(self, *input):
+        pass
+
     def predict_idx_from_words(self, word_sequences):
         self.eval()
         outputs_tensor = self.forward(word_sequences) # batch_size x num_class+1 x max_seq_len
@@ -62,6 +65,7 @@ class TaggerBase(nn.Module):
         return output_idx_sequences
 
     def predict_tags_from_words(self, word_sequences, batch_size=1):
+        print('\n')
         batch_num = math.floor(len(word_sequences) / batch_size)
         output_tag_sequences = list()
         for n in range(batch_num):
@@ -73,4 +77,17 @@ class TaggerBase(nn.Module):
             curr_output_idx = self.predict_idx_from_words(word_sequences[i:j])
             curr_output_tag_sequences = self.tag_seq_indexer.idx2items(curr_output_idx)
             output_tag_sequences.extend(curr_output_tag_sequences)
+            print('\r++ predicting, batch %d/%d (%1.2f%%).' % (n + 1, batch_num, math.ceil(n * 100.0 / batch_num)),
+                  end='', flush=True)
         return output_tag_sequences
+
+    def get_mask(self, word_sequences):
+        batch_num = len(word_sequences)
+        max_seq_len = max([len(word_seq) for word_seq in word_sequences])
+        mask_tensor = self.tensor_ensure_gpu(torch.zeros(batch_num, max_seq_len, dtype=torch.float))
+        for k, word_seq in enumerate(word_sequences):
+            mask_tensor[k, :len(word_seq)] = 1
+        return mask_tensor # batch_size x max_seq_len
+
+    def apply_mask(self, input_tensor, mask_tensor):
+        return input_tensor*mask_tensor.unsqueeze(-1).expand_as(input_tensor)
