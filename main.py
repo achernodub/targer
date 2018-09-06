@@ -72,9 +72,9 @@ if __name__ == "__main__":
         torch.cuda.set_device(args.gpu)
         torch.cuda.manual_seed(args.seed_num)
 
-    args.fn_train = 'data/NER/CoNNL_2003_shared_task/train.txt'
-    args.fn_dev = 'data/NER/CoNNL_2003_shared_task/dev.txt'
-    args.fn_test = 'data/NER/CoNNL_2003_shared_task/test.txt'
+    #args.fn_train = 'data/NER/CoNNL_2003_shared_task/train.txt'
+    #args.fn_dev = 'data/NER/CoNNL_2003_shared_task/dev.txt'
+    #args.fn_test = 'data/NER/CoNNL_2003_shared_task/test.txt'
 
     #args.fn_train = 'data/persuasive_essays/Essay_Level/train.dat.abs'
     #args.fn_dev = 'data/persuasive_essays/Essay_Level/dev.dat.abs'
@@ -87,8 +87,8 @@ if __name__ == "__main__":
     args.rnn_hidden_dim = 100
     #args.rnn_type = 'LSTM'
 
-    args.epoch_num = 100
-    args.batch_size = 1
+    args.epoch_num = 5
+    args.batch_size = 10
     args.lr = 0.005
     args.lr_decay = 0
 
@@ -98,8 +98,8 @@ if __name__ == "__main__":
     #args.lr_decay = 0.05
 
     #args.checkpoint_fn = 'tagger_model_BiRNNCNN_NER_nosb.hdf5'
-    args.checkpoint_fn = 'tagger_model_BiRNNCNNCRF_PE_100_1b.hdf5'
-    #args.word_seq_indexer_path = 'word_seq.hdf5'
+    #args.checkpoint_fn = 'tagger_model_BiRNNCNNCRF_PE_100_1b.hdf5'
+    args.word_seq_indexer_path = 'word_seq_PE.hdf5'
 
     # Load CoNNL data as sequences of strings of words and corresponding tags
     word_sequences_train, tag_sequences_train = DataIO.read_CoNNL_universal(args.fn_train, verbose=True)
@@ -201,30 +201,12 @@ if __name__ == "__main__":
             loss.backward()
             tagger.clip_gradients(args.clip_grad)
             optimizer.step()
-            '''
-            if i < 14: continue
-            print('T=', tag_sequences_train_batch[0])
-            for k in range(50):
-                tagger.train()
-                tagger.zero_grad()
-                loss = tagger.get_loss(word_sequences_train_batch, tag_sequences_train_batch)
-                loss.backward()
-                tagger.clip_gradients(args.clip_grad)
-                optimizer.step()
-                #y1 = tagger.predict_idx_from_words(word_sequences_train_batch)
-                y = tagger.predict_tags_from_words(word_sequences_train_batch)
-                print(k, 'T=', tag_sequences_train_batch)
-                print(k, 'y=', y)
-                print(k, '---------------------------------------')
-            exit()
-            '''
             #if i > 100: break
             if i % 1 == 0:
                 print('\r-- train epoch %d/%d, batch %d/%d (%1.2f%%), loss = %03.4f.' % (epoch, args.epoch_num, i + 1,
                                                                                         iterations_num,
                                                                                         ceil(i*100.0/iterations_num),
                                                                                         loss.item()), end='', flush=True)
-
         # Evaluate tagger
         f1_train, f1_dev, f1_test, acc_train, acc_dev, acc_test = Evaluator.get_evaluation_train_dev_test(tagger,
                                                                                                           datasets_bank,

@@ -10,45 +10,105 @@ class LayerCRF(LayerBase):
         self.states_num = states_num
         self.pad_idx = pad_idx
         self.sos_idx = sos_idx
-        self.trans = nn.Parameter(torch.zeros(states_num, states_num, dtype=torch.float)) # transition scores from j to i
-        nn.init.normal_(self.trans, -1, 0.1)
-        self.trans.data[sos_idx, :] = -9999.0
-        self.trans.data[:, pad_idx] = -9999.0
-        self.trans.data[pad_idx, :] = -9999.0
-        self.trans.data[pad_idx, pad_idx] = 0.0
+        self.transition_matrix = nn.Parameter(torch.zeros(states_num, states_num, dtype=torch.float)) # transition scores from j to i
+        nn.init.normal_(self.transition_matrix, -1, 0.1)
+        self.transition_matrix.data[sos_idx, :] = -9999.0
+        self.transition_matrix.data[:, pad_idx] = -9999.0
+        self.transition_matrix.data[pad_idx, :] = -9999.0
+        self.transition_matrix.data[pad_idx, pad_idx] = 0.0
 
     def is_cuda(self):
         return self.transition_matrix.is_cuda
 
-    def numerator(self, rnn_features, target, mask): # calculate the score of a given sequence
-        #print('x_features.shape', x_features.shape) # 11, 263, 10 # batch_size x max_seq_len x tipa_class_num
-        #print('target.shape', target.shape) # 11, 263 # batch_size x max_seq_len
-        #print('mask.shape',  .shape) # 11, 263 # batch_size x max_seq_len
-
-        batch_num, max_seq_len = mask.shape
-
-        score = Tensor(batch_num).fill_(0.)
-        target = torch.cat([LongTensor(batch_num, 1).fill_(self.sos_idx), target], 1)
-        for t in range(rnn_features.size(1)): # iterate through the sequence
-            mask_t = mask[:, t]
-            emit = torch.cat([rnn_features[b, t, target[b, t + 1]].unsqueeze(0) for b in range(batch_num)])
-            emit1_list = list()
-            for b in range(batch_num):
-                curr_emit = rnn_features[b, t, target[b, t + 1]].unsqueeze(0)
-                emit1_list.append(curr_emit)
-            emit1 = torch.cat(emit1_list)
-            trans = torch.cat([self.trans[seq[t + 1], seq[t]].unsqueeze(0) for seq in target]) * mask_t
-            trans1_list = list()
-            for seq in target:
-                curr_trans1 = self.trans[seq[t + 1], seq[t]]
-                curr_trans2 = curr_trans1.unsqueeze(0)
-                trans1_list.append(curr_trans2)
-            trans1 = torch.cat(trans1_list)*mask_t
-            score = score + emit + trans
-            ###score = score + emit1 + trans1
+    def numerator(self, features_rnn_compressed, states_tensor, mask_tensor):
+        #
+        # features_input_tensor: batch_num x max_seq_len x states_num
+        # states_tensor: batch_num x max_seq_len
+        # mask_tensor: batch_num x max_seq_len
+        #
+        batch_num, max_seq_len = mask_tensor.shape
+        score = self.tensor_ensure_gpu(torch.zeros(batch_num, dtype=torch.float))
+        start_states_tensor = self.tensor_ensure_gpu(torch.zeros(batch_num, 1, dtype=torch.long).fill_(self.sos_idx))
+        states_tensor = torch.cat([start_states_tensor, states_tensor], 1)
+        for n in range(max_seq_len):
+            curr_mask = mask_tensor[:, n]
+            curr_emission = self.tensor_ensure_gpu(torch.zeros(batch_num, dtype=torch.float))
+            curr_transition = self.tensor_ensure_gpu(torch.zeros(batch_num, dtype=torch.float))
+            for k in range(batch_num):
+                curr_emission[k] = features_rnn_compressed[k, n, states_tensor[k, n + 1]].unsqueeze(0)
+                curr_states_seq = states_tensor[k]
+                curr_transition[k] = self.transition_matrix[curr_states_seq[n + 1], curr_states_seq[n]].unsqueeze(0)
+            score = score + curr_emission*curr_mask + curr_transition*curr_mask
         return score
 
-    def denominator(self, features_rnn_compressed, mask): # forward algorithm
+    def denominator(self, features_rnn_compressed, mask_tensor): # forward algorithm
+        # features_rnn_compressed: batch x max_seq_len x tags_num
+        # mask_tensor: batch_num x max_seq_len
+        batch_num, max_seq_len = mask_tensor.shape
+        score = self.tensor_ensure_gpu(torch.zeros(batch_num, self.states_num, dtype=torch.float).fill_(-9999.0))
+        score[:, self.sos_idx] = 0.
+        for n in range(max_seq_len):
+            curr_mask = mask_tensor[:, n].unsqueeze(-1).expand_as(score)
+            curr_score = score.unsqueeze(1).expand(-1, *self.transition_matrix.size())
+            curr_emission = features_rnn_compressed[:, n].unsqueeze(-1).expand_as(curr_score)
+            curr_transition = self.transition_matrix.unsqueeze(0).expand_as(curr_score)
+            curr_score = log_sum_exp(curr_score + curr_emission + curr_transition)
+            score = curr_score * curr_mask + score * (1 - curr_mask)
+        score = log_sum_exp(score)
+        return score
+
+    def decode_viterbi(self, features_rnn_compressed, mask): # Viterbi decoding
+        batch_num, max_seq_len = mask.shape
+        bptr = self.tensor_ensure_gpu(torch.LongTensor())
+        score = self.tensor_ensure_gpu(torch.Tensor(batch_num, self.states_num).fill_(-9999.))
+        score[:, self.sos_idx] = 0.0
+        for n in range(max_seq_len):
+            curr_bptr = LongTensor()
+            curr_score = Tensor()
+            for curr_state in range(self.states_num):
+                max_value = [e.unsqueeze(1) for e in torch.max(score + self.transition_matrix[curr_state], 1)]
+                curr_bptr = torch.cat((curr_bptr, max_value[1]), 1)
+                curr_score = torch.cat((curr_score, max_value[0]), 1)
+            bptr = torch.cat((bptr, curr_bptr.unsqueeze(1)), 1)
+            curr_emission = features_rnn_compressed[:, n]
+            score = curr_score + curr_emission
+        best_score, best_tag = torch.max(score, 1)
+        bptr = bptr.tolist()
+        best_path = [[i] for i in best_tag.tolist()]
+        for k in range(batch_num):
+            best_tag_k = best_tag[k]
+            seq_len = int(scalar(mask[k].sum()))
+            for curr_bptr in reversed(bptr[k][:seq_len]):
+                best_tag_k = curr_bptr[best_tag_k]
+                best_path[k].append(best_tag_k)
+            best_path[k].pop()
+            best_path[k].reverse()
+        return best_path
+
+'''
+    def numerator0(self, features_input_tensor, states_tensor, mask_tensor):
+        #
+        # features_input_tensor: batch_num x max_seq_len x states_num
+        # states_tensor: batch_num x max_seq_len
+        # mask_tensor: batch_num x max_seq_len
+        #
+        batch_num, max_seq_len = mask_tensor.shape
+        start_states_tensor = self.tensor_ensure_gpu(torch.LongTensor(batch_num, 1).fill_(self.sos_idx))
+        states_tensor = torch.cat([start_states_tensor, states_tensor], 1) # batch_num x max_seq_len + 1
+        scores_batch = self.tensor_ensure_gpu(torch.zeros(batch_num, dtype=torch.float))
+        for k in range(max_seq_len):
+            curr_emission_scores_batch = self.tensor_ensure_gpu(torch.zeros(batch_num, dtype=torch.float))
+            curr_transition_scores_batch = self.tensor_ensure_gpu(torch.zeros(batch_num, dtype=torch.float))
+            for n in range(batch_num):
+                curr_state = states_tensor[n, k].item()
+                next_state = states_tensor[n, k + 1].item()
+                curr_emission_scores_batch[n] = features_input_tensor[n, k, next_state]
+                curr_transition_scores_batch[n] = self.transition_matrix[next_state, curr_state]
+            curr_mask = mask_tensor[:, k]
+            scores_batch += curr_emission_scores_batch * curr_mask + curr_transition_scores_batch * curr_mask
+        return scores_batch
+
+    def denominator0(self, features_rnn_compressed, mask): # forward algorithm
         batch_num, max_seq_len = mask.shape
         # y = batch x max_seq_len x tags_num = 11 x 263 x 10
         # initialize forward variables in log space
@@ -56,44 +116,33 @@ class LayerCRF(LayerBase):
         score[:, self.sos_idx] = 0.
         for t in range(features_rnn_compressed.size(1)): # iterate through the sequence
             mask_t = mask[:, t].unsqueeze(-1).expand_as(score)
-            score_t = score.unsqueeze(1).expand(-1, *self.trans.size())
+            score_t = score.unsqueeze(1).expand(-1, *self.transition_matrix.size())
             emit = features_rnn_compressed[:, t].unsqueeze(-1).expand_as(score_t)
-            trans = self.trans.unsqueeze(0).expand_as(score_t)
+            trans = self.transition_matrix.unsqueeze(0).expand_as(score_t)
             score_t = log_sum_exp(score_t + emit + trans)
             score = score_t * mask_t + score * (1 - mask_t)
         score = log_sum_exp(score)
         return score # partition function
 
-    def decode(self, features_rnn_compressed, mask): # Viterbi decoding
-        # initialize backpointers and viterbi variables in log space
-        batch_num, max_seq_len = mask.shape
-        bptr = LongTensor()
-        score = Tensor(batch_num, self.states_num).fill_(-10000.)
-        score[:, self.sos_idx] = 0.
+    def denominator1(self, features_input_tensor, mask_tensor):
+        #
+        # features_input_tensor: batch_num x max_seq_len x states_num
+        # mask_tensor: batch_num x max_seq_len
+        #
+        batch_num, max_seq_len = mask_tensor.shape
+        scores = self.tensor_ensure_gpu(torch.zeros(batch_num, self.states_num, dtype=torch.float))
+        for k in range(max_seq_len):
+            curr_scores = scores.unsqueeze(1).expand(batch_num, self.states_num, self.states_num)
+            curr_emission_scores_batch = features_input_tensor[:, k].unsqueeze(-1).expand(batch_num, self.states_num,
+                                                                                          self.states_num)
+            curr_transition_scores_batch = self.transition_matrix.unsqueeze(0).expand(batch_num, self.states_num,
+                                                                                      self.states_num)
+            curr_mask = mask_tensor[:, k].unsqueeze(-1).expand(batch_num, self.states_num)
+            curr_scores = torch.logsumexp(curr_scores + curr_emission_scores_batch + curr_transition_scores_batch, dim=2)
+            scores = curr_scores * curr_mask + scores * (1 - curr_mask)
+        return torch.logsumexp(scores, 1)
+'''
 
-        for t in range(features_rnn_compressed.size(1)): # iterate through the sequence
-            # backpointers and viterbi variables at this timestep
-            bptr_t = LongTensor()
-            score_t = Tensor()
-            for i in range(self.states_num): # for each next tag
-                m = [e.unsqueeze(1) for e in torch.max(score + self.trans[i], 1)]
-                bptr_t = torch.cat((bptr_t, m[1]), 1) # best previous tags
-                score_t = torch.cat((score_t, m[0]), 1) # best transition scores
-            bptr = torch.cat((bptr, bptr_t.unsqueeze(1)), 1)
-            score = score_t + features_rnn_compressed[:, t] # plus emission scores
-        best_score, best_tag = torch.max(score, 1)
-        # back-tracking
-        bptr = bptr.tolist()
-        best_path = [[i] for i in best_tag.tolist()]
-        for b in range(batch_num):
-            x = best_tag[b] # best tag
-            l = int(scalar(mask[b].sum()))
-            for bptr_t in reversed(bptr[b][:l]):
-                x = bptr_t[x]
-                best_path[b].append(x)
-            best_path[b].pop()
-            best_path[b].reverse()
-        return best_path
 
     #def forward(self, y, mask):
     #    # y = batch x max_seq_len x tags_num
@@ -107,8 +156,7 @@ class LayerCRF(LayerBase):
     #    return out
 
 
-
-    '''def __init__(self, gpu, states_num):
+''' def __init__(self, gpu, states_num):
         super(LayerCRF, self).__init__(gpu)
         self.states_num = states_num
         self.START_STATE = 0 # the first one

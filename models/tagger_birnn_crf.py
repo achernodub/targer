@@ -63,7 +63,7 @@ class TaggerBiRNNCRF(TaggerBase):
         self.eval()
         features_rnn_compressed  = self._forward_birnn(word_sequences)
         mask = self.get_mask(word_sequences)
-        idx_sequences = self.crf_layer.decode(features_rnn_compressed, mask)
+        idx_sequences = self.crf_layer.decode_viterbi(features_rnn_compressed, mask)
         return idx_sequences
 
     def predict_tags_from_words(self, word_sequences, batch_size=100):
