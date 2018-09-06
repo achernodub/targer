@@ -92,13 +92,13 @@ if __name__ == "__main__":
     args.lr = 0.005
     args.lr_decay = 0
 
-    args.epoch_num = 200
-    args.batch_size = 10
-    args.lr = 0.015
-    args.lr_decay = 0.05
+    #args.epoch_num = 200
+    #args.batch_size = 10
+    #args.lr = 0.015
+    #args.lr_decay = 0.05
 
     #args.checkpoint_fn = 'tagger_model_BiRNNCNN_NER_nosb.hdf5'
-    args.checkpoint_fn = 'tagger_model_BiRNNCNNCRF_NER_200.hdf5'
+    args.checkpoint_fn = 'tagger_model_BiRNNCNNCRF_PE_100_1b.hdf5'
     #args.word_seq_indexer_path = 'word_seq.hdf5'
 
     # Load CoNNL data as sequences of strings of words and corresponding tags
