@@ -113,7 +113,7 @@ if __name__ == "__main__":
     datasets_bank.add_test_sequences(word_sequences_test, tag_sequences_test)
 
     # Word_seq_indexer converts lists of lists of words to lists of lists of integer indices and back
-    if isfile(args.word_seq_indexer_path):
+    if is not None and isfile(args.word_seq_indexer_path):
         word_seq_indexer = torch.load(args.word_seq_indexer_path)
     else:
         word_seq_indexer = SeqIndexerWord(gpu=args.gpu, check_for_lowercase=args.check_for_lowercase,
