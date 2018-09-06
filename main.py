@@ -72,9 +72,9 @@ if __name__ == "__main__":
         torch.cuda.set_device(args.gpu)
         torch.cuda.manual_seed(args.seed_num)
 
-    args.fn_train = 'data/NER/CoNNL_2003_shared_task/train.txt'
-    args.fn_dev = 'data/NER/CoNNL_2003_shared_task/dev.txt'
-    args.fn_test = 'data/NER/CoNNL_2003_shared_task/test.txt'
+    #args.fn_train = 'data/NER/CoNNL_2003_shared_task/train.txt'
+    #args.fn_dev = 'data/NER/CoNNL_2003_shared_task/dev.txt'
+    #args.fn_test = 'data/NER/CoNNL_2003_shared_task/test.txt'
 
     #args.fn_train = 'data/persuasive_essays/Essay_Level/train.dat.abs'
     #args.fn_dev = 'data/persuasive_essays/Essay_Level/dev.dat.abs'
