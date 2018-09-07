@@ -90,8 +90,8 @@ if __name__ == "__main__":
     args.rnn_hidden_dim = 100
     #args.rnn_type = 'LSTM'
 
-    args.epoch_num = 5
-    args.batch_size = 10
+    args.epoch_num = 200
+    args.batch_size = 1
     args.lr = 0.005
     args.lr_decay = 0
 
@@ -197,7 +197,6 @@ if __name__ == "__main__":
         loss_sum = 0
         for i, (word_sequences_train_batch, tag_sequences_train_batch) in enumerate(zip(word_sequences_train_batch_list,
                                                                                         tag_sequences_train_batch_list)):
-            break
             tagger.train()
             tagger.zero_grad()
             loss = tagger.get_loss(word_sequences_train_batch, tag_sequences_train_batch)

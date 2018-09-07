@@ -52,9 +52,9 @@ class TaggerBiRNNCNN(TaggerBase):
         self.log_softmax_layer = nn.LogSoftmax(dim=1)
 
         self.narx_layer = LayerNARX(input_dim = self.birnn_layer.output_dim,
-                                    hidden_dim = 100,
+                                    hidden_dim = 15,
                                     output_dim = class_num + 1,
-                                    tdl_seq_len = 10,
+                                    tdl_seq_len = 3,
                                     gpu = gpu)
         if gpu >= 0:
             self.cuda(device=self.gpu)

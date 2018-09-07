@@ -11,12 +11,12 @@ class LayerNARX(LayerBase):
         self.hidden_dim = hidden_dim
         self.output_dim = output_dim
         self.tdl_seq_len = tdl_seq_len
-        print('input_dim, hidden_dim, output_dim', input_dim, hidden_dim, output_dim)
         self.tdl_z = LayerTDL(input_dim, tdl_seq_len, gpu)
         self.tdl_y = LayerTDL(output_dim, tdl_seq_len, gpu)
         self.lin_layer_1 = nn.Linear(in_features =self.tdl_z.output_dim + self.tdl_y.output_dim, out_features = hidden_dim)
         self.lin_layer_2 = nn.Linear(in_features = hidden_dim, out_features = output_dim)
         nn.init.xavier_uniform_(self.lin_layer_1.weight)
+        nn.init.xavier_uniform_(self.lin_layer_2.weight)
         self.tanh = nn.Tanh()
 
     def forward(self, input_tensor, mask_tensor): #input_tensor shape: batch_size x max_seq_len x dim
