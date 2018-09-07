@@ -8,6 +8,9 @@ from layers.layer_bigru import LayerBiGRU
 from layers.layer_char_embeddings import LayerCharEmbeddings
 from layers.layer_char_cnn import LayerCharCNN
 
+from layers.layer_narx import LayerNARX
+
+
 class TaggerBiRNNCNN(TaggerBase):
     """
     TaggerBiRNNCNN is a model for sequences tagging that includes recurrent network and character-level conv-1D layer.
@@ -47,9 +50,15 @@ class TaggerBiRNNCNN(TaggerBase):
         # We add an additional class that corresponds to the zero-padded values not to be included to the loss function
         self.lin_layer = nn.Linear(in_features=self.birnn_layer.output_dim, out_features=class_num + 1)
         self.log_softmax_layer = nn.LogSoftmax(dim=1)
+
+        self.narx_layer = LayerNARX(input_dim = self.lin_layer.out_features,
+                                    output_dim = class_num + 1,
+                                    tdl_seq_len = 5,
+                                    gpu = gpu)
         if gpu >= 0:
             self.cuda(device=self.gpu)
         self.nll_loss = nn.NLLLoss(ignore_index=0)  # "0" target values actually are zero-padded parts of sequences
+
 
     def forward(self, word_sequences):
         mask = self.get_mask(word_sequences)
@@ -64,12 +73,13 @@ class TaggerBiRNNCNN(TaggerBase):
         #z_rnn_out = self.lin_layer(rnn_output_h_d).permute(0, 2, 1) # shape: batch_size x class_num + 1 x max_seq_len
         z_rnn_out = self.apply_mask(self.lin_layer(rnn_output_h), mask)
 
-        from layers.layer_tdl import LayerTDL
-
-        tdl_layer = LayerTDL(input_dim=self.lin_layer.out_features, tdl_seq_len = 7, gpu=self.gpu)
-        o = tdl_layer(z_rnn_out, mask)
-
         print('Hello!')
+
+        o = self.narx_layer(z_rnn_out, mask)
+        print('o.shape', o.shape)
+
+        print('FIN')
+
         exit()
 
         y = self.log_softmax_layer(z_rnn_out.permute(0, 2, 1))
