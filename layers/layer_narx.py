@@ -11,6 +11,7 @@ class LayerNARX(LayerBase):
         self.hidden_dim = hidden_dim
         self.output_dim = output_dim
         self.tdl_seq_len = tdl_seq_len
+        print('input_dim, hidden_dim, output_dim', input_dim, hidden_dim, output_dim)
         self.tdl_z = LayerTDL(input_dim, tdl_seq_len, gpu)
         self.tdl_y = LayerTDL(output_dim, tdl_seq_len, gpu)
         self.lin_layer_1 = nn.Linear(in_features =self.tdl_z.output_dim + self.tdl_y.output_dim, out_features = hidden_dim)
@@ -21,17 +22,16 @@ class LayerNARX(LayerBase):
     def forward(self, input_tensor, mask_tensor): #input_tensor shape: batch_size x max_seq_len x dim
         batch_size, max_seq_len = mask_tensor.shape
         curr_output = self.tensor_ensure_gpu(torch.zeros(batch_size, self.output_dim, dtype=torch.float))
+        output = self.tensor_ensure_gpu(torch.Tensor(batch_size, max_seq_len, self.output_dim))
         self.tdl_z.init(batch_size)
         self.tdl_y.init(batch_size)
-        output_1 = self.tensor_ensure_gpu(torch.Tensor(batch_size, max_seq_len, self.hidden_dim))
         for n in range(max_seq_len):
             curr_input = input_tensor[:, n, :]
             z = self.tdl_z(curr_input)
             y = self.tdl_y(curr_output)
-            curr_output = self.lin_layer_1(torch.cat([z, y], dim=1))
-            output_1[:, n, :] = curr_output
-        output_2 = self.lin_layer_2(self.tanh(output_1))
-        return self.apply_mask(output_2, mask_tensor)
+            curr_output = self.lin_layer_2(self.tanh(self.lin_layer_1(torch.cat([z, y], dim=1))))
+            output[:, n, :] = curr_output
+        return self.apply_mask(output, mask_tensor)
 
     def is_cuda(self):
         return self.lin_layer_1.weight.is_cuda
