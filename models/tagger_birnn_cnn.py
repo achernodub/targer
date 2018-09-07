@@ -63,6 +63,15 @@ class TaggerBiRNNCNN(TaggerBase):
         #rnn_output_h_d = self.dropout(rnn_output_h) # shape: batch_size x max_seq_len x rnn_hidden_dim*2
         #z_rnn_out = self.lin_layer(rnn_output_h_d).permute(0, 2, 1) # shape: batch_size x class_num + 1 x max_seq_len
         z_rnn_out = self.apply_mask(self.lin_layer(rnn_output_h), mask)
+
+        from layers.layer_tdl import LayerTDL
+
+        tdl_layer = LayerTDL(input_dim=self.lin_layer.out_features, tdl_seq_len = 7, gpu=self.gpu)
+        o = tdl_layer(z_rnn_out, mask)
+
+        print('Hello!')
+        exit()
+
         y = self.log_softmax_layer(z_rnn_out.permute(0, 2, 1))
         return y
 

@@ -72,18 +72,21 @@ if __name__ == "__main__":
         torch.cuda.set_device(args.gpu)
         torch.cuda.manual_seed(args.seed_num)
 
+    # narx
+
     #args.fn_train = 'data/NER/CoNNL_2003_shared_task/train.txt'
     #args.fn_dev = 'data/NER/CoNNL_2003_shared_task/dev.txt'
     #args.fn_test = 'data/NER/CoNNL_2003_shared_task/test.txt'
 
     #args.fn_train = 'data/persuasive_essays/Essay_Level/train.dat.abs'
-    #args.fn_dev = 'data/persuasive_essays/Essay_Level/dev.dat.abs'
+    #args.fn_dev = 'data/persuasive_essays/Essay_Level/dev.dat.abs'0
+    #args.batch_size = 10
     #args.fn_test = 'data/persuasive_essays/Essay_Level/test.dat.abs'
 
     #args.model = 'BiRNN'
-    #args.model = 'BiRNNCNN'
+    args.model = 'BiRNNCNN'
     #args.model = 'BiRNNCRF'
-    args.model = 'BiRNNCNNCRF'
+    #args.model = 'BiRNNCNNCRF'
     args.rnn_hidden_dim = 100
     #args.rnn_type = 'LSTM'
 
@@ -92,8 +95,7 @@ if __name__ == "__main__":
     args.lr = 0.005
     args.lr_decay = 0
 
-    #args.epoch_num = 200
-    #args.batch_size = 10
+    #args.epoch_num = 20
     #args.lr = 0.015
     #args.lr_decay = 0.05
 
@@ -195,6 +197,7 @@ if __name__ == "__main__":
         loss_sum = 0
         for i, (word_sequences_train_batch, tag_sequences_train_batch) in enumerate(zip(word_sequences_train_batch_list,
                                                                                         tag_sequences_train_batch_list)):
+            break
             tagger.train()
             tagger.zero_grad()
             loss = tagger.get_loss(word_sequences_train_batch, tag_sequences_train_batch)
