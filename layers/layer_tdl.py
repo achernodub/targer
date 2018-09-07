@@ -9,22 +9,19 @@ class LayerTDL(LayerBase):
         self.input_dim = input_dim
         self.tdl_seq_len = tdl_seq_len
         self.output_dim = input_dim * tdl_seq_len
-        self.tdl = self.tensor_ensure_gpu(torch.Tensor(1, tdl_seq_len, input_dim).fill_(0)) # batch_size x tdl_seq_len x dim
 
-    def push(self, input):
+    def init(self, batch_size):
+        self.tdl = self.tensor_ensure_gpu(torch.Tensor(batch_size, self.tdl_seq_len, self.input_dim).fill_(0))
+
+    def push(self, curr_input):
         for k in range(self.tdl_seq_len - 1, 0, -1):
             self.tdl[:, k, :] = self.tdl[:, k - 1, :]
-        self.tdl[:, 0, :] = input
+        self.tdl[:, 0, :] = curr_input
 
-    def forward(self, input_tensor, mask_tensor): #input_tensor shape: batch_size x max_seq_len x dim
-        batch_size, max_seq_len = mask_tensor.shape
-        output = self.tensor_ensure_gpu(torch.Tensor(batch_size, max_seq_len, self.output_dim).fill_(0))
-        print('input_tensor.shape', input_tensor.shape)
-        for n in range(max_seq_len):
-            self.push(input_tensor[:, n, :])
-            curr_output = self.tdl.view(batch_size, self.output_dim)
-            output[:, n, :] = curr_output
-        return output
+    def forward(self, curr_input):
+        batch_size = curr_input.shape[0]
+        self.push(curr_input)
+        return self.tdl.view(batch_size, self.output_dim)
 
     def is_cuda(self):
         return True #############################################################################################

@@ -91,7 +91,7 @@ if __name__ == "__main__":
     #args.rnn_type = 'LSTM'
 
     args.epoch_num = 5
-    args.batch_size = 1
+    args.batch_size = 10
     args.lr = 0.005
     args.lr_decay = 0
 

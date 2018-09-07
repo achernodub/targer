@@ -72,17 +72,9 @@ class TaggerBiRNNCNN(TaggerBase):
         #rnn_output_h_d = self.dropout(rnn_output_h) # shape: batch_size x max_seq_len x rnn_hidden_dim*2
         #z_rnn_out = self.lin_layer(rnn_output_h_d).permute(0, 2, 1) # shape: batch_size x class_num + 1 x max_seq_len
         z_rnn_out = self.apply_mask(self.lin_layer(rnn_output_h), mask)
-
-        print('Hello!')
-
         o = self.narx_layer(z_rnn_out, mask)
-        print('o.shape', o.shape)
-
-        print('FIN')
-
-        exit()
-
-        y = self.log_softmax_layer(z_rnn_out.permute(0, 2, 1))
+        #y = self.log_softmax_layer(z_rnn_out.permute(0, 2, 1))
+        y = self.log_softmax_layer(o.permute(0, 2, 1))
         return y
 
     def get_loss(self, word_sequences_train_batch, tag_sequences_train_batch):
