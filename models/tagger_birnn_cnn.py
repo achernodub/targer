@@ -51,9 +51,10 @@ class TaggerBiRNNCNN(TaggerBase):
         self.lin_layer = nn.Linear(in_features=self.birnn_layer.output_dim, out_features=class_num + 1)
         self.log_softmax_layer = nn.LogSoftmax(dim=1)
 
-        self.narx_layer = LayerNARX(input_dim = self.lin_layer.out_features,
+        self.narx_layer = LayerNARX(input_dim = self.birnn_layer.output_dim,
+                                    hidden_dim = 100,
                                     output_dim = class_num + 1,
-                                    tdl_seq_len = 5,
+                                    tdl_seq_len = 10,
                                     gpu = gpu)
         if gpu >= 0:
             self.cuda(device=self.gpu)
@@ -71,8 +72,8 @@ class TaggerBiRNNCNN(TaggerBase):
         rnn_output_h = self.birnn_layer(z, mask)
         #rnn_output_h_d = self.dropout(rnn_output_h) # shape: batch_size x max_seq_len x rnn_hidden_dim*2
         #z_rnn_out = self.lin_layer(rnn_output_h_d).permute(0, 2, 1) # shape: batch_size x class_num + 1 x max_seq_len
-        z_rnn_out = self.apply_mask(self.lin_layer(rnn_output_h), mask)
-        o = self.narx_layer(z_rnn_out, mask)
+        #z_rnn_out = self.apply_mask(self.lin_layer(rnn_output_h), mask)
+        o = self.narx_layer(rnn_output_h, mask)
         #y = self.log_softmax_layer(z_rnn_out.permute(0, 2, 1))
         y = self.log_softmax_layer(o.permute(0, 2, 1))
         return y
