@@ -22,7 +22,6 @@ class LayerCRF(LayerBase):
                 str += '%10s' % ('%1.1f' % empirical_transition_matrix[i, j])
         print(str)
 
-
     def init_transition_matrix(self, tag_sequences_train, tag_sequences_indexer):
         tag_sequences_indexer.add_tag('<sos>')
 
@@ -37,7 +36,6 @@ class LayerCRF(LayerBase):
                 empirical_transition_matrix[i, j] += 1
         print('Empirical:')
         self.pretty_print_transition_matrix(empirical_transition_matrix, tag_sequences_indexer)
-
         # Smart init
         nn.init.normal_(self.transition_matrix, -1, 0.1)
         for i in range(tag_sequences_indexer.get_items_count()):
@@ -50,7 +48,6 @@ class LayerCRF(LayerBase):
         #self.transition_matrix.data[self.pad_idx, self.pad_idx] = 0.0
         print('\nInitialized:')
         self.pretty_print_transition_matrix(self.transition_matrix.data, tag_sequences_indexer)
-
 
     def is_cuda(self):
         return self.transition_matrix.is_cuda
