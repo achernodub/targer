@@ -52,7 +52,7 @@ class TaggerBase(nn.Module):
                              "--save_best_path" param to create it.' % checkpoint_fn)
         tagger = torch.load(checkpoint_fn)
         tagger.gpu = gpu
-        #tagger.self_ensure_gpu()
+        tagger.self_ensure_gpu()
         return tagger
 
     def forward(self, *input):
@@ -71,7 +71,9 @@ class TaggerBase(nn.Module):
             output_idx_sequences.append(idx_seq)
         return output_idx_sequences
 
-    def predict_tags_from_words(self, word_sequences, batch_size=1):
+    def predict_tags_from_words(self, word_sequences, batch_size=-1):
+        if batch_size == -1:
+            batch_size = self.batch_size
         print('\n')
         batch_num = math.floor(len(word_sequences) / batch_size)
         output_tag_sequences = list()
@@ -97,4 +99,6 @@ class TaggerBase(nn.Module):
         return mask_tensor # batch_size x max_seq_len
 
     def apply_mask(self, input_tensor, mask_tensor):
+        input_tensor = self.tensor_ensure_gpu(input_tensor)
+        mask_tensor = self.tensor_ensure_gpu(mask_tensor)
         return input_tensor*mask_tensor.unsqueeze(-1).expand_as(input_tensor)

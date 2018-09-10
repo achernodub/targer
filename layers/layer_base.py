@@ -19,4 +19,6 @@ class LayerBase(nn.Module):
             return tensor.cpu()
 
     def apply_mask(self, input_tensor, mask_tensor):
+        input_tensor = self.tensor_ensure_gpu(input_tensor)
+        mask_tensor = self.tensor_ensure_gpu(mask_tensor)
         return input_tensor*mask_tensor.unsqueeze(-1).expand_as(input_tensor)

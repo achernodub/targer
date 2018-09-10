@@ -1,9 +1,9 @@
 from __future__ import print_function
 
 import argparse
-import time
 from math import ceil
 from os.path import isfile
+import time
 
 import numpy as np
 import torch
@@ -27,12 +27,13 @@ from models.tagger_birnn_cnn_crf import TaggerBiRNNCNNCRF
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Learning tagging problem using neural networks')
-    parser.add_argument('--model', default='BiRNN', help='Tagger model: "BiRNN", "BiRNNCNN", "BiRNNCRF", "BiRNNCNNCRF".')
-    parser.add_argument('--fn_train', default='data/persuasive_essays/Paragraph_Level/train.dat.abs',
+    parser.add_argument('--model', default='BiRNNCNNCRF', help='Tagger model: "BiRNN", "BiRNNCNN", "BiRNNCRF", '
+                                                               '"BiRNNCNNCRF".')
+    parser.add_argument('--fn_train', default='data/NER/CoNNL_2003_shared_task/train.txt',
                         help='Train data in CoNNL-2003 format.')
-    parser.add_argument('--fn_dev', default='data/persuasive_essays/Paragraph_Level/dev.dat.abs',
+    parser.add_argument('--fn_dev', default='data/NER/CoNNL_2003_shared_task/dev.txt',
                         help='Dev data in CoNNL-2003 format, it is used to find best model during the training.')
-    parser.add_argument('--fn_test', default='data/persuasive_essays/Paragraph_Level/test.dat.abs',
+    parser.add_argument('--fn_test', default='data/NER/CoNNL_2003_shared_task/test.txt',
                         help='Test data in CoNNL-2003 format, it is used to obtain the final accuracy/F1 score.')
     parser.add_argument('--emb_fn', default='embeddings/glove.6B.100d.txt', help='Path to word embeddings file.')
     parser.add_argument('--emb_dim', type=int, default=100, help='Dimension of word embeddings file.')
@@ -42,7 +43,7 @@ if __name__ == "__main__":
                         help='False to continue training the char embeddings.')
     parser.add_argument('--gpu', type=int, default=0, help='GPU device number, 0 by default, -1  means CPU.')
     parser.add_argument('--check_for_lowercase', type=bool, default=True, help='Read characters caseless.')
-    parser.add_argument('--epoch_num', type=int, default=200, help='Number of epochs.')
+    parser.add_argument('--epoch_num', type=int, default=100, help='Number of epochs.')
     parser.add_argument('--min_epoch_num', type=int, default=50, help='Minimum number of epochs.')
     parser.add_argument('--rnn_hidden_dim', type=int, default=100, help='Number hidden units in the recurrent layer.')
     parser.add_argument('--rnn_type', default='GRU', help='RNN cell units type: "Vanilla", "LSTM", "GRU".')
@@ -56,7 +57,7 @@ if __name__ == "__main__":
     parser.add_argument('--lr', type=float, default=0.005, help='Learning rate.')
     parser.add_argument('--lr_decay', type=float, default=0, help='Learning decay rate.') # 0.05
     parser.add_argument('--momentum', type=float, default=0.9, help='Learning momentum rate.')
-    parser.add_argument('--batch_size', type=int, default=10, help='Batch size, samples.')
+    parser.add_argument('--batch_size', type=int, default=1, help='Batch size, samples.')
     parser.add_argument('--verbose', type=bool, default=True, help='Show additional information.')
     parser.add_argument('--seed_num', type=int, default=42, help='Random seed number, but 42 is the best forever!')
     parser.add_argument('--checkpoint_fn', default=None, help='Path to save the trained model.')
@@ -65,41 +66,17 @@ if __name__ == "__main__":
     parser.add_argument('--patience', type=int, default=15, help='Patience for early stopping.')
     parser.add_argument('--word_seq_indexer_path', type=str, default=None, help='Load word_seq_indexer object from hdf5\ '
                                                                                 'file.')
+
     args = parser.parse_args()
+
+    args.epoch_num = 200
+    args.checkpoint_fn = 'tagger_NER.hdf5'
+
     np.random.seed(args.seed_num)
     torch.manual_seed(args.seed_num)
     if args.gpu >= 0:
         torch.cuda.set_device(args.gpu)
         torch.cuda.manual_seed(args.seed_num)
-
-    #args.fn_train = 'data/NER/CoNNL_2003_shared_task/train.txt'
-    #args.fn_dev = 'data/NER/CoNNL_2003_shared_task/dev.txt'
-    #args.fn_test = 'data/NER/CoNNL_2003_shared_task/test.txt'
-
-    #args.fn_train = 'data/persuasive_essays/Essay_Level/train.dat.abs'
-    #args.fn_dev = 'data/persuasive_essays/Essay_Level/dev.dat.abs'
-    #args.fn_test = 'data/persuasive_essays/Essay_Level/test.dat.abs'
-
-    #args.model = 'BiRNN'
-    #args.model = 'BiRNNCNN'
-    #args.model = 'BiRNNCRF'
-    args.model = 'BiRNNCNNCRF'
-    args.rnn_hidden_dim = 100
-    #args.rnn_type = 'LSTM'
-
-    args.epoch_num = 5
-    args.batch_size = 1
-    args.lr = 0.005
-    args.lr_decay = 0
-
-    #args.epoch_num = 200
-    #args.batch_size = 10
-    #args.lr = 0.015
-    #args.lr_decay = 0.05
-
-    #args.checkpoint_fn = 'tagger_model_BiRNNCNN_NER_nosb.hdf5'
-    #args.checkpoint_fn = 'tagger_model_BiRNNCNNCRF_PE_100_1b.hdf5'
-    args.word_seq_indexer_path = 'word_seq_PE.hdf5'
 
     # Load CoNNL data as sequences of strings of words and corresponding tags
     word_sequences_train, tag_sequences_train = DataIO.read_CoNNL_universal(args.fn_train, verbose=True)
@@ -133,6 +110,7 @@ if __name__ == "__main__":
         tagger = TaggerBiRNN(word_seq_indexer=word_seq_indexer,
                              tag_seq_indexer=tag_seq_indexer,
                              class_num=tag_seq_indexer.get_class_num(),
+                             batch_size=args.batch_size,
                              rnn_hidden_dim=args.rnn_hidden_dim,
                              freeze_word_embeddings=args.freeze_word_embeddings,
                              dropout_ratio=args.dropout_ratio,
@@ -142,6 +120,7 @@ if __name__ == "__main__":
         tagger = TaggerBiRNNCNN(word_seq_indexer=word_seq_indexer,
                                 tag_seq_indexer=tag_seq_indexer,
                                 class_num=tag_seq_indexer.get_class_num(),
+                                batch_size=args.batch_size,
                                 rnn_hidden_dim=args.rnn_hidden_dim,
                                 freeze_word_embeddings=args.freeze_word_embeddings,
                                 dropout_ratio=args.dropout_ratio,
@@ -156,6 +135,7 @@ if __name__ == "__main__":
         tagger = TaggerBiRNNCRF(word_seq_indexer=word_seq_indexer,
                                 tag_seq_indexer=tag_seq_indexer,
                                 class_num=tag_seq_indexer.get_class_num(),
+                                batch_size=args.batch_size,
                                 rnn_hidden_dim=args.rnn_hidden_dim,
                                 freeze_word_embeddings=args.freeze_word_embeddings,
                                 dropout_ratio=args.dropout_ratio,
@@ -165,6 +145,7 @@ if __name__ == "__main__":
         tagger = TaggerBiRNNCNNCRF(word_seq_indexer=word_seq_indexer,
                                    tag_seq_indexer=tag_seq_indexer,
                                    class_num=tag_seq_indexer.get_class_num(),
+                                   batch_size=args.batch_size,
                                    rnn_hidden_dim=args.rnn_hidden_dim,
                                    freeze_word_embeddings=args.freeze_word_embeddings,
                                    dropout_ratio=args.dropout_ratio,
@@ -176,7 +157,7 @@ if __name__ == "__main__":
                                    char_cnn_filter_num=args.char_cnn_filter_num,
                                    char_window_size=args.char_window_size)
     else:
-        raise ValueError('Unknown tagger model, must be one of "BiRNN"/"BiRNNCNN"/"BiRNNCNNCRF".')
+        raise ValueError('Unknown tagger model, must be one of "BiRNN"/"BiRNNCNN"/"BiRNNCRF"/"BiRNNCNNCRF".')
 
     optimizer = optim.SGD(list(tagger.parameters()), lr=args.lr, momentum=args.momentum)
     scheduler = LambdaLR(optimizer, lr_lambda=lambda epoch: 1/(1 + args.lr_decay*epoch))
@@ -201,7 +182,6 @@ if __name__ == "__main__":
             loss.backward()
             tagger.clip_gradients(args.clip_grad)
             optimizer.step()
-            #if i > 100: break
             if i % 1 == 0:
                 print('\r-- train epoch %d/%d, batch %d/%d (%1.2f%%), loss = %03.4f.' % (epoch, args.epoch_num, i + 1,
                                                                                         iterations_num,
@@ -227,12 +207,12 @@ if __name__ == "__main__":
         if patience_counter > args.patience and epoch > args.min_epoch_num:
             break
 
-    # Save final tagger to disk
+    # Save final trained tagger to disk
     if args.checkpoint_fn is not None:
         tagger.save(args.checkpoint_fn)
 
     # Make final evaluation of trained tagger
-    output_tag_sequences_test = tagger.predict_tags_from_words(datasets_bank.word_sequences_test, args.batch_size)
+    output_tag_sequences_test = tagger.predict_tags_from_words(datasets_bank.word_sequences_test)
     f1_test_final, test_connl_str = Evaluator.get_f1_connl_script(tagger=tagger,
                                                      word_sequences=datasets_bank.word_sequences_test,
                                                      targets_tag_sequences=datasets_bank.tag_sequences_test,

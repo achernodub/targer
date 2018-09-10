@@ -39,7 +39,6 @@ class Evaluator():
             os.remove(fn_out)
         if outputs_tag_sequences is None:
             outputs_tag_sequences = tagger.predict_tags_from_words(word_sequences)
-
         DataIO.write_CoNNL_2003_two_columns(fn_out, word_sequences, targets_tag_sequences, outputs_tag_sequences)
         cmd = 'perl %s < %s' % (os.path.join('.', 'conlleval'), fn_out)
         connl_str = '\nStandard CoNNL perl script (author: Erik Tjong Kim Sang <erikt@uia.ua.ac.be>, version: 2004-01-26):\n'
@@ -51,7 +50,9 @@ class Evaluator():
         return f1, connl_str
 
     @staticmethod
-    def get_evaluation_train_dev_test(tagger, datasets_bank, batch_size=1):
+    def get_evaluation_train_dev_test(tagger, datasets_bank, batch_size=-1):
+        if batch_size == -1:
+            batch_size = tagger.batch_size
         outputs_tag_sequences_train = tagger.predict_tags_from_words(word_sequences=datasets_bank.word_sequences_train,
                                                                      batch_size=batch_size)
         outputs_tag_sequences_dev = tagger.predict_tags_from_words(word_sequences=datasets_bank.word_sequences_dev,

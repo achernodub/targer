@@ -70,7 +70,9 @@ class TaggerBiRNNCRF(TaggerBase):
         idx_sequences = self.crf_layer.decode_viterbi(features_rnn_compressed, mask)
         return idx_sequences
 
-    def predict_tags_from_words(self, word_sequences, batch_size=100):
+    def predict_tags_from_words(self, word_sequences, batch_size=-1):
+        if batch_size == -1:
+            batch_size = self.batch_size
         print('\n')
         batch_num = math.floor(len(word_sequences) / batch_size)
         output_tag_sequences = list()

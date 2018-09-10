@@ -62,8 +62,8 @@ class LayerCRF(LayerBase):
         score = self.tensor_ensure_gpu(torch.Tensor(batch_num, self.states_num).fill_(-9999.))
         score[:, self.sos_idx] = 0.0
         for n in range(max_seq_len):
-            curr_bptr = LongTensor()
-            curr_score = Tensor()
+            curr_bptr = self.tensor_ensure_gpu(torch.LongTensor())
+            curr_score = self.tensor_ensure_gpu(torch.Tensor())
             for curr_state in range(self.states_num):
                 max_value = [e.unsqueeze(1) for e in torch.max(score + self.transition_matrix[curr_state], 1)]
                 curr_bptr = torch.cat((curr_bptr, max_value[1]), 1)
