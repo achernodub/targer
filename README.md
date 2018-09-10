@@ -100,7 +100,7 @@ optional arguments:
   --patience PATIENCE   Patience for early stopping.
   --word_seq_indexer_path WORD_SEQ_INDEXER_PATH
                         Load word_seq_indexer object from hdf5 file.```
-
+```
 
 ### Run pretrained model
 
