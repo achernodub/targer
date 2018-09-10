@@ -10,11 +10,47 @@ class LayerCRF(LayerBase):
         self.pad_idx = pad_idx
         self.sos_idx = sos_idx
         self.transition_matrix = nn.Parameter(torch.zeros(states_num, states_num, dtype=torch.float)) # transition scores from j to i
+
+    def pretty_print_transition_matrix(self, empirical_transition_matrix, tag_sequences_indexer):
+        str = '%10s' % ''
+        for i in range(tag_sequences_indexer.get_items_count()):
+            str += '%10s' % tag_sequences_indexer.idx2item_dict[i]
+        str += '\n'
+        for i in range(tag_sequences_indexer.get_items_count()):
+            str += '\n%10s' % tag_sequences_indexer.idx2item_dict[i]
+            for j in range(tag_sequences_indexer.get_items_count()):
+                str += '%10s' % ('%1.1f' % empirical_transition_matrix[i, j])
+        print(str)
+
+
+    def init_transition_matrix(self, tag_sequences_train, tag_sequences_indexer):
+        tag_sequences_indexer.add_tag('<sos>')
+
+        empirical_transition_matrix = torch.zeros(self.states_num, self.states_num, dtype=torch.long)
+        for tag_seq in tag_sequences_train:
+            for n, tag in enumerate(tag_seq):
+                if n + 1 >= len(tag_seq):
+                    break
+                next_tag = tag_seq[n + 1]
+                j = tag_sequences_indexer.item2idx_dict[tag]
+                i = tag_sequences_indexer.item2idx_dict[next_tag]
+                empirical_transition_matrix[i, j] += 1
+        print('Empirical:')
+        self.pretty_print_transition_matrix(empirical_transition_matrix, tag_sequences_indexer)
+
+        # Smart init
         nn.init.normal_(self.transition_matrix, -1, 0.1)
-        self.transition_matrix.data[sos_idx, :] = -9999.0
-        self.transition_matrix.data[:, pad_idx] = -9999.0
-        self.transition_matrix.data[pad_idx, :] = -9999.0
-        self.transition_matrix.data[pad_idx, pad_idx] = 0.0
+        for i in range(tag_sequences_indexer.get_items_count()):
+            for j in range(tag_sequences_indexer.get_items_count()):
+                if empirical_transition_matrix[i, j] == 0:
+                    self.transition_matrix.data[i, j] = -9999.0
+        #self.transition_matrix.data[self.sos_idx, :] = -9999.0
+        #self.transition_matrix.data[:, self.pad_idx] = -9999.0
+        #self.transition_matrix.data[self.pad_idx, :] = -9999.0
+        #self.transition_matrix.data[self.pad_idx, self.pad_idx] = 0.0
+        print('\nInitialized:')
+        self.pretty_print_transition_matrix(self.transition_matrix.data, tag_sequences_indexer)
+
 
     def is_cuda(self):
         return self.transition_matrix.is_cuda

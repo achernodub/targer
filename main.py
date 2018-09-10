@@ -68,9 +68,9 @@ if __name__ == "__main__":
                                                                                 'file.')
 
     args = parser.parse_args()
+    args.word_seq_indexer_path = 'word_seq_indexer.hdf5'
 
-    args.epoch_num = 200
-    args.checkpoint_fn = 'tagger_NER.hdf5'
+    args.epoch_num = 1
 
     np.random.seed(args.seed_num)
     torch.manual_seed(args.seed_num)
@@ -158,6 +158,9 @@ if __name__ == "__main__":
                                    char_window_size=args.char_window_size)
     else:
         raise ValueError('Unknown tagger model, must be one of "BiRNN"/"BiRNNCNN"/"BiRNNCRF"/"BiRNNCNNCRF".')
+
+    if tagger.crf_layer is not None: ###################################################################################
+        tagger.crf_layer.init_transition_matrix(tag_sequences_train, tag_seq_indexer)
 
     optimizer = optim.SGD(list(tagger.parameters()), lr=args.lr, momentum=args.momentum)
     scheduler = LambdaLR(optimizer, lr_lambda=lambda epoch: 1/(1 + args.lr_decay*epoch))
