@@ -2,7 +2,7 @@
 
 BiLSTM-CNN-CRF-tagger is a Pytorch-based implementation of "mainstream" neural tagging scheme from [Lample, 
 et. al., 2016](https://arxiv.org/pdf/1603.01360.pdf). The evaluation of f1 score is provided using  standard Perl 
-script for CoNNL-2003 shared task by Erik Tjong Kim Sang <erikt@uia.ua.ac.be>, version: 2004-01-26. 
+script for CoNNL-2003 shared task by Erik Tjong Kim Sang, version: 2004-01-26. 
 
 The results on Named Enitity Recognition CoNNL-2003 shared task with default settings: 
 
