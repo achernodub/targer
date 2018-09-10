@@ -10,9 +10,6 @@ The results on Named Enitity Recognition CoNNL-2003 shared task with default set
 | ------------------- | ------------- |
 | Bi-GRU + CNN + CRF  |      90.20    |
 
-
-f1 score = 90.20.
-
 ## Requirements
 
 - python 3.6
