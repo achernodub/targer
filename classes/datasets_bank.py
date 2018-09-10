@@ -1,11 +1,14 @@
-import random
-import numpy as np
+"""
+.. module:: DatasetsBank
+    :synopsis: DatasetsBank provides storing the train/dev/test data subsets and sampling batches from the train dataset
 
+.. moduleauthor:: Artem Chernodub
+"""
+
+import numpy as np
 
 class DatasetsBank():
     """
-    DatasetsBank provides 1) storing the different dataset subsets (train/dev/test)
-                          2) sampling batches from the train dataset subset
     """
 
     def __init__(self, verbose=True):

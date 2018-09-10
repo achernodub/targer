@@ -1,3 +1,10 @@
+"""
+.. module:: LayerWordEmbeddings
+    :synopsis: LayerWordEmbeddings implements word embeddings
+
+.. moduleauthor:: Artem Chernodub
+"""
+
 import torch.nn as nn
 from layers.layer_base import LayerBase
 

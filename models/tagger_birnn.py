@@ -1,3 +1,10 @@
+"""
+.. module:: TaggerBiRNN
+    :synopsis: TaggerBiRNN is a Vanilla recurrent network model for sequences tagging.
+
+.. moduleauthor:: Artem Chernodub
+"""
+
 import torch
 import torch.nn as nn
 
@@ -7,12 +14,9 @@ from layers.layer_bilstm import LayerBiLSTM
 from layers.layer_bigru import LayerBiGRU
 
 class TaggerBiRNN(TaggerBase):
-    """
-    TaggerBiRNN is a basic pure recurrent network model for sequences tagging.
-    """
-    def __init__(self, word_seq_indexer, tag_seq_indexer, class_num, rnn_hidden_dim=100, freeze_word_embeddings=False, dropout_ratio=0.5,
-                 rnn_type='GRU', gpu=-1):
-        super(TaggerBiRNN, self).__init__(word_seq_indexer, tag_seq_indexer, gpu)
+    def __init__(self, word_seq_indexer, tag_seq_indexer, class_num, batch_size=1, rnn_hidden_dim=100,
+                 freeze_word_embeddings=False, dropout_ratio=0.5, rnn_type='GRU', gpu=-1):
+        super(TaggerBiRNN, self).__init__(word_seq_indexer, tag_seq_indexer, gpu, batch_size)
         self.tag_seq_indexer = tag_seq_indexer
         self.class_num = class_num
         self.rnn_hidden_dim = rnn_hidden_dim

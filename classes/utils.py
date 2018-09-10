@@ -1,4 +1,10 @@
-import codecs
+"""
+.. module:: Utils
+    :synopsis: Utils
+
+.. moduleauthor:: Artem Chernodub
+"""
+
 import datetime
 import itertools
 

@@ -1,14 +1,17 @@
-import codecs
+"""
+.. module:: Evaluator
+    :synopsis: Evaluator provides evaluation of F1 scores and token-level accuracies.
+
+.. moduleauthor:: Artem Chernodub
+"""
+
 import os
 import os.path
 import random
 import time
-import torch
-import numpy as np
 from sklearn.metrics import accuracy_score # f1_score, precision_score, recall_score
 from classes.data_io import DataIO
 from classes.tag_component import TagComponent
-
 
 class Evaluator():
     @staticmethod

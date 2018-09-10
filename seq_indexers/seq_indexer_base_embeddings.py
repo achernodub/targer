@@ -1,6 +1,11 @@
-import string
+"""
+.. module:: SeqIndexerBaseEmbeddings
+    :synopsis: SeqIndexerBaseEmbeddings is a basic abstract sequence indexers class that implements work qith embeddings.
+
+.. moduleauthor:: Artem Chernodub
+"""
+
 import numpy as np
-import re
 import torch
 
 from seq_indexers.seq_indexer_base import SeqIndexerBase

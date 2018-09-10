@@ -1,3 +1,10 @@
+"""
+.. module:: Report
+    :synopsis: Report stores evaluation results as text files.
+
+.. moduleauthor:: Artem Chernodub
+"""
+
 class Report():
     def __init__(self, fn, args, score_name='f1'):
         self.fn = fn

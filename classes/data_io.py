@@ -1,3 +1,10 @@
+"""
+.. module:: DataIO
+    :synopsis: DataIO is responsible wor reading and writing data.
+
+.. moduleauthor:: Artem Chernodub
+"""
+
 import codecs
 from classes.utils import is_number, get_words_num
 

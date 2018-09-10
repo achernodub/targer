@@ -1,3 +1,10 @@
+"""
+.. module:: LayerCharEmbeddings
+    :synopsis: LayerCharEmbeddings implements character-level embeddings
+
+.. moduleauthor:: Artem Chernodub
+"""
+
 import string
 
 import torch

@@ -1,15 +1,22 @@
+"""
+.. module:: SeqIndexerBase
+    :synopsis: SeqIndexerBase is a base abstract class for sequence indexers. It converts list of lists of string items
+    to the list of lists of integer indices and back. Items could be either words, tags or characters.
+
+.. moduleauthor:: Artem Chernodub
+"""
+
 import string
+import re
 
 import numpy as np
-import re
 import torch
 #from jellyfish import soundex
-from autocorrect import spell
+#from autocorrect import spell
 
 class SeqIndexerBase():
     """
-    SeqIndexer converts list of lists of string items to to the list of lists of integer indices and back.
-    Items could be either words, tags or characters.
+
     """
 
     def __init__(self, gpu=-1, check_for_lowercase=True, zero_digits=False, pad='<pad>', unk='<unk>',

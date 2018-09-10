@@ -1,3 +1,10 @@
+"""
+.. module::
+    :synopsis: TaggerBiRNNCNN is a model for sequences tagging that includes RNN and character-level conv-1D layer.
+
+.. moduleauthor:: Artem Chernodub
+"""
+
 import torch
 import torch.nn as nn
 
@@ -9,13 +16,11 @@ from layers.layer_char_embeddings import LayerCharEmbeddings
 from layers.layer_char_cnn import LayerCharCNN
 
 class TaggerBiRNNCNN(TaggerBase):
-    """
-    TaggerBiRNNCNN is a model for sequences tagging that includes recurrent network and character-level conv-1D layer.
-    """
-    def __init__(self, word_seq_indexer, tag_seq_indexer, class_num, rnn_hidden_dim=100, freeze_word_embeddings=False,
-                 dropout_ratio=0.5, rnn_type='GRU', gpu=-1, freeze_char_embeddings = False, char_embeddings_dim=25,
-                 word_len=20, char_cnn_filter_num=30, char_window_size=3):
-        super(TaggerBiRNNCNN, self).__init__(word_seq_indexer, tag_seq_indexer, gpu)
+    def __init__(self, word_seq_indexer, tag_seq_indexer, class_num, batch_size=1, rnn_hidden_dim=100,
+                 freeze_word_embeddings=False, dropout_ratio=0.5, rnn_type='GRU', gpu=-1,
+                 freeze_char_embeddings = False, char_embeddings_dim=25, word_len=20, char_cnn_filter_num=30,
+                 char_window_size=3):
+        super(TaggerBiRNNCNN, self).__init__(word_seq_indexer, tag_seq_indexer, gpu, batch_size)
         self.tag_seq_indexer = tag_seq_indexer
         self.class_num = class_num
         self.rnn_hidden_dim = rnn_hidden_dim

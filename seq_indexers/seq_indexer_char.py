@@ -1,7 +1,9 @@
-import string
-import numpy as np
-import re
-import torch
+"""
+.. module:: SeqIndexerBaseChar
+    :synopsis: SeqIndexerBaseChar converts list of lists of characters to list of lists of integer indices and back.
+
+.. moduleauthor:: Artem Chernodub
+"""
 
 from seq_indexers.seq_indexer_base_embeddings import SeqIndexerBaseEmbeddings
 

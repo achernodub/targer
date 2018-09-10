@@ -1,4 +1,10 @@
-import torch.nn as nn
+"""
+.. module:: LayerBiRNNBase
+    :synopsis: Abstract base class for all bidirectional recurrent layers
+
+.. moduleauthor:: Artem Chernodub
+"""
+
 from layers.layer_base import LayerBase
 
 class LayerBiRNNBase(LayerBase):

@@ -1,3 +1,10 @@
+"""
+.. module:: LayerBiLSTM
+    :synopsis: BiLSTM layer implements standard bidirectional LSTM recurrent layer
+
+.. moduleauthor:: Artem Chernodub
+"""
+
 import torch
 import torch.nn as nn
 

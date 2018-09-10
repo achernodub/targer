@@ -1,5 +1,11 @@
-import torch.nn as nn
+"""
+.. module:: LayerBase
+    :synopsis: Abstract base class for all type of layers
 
+.. moduleauthor:: Artem Chernodub
+"""
+
+import torch.nn as nn
 
 class LayerBase(nn.Module):
     def __init__(self, gpu):

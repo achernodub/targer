@@ -1,3 +1,9 @@
+"""
+.. module:: TagComponent
+    :synopsis: TagComponent
+
+.. moduleauthor:: Artem Chernodub
+"""
 
 class TagComponent():
     def __init__(self, pos_begin, tag):

@@ -1,3 +1,10 @@
+"""
+.. module:: SeqIndexerWord
+    :synopsis: SeqIndexerWord converts list of lists of words as strings to list of lists of integer indices and back.
+
+.. moduleauthor:: Artem Chernodub
+"""
+
 import string
 import numpy as np
 import re

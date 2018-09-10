@@ -1,3 +1,10 @@
+"""
+.. module:: LayerBiGRU
+    :synopsis: BiGRU layer implements standard bidirectional GRU recurrent layer
+
+.. moduleauthor:: Artem Chernodub
+"""
+
 import torch
 import torch.nn as nn
 
