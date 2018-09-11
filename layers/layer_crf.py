@@ -1,3 +1,5 @@
+from math import log
+
 import torch
 import torch.nn as nn
 
@@ -21,15 +23,17 @@ class LayerCRF(LayerBase):
         self.transition_matrix.data[self.pad_idx, :] = -9999.0
         self.transition_matrix.data[self.pad_idx, self.pad_idx] = 0.0
 
-    def get_empirical_transition_matrix(self, tag_sequences_train):
+    def get_empirical_transition_matrix(self, tag_sequences_train, tag_seq_indexer=None):
+        if tag_seq_indexer is None:
+            tag_seq_indexer = self.tag_seq_indexer
         empirical_transition_matrix = torch.zeros(self.states_num, self.states_num, dtype=torch.long)
         for tag_seq in tag_sequences_train:
             for n, tag in enumerate(tag_seq):
                 if n + 1 >= len(tag_seq):
                     break
                 next_tag = tag_seq[n + 1]
-                j = self.tag_seq_indexer.item2idx_dict[tag]
-                i = self.tag_seq_indexer.item2idx_dict[next_tag]
+                j = tag_seq_indexer.item2idx_dict[tag]
+                i = tag_seq_indexer.item2idx_dict[next_tag]
                 empirical_transition_matrix[i, j] += 1
         return empirical_transition_matrix
 
@@ -39,22 +43,25 @@ class LayerCRF(LayerBase):
         # Initialize
         for i in range(self.tag_seq_indexer.get_items_count()):
             for j in range(self.tag_seq_indexer.get_items_count()):
-                if empirical_transition_matrix[i, j] == 0:
-                    self.transition_matrix.data[i, j] = -9999.0
+                #if empirical_transition_matrix[i, j] == 0:
+                #    self.transition_matrix.data[i, j] = -9999.0
+                self.transition_matrix.data[i, j] = torch.log(empirical_transition_matrix[i, j].float() + 10**-32)
         if self.verbose:
             print('Empirical transition matrix from the train dataset:')
             self.pretty_print_transition_matrix(empirical_transition_matrix)
             print('\nInitialized transition matrix:')
             self.pretty_print_transition_matrix(self.transition_matrix.data)
 
-    def pretty_print_transition_matrix(self, transition_matrix):
+    def pretty_print_transition_matrix(self, transition_matrix, tag_seq_indexer=None):
+        if tag_seq_indexer is None:
+            tag_seq_indexer = self.tag_seq_indexer
         str = '%10s' % ''
-        for i in range(self.tag_seq_indexer.get_items_count()):
-            str += '%10s' % self.tag_seq_indexer.idx2item_dict[i]
+        for i in range(tag_seq_indexer.get_items_count()):
+            str += '%10s' % tag_seq_indexer.idx2item_dict[i]
         str += '\n'
-        for i in range(self.tag_seq_indexer.get_items_count()):
-            str += '\n%10s' % self.tag_seq_indexer.idx2item_dict[i]
-            for j in range(self.tag_seq_indexer.get_items_count()):
+        for i in range(tag_seq_indexer.get_items_count()):
+            str += '\n%10s' % tag_seq_indexer.idx2item_dict[i]
+            for j in range(tag_seq_indexer.get_items_count()):
                 str += '%10s' % ('%1.1f' % transition_matrix[i, j])
         print(str)
 
