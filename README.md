@@ -1,8 +1,8 @@
 # BiLSTM-CNN-CRF-tagger
 
-BiLSTM-CNN-CRF-tagger is a Pytorch-based implementation of "mainstream" neural tagging scheme from [Lample, 
-et. al., 2016](https://arxiv.org/pdf/1603.01360.pdf). The evaluation of f1 score is provided using  standard Perl 
-script for CoNNL-2003 shared task by Erik Tjong Kim Sang, version: 2004-01-26. 
+BiLSTM-CNN-CRF-tagger is a Pytorch-based implementation of "mainstream" neural tagging scheme based on works [Lample, 
+et. al., 2016](https://arxiv.org/pdf/1603.01360.pdf) and [Ma et. al., 2018](https://arxiv.org/pdf/1603.01354.pdf). The 
+evaluation of f1 score is provided using  standard Perl script for CoNNL-2003 shared task by Erik Tjong Kim Sang, version: 2004-01-26. 
 
 The results on Named Enitity Recognition CoNNL-2003 shared task with default settings: 
 
@@ -103,10 +103,10 @@ optional arguments:
                         Load word_seq_indexer object from hdf5 file.```
 ```
 
-### Run pretrained model
+### Run trained model
 
 ```
-usage: run_tagger_example.py [-h] [--fn FN] [--checkpoint_fn CHECKPOINT_FN]
+usage: run_tagger.py [-h] [--fn FN] [--checkpoint_fn CHECKPOINT_FN]
                              [--gpu GPU]
 
 Run trained tagger from the checkpoint file
@@ -119,7 +119,7 @@ optional arguments:
   --gpu GPU             GPU device number, 0 by default, -1 means CPU.
 ```
 
-### Example of report
+### Example of output report
 
 ```
 Evaluation, micro-f1 scores.
@@ -163,51 +163,7 @@ word_seq_indexer_path=None
      2 | 90.97 | 90.02 | 87.77
      3 | 92.39 | 90.77 | 87.83
      4 | 93.71 | 90.95 | 88.40
-     5 | 94.72 | 91.88 | 88.80
-     6 | 95.55 | 92.38 | 89.22
-     7 | 95.52 | 92.34 | 89.54
-     8 | 95.95 | 92.48 | 89.80
-     9 | 96.52 | 92.45 | 89.63
-    10 | 96.98 | 93.15 | 89.98
-    11 | 97.18 | 93.32 | 90.30
-    12 | 97.28 | 93.09 | 90.14
-    13 | 97.63 | 93.78 | 90.20
-    14 | 97.68 | 93.35 | 89.79
-    15 | 97.79 | 93.63 | 89.84
-    16 | 98.04 | 93.69 | 90.40
-    17 | 98.29 | 93.68 | 90.03
-    18 | 98.14 | 93.63 | 89.86
-    19 | 98.37 | 93.71 | 89.96
-    20 | 98.47 | 93.71 | 90.16
-    21 | 98.54 | 93.78 | 90.14
-    22 | 98.75 | 93.78 | 90.19
-    23 | 98.45 | 93.78 | 89.64
-    24 | 98.65 | 93.39 | 89.58
-    25 | 98.81 | 93.70 | 90.29
-    26 | 98.85 | 93.95 | 90.12
-    27 | 98.92 | 93.63 | 90.33
-    28 | 99.12 | 93.68 | 90.35
-    29 | 99.24 | 93.94 | 90.27
-    30 | 99.12 | 93.76 | 90.22
-    31 | 99.18 | 93.78 | 90.40
-    32 | 99.19 | 93.98 | 90.39
-    33 | 99.17 | 94.02 | 90.40
-    34 | 99.37 | 94.07 | 90.48
-    35 | 99.35 | 93.99 | 90.32
-    36 | 99.20 | 93.62 | 90.05
-    37 | 99.52 | 93.93 | 90.16
-    38 | 99.52 | 94.26 | 90.01
-    39 | 99.57 | 93.95 | 90.41
-    40 | 99.56 | 93.88 | 90.26
-    41 | 99.54 | 93.87 | 90.37
-    42 | 99.58 | 93.99 | 90.38
-    43 | 99.63 | 93.86 | 90.27
-    44 | 99.57 | 93.84 | 90.27
-    45 | 99.71 | 94.04 | 90.36
-    46 | 99.66 | 94.04 | 90.36
-    47 | 99.60 | 94.20 | 90.19
-    48 | 99.70 | 93.93 | 90.13
-    49 | 99.68 | 94.17 | 90.55
+               ... 
     50 | 99.72 | 94.16 | 90.45
     51 | 99.67 | 94.07 | 90.41
     52 | 99.68 | 93.92 | 90.25
