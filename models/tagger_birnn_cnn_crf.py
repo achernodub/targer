@@ -55,7 +55,8 @@ class TaggerBiRNNCNNCRF(TaggerBase):
         else:
             raise ValueError('Unknown rnn_type = %s, must be either "LSTM" or "GRU"')
         self.lin_layer = nn.Linear(in_features=self.birnn_layer.output_dim, out_features=class_num + 2)
-        self.crf_layer = LayerCRF(gpu, states_num=class_num + 2, pad_idx=tag_seq_indexer.pad_idx, sos_idx=class_num + 1)
+        self.crf_layer = LayerCRF(gpu, states_num=class_num + 2, pad_idx=tag_seq_indexer.pad_idx, sos_idx=class_num + 1,
+                                  tag_seq_indexer=tag_seq_indexer)
         self.softmax = nn.Softmax(dim=2)
         if gpu >= 0:
             self.cuda(device=self.gpu)

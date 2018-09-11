@@ -4,50 +4,55 @@ import torch.nn as nn
 from layers.layer_base import LayerBase
 
 class LayerCRF(LayerBase):
-    def __init__(self, gpu, states_num, pad_idx, sos_idx):
+    def __init__(self, gpu, states_num, pad_idx, sos_idx, tag_seq_indexer, verbose=True):
         super(LayerCRF, self).__init__(gpu)
         self.states_num = states_num
         self.pad_idx = pad_idx
         self.sos_idx = sos_idx
-        self.transition_matrix = nn.Parameter(torch.zeros(states_num, states_num, dtype=torch.float)) # transition scores from j to i
+        self.tag_seq_indexer = tag_seq_indexer
+        self.tag_seq_indexer.add_tag('<sos>')
+        self.verbose = verbose
+        # Transition matrix contains log probabilities from state j to state i
+        self.transition_matrix = nn.Parameter(torch.zeros(states_num, states_num, dtype=torch.float))
+        nn.init.normal_(self.transition_matrix, -1, 0.1)
+        # Default initialization
+        self.transition_matrix.data[self.sos_idx, :] = -9999.0
+        self.transition_matrix.data[:, self.pad_idx] = -9999.0
+        self.transition_matrix.data[self.pad_idx, :] = -9999.0
+        self.transition_matrix.data[self.pad_idx, self.pad_idx] = 0.0
 
-    def pretty_print_transition_matrix(self, empirical_transition_matrix, tag_sequences_indexer):
-        str = '%10s' % ''
-        for i in range(tag_sequences_indexer.get_items_count()):
-            str += '%10s' % tag_sequences_indexer.idx2item_dict[i]
-        str += '\n'
-        for i in range(tag_sequences_indexer.get_items_count()):
-            str += '\n%10s' % tag_sequences_indexer.idx2item_dict[i]
-            for j in range(tag_sequences_indexer.get_items_count()):
-                str += '%10s' % ('%1.1f' % empirical_transition_matrix[i, j])
-        print(str)
-
-    def init_transition_matrix(self, tag_sequences_train, tag_sequences_indexer):
-        tag_sequences_indexer.add_tag('<sos>')
-
+    def init_transition_matrix_empirical(self, tag_sequences_train):
+        # Calculate statistics for tag transitions
         empirical_transition_matrix = torch.zeros(self.states_num, self.states_num, dtype=torch.long)
         for tag_seq in tag_sequences_train:
             for n, tag in enumerate(tag_seq):
                 if n + 1 >= len(tag_seq):
                     break
                 next_tag = tag_seq[n + 1]
-                j = tag_sequences_indexer.item2idx_dict[tag]
-                i = tag_sequences_indexer.item2idx_dict[next_tag]
+                j = self.tag_seq_indexer.item2idx_dict[tag]
+                i = self.tag_seq_indexer.item2idx_dict[next_tag]
                 empirical_transition_matrix[i, j] += 1
-        print('Empirical:')
-        self.pretty_print_transition_matrix(empirical_transition_matrix, tag_sequences_indexer)
-        # Smart init
-        nn.init.normal_(self.transition_matrix, -1, 0.1)
-        for i in range(tag_sequences_indexer.get_items_count()):
-            for j in range(tag_sequences_indexer.get_items_count()):
+        # Initialize
+        for i in range(self.tag_seq_indexer.get_items_count()):
+            for j in range(self.tag_seq_indexer.get_items_count()):
                 if empirical_transition_matrix[i, j] == 0:
                     self.transition_matrix.data[i, j] = -9999.0
-        #self.transition_matrix.data[self.sos_idx, :] = -9999.0
-        #self.transition_matrix.data[:, self.pad_idx] = -9999.0
-        #self.transition_matrix.data[self.pad_idx, :] = -9999.0
-        #self.transition_matrix.data[self.pad_idx, self.pad_idx] = 0.0
-        print('\nInitialized:')
-        self.pretty_print_transition_matrix(self.transition_matrix.data, tag_sequences_indexer)
+        if self.verbose:
+            print('Empirical transition matrix from the train dataset:')
+            self.pretty_print_transition_matrix(empirical_transition_matrix, self.tag_seq_indexer)
+            print('\nInitialized transition matrix:')
+            self.pretty_print_transition_matrix(self.transition_matrix.data, self.tag_seq_indexer)
+
+    def pretty_print_transition_matrix(self, transition_matrix, tag_seq_indexer):
+        str = '%10s' % ''
+        for i in range(tag_seq_indexer.get_items_count()):
+            str += '%10s' % tag_seq_indexer.idx2item_dict[i]
+        str += '\n'
+        for i in range(tag_seq_indexer.get_items_count()):
+            str += '\n%10s' % tag_seq_indexer.idx2item_dict[i]
+            for j in range(tag_seq_indexer.get_items_count()):
+                str += '%10s' % ('%1.1f' % transition_matrix[i, j])
+        print(str)
 
     def is_cuda(self):
         return self.transition_matrix.is_cuda
