@@ -8,6 +8,7 @@ The results on Named Enitity Recognition CoNNL-2003 shared task with default set
 
 |         Model       |     f1-score  |
 | ------------------- | ------------- |
+| Bi-GRU              |      87.09    |
 | Bi-GRU + CNN + CRF  |      90.73    |
 
 ## Requirements
