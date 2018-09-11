@@ -12,7 +12,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Run trained tagger from the checkpoint file')
     parser.add_argument('--fn', default='data/NER/CoNNL_2003_shared_task/test.txt',
                         help='Train data in CoNNL-2003 format.')
-    parser.add_argument('--checkpoint_fn', default='tagger_NER.hdf5', help='Path to load the trained model.')
+    parser.add_argument('--checkpoint_fn', default='pretrained/tagger_NER.hdf5', help='Path to load the trained model.')
     parser.add_argument('--gpu', type=int, default=0, help='GPU device number, 0 by default, -1  means CPU.')
     args = parser.parse_args()
 
