@@ -159,8 +159,8 @@ if __name__ == "__main__":
     else:
         raise ValueError('Unknown tagger model, must be one of "BiRNN"/"BiRNNCNN"/"BiRNNCRF"/"BiRNNCNNCRF".')
 
-    if tagger.crf_layer is not None: ###################################################################################
-        tagger.crf_layer.init_transition_matrix(tag_sequences_train, tag_seq_indexer)
+    #if tagger.crf_layer is not None: ###################################################################################
+    #    tagger.crf_layer.init_transition_matrix(tag_sequences_train, tag_seq_indexer)
 
     optimizer = optim.SGD(list(tagger.parameters()), lr=args.lr, momentum=args.momentum)
     scheduler = LambdaLR(optimizer, lr_lambda=lambda epoch: 1/(1 + args.lr_decay*epoch))
