@@ -8,8 +8,9 @@ The results on **Named Enitity Recognition CoNNL-2003 shared task** with the def
 
 |         Model       |     f1-score  |
 | ------------------- | ------------- |
-| BiGRU              |      87.09    |
-| BiGRU + CNN + CRF  |      90.73    |
+| BiGRU               |      87.09    |
+| BiGRU + CNN         |      88.77    |
+| BiGRU + CNN + CRF   |      90.73    |
 
 ## Requirements
 
