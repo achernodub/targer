@@ -43,9 +43,9 @@ class LayerCRF(LayerBase):
         # Initialize
         for i in range(self.tag_seq_indexer.get_items_count()):
             for j in range(self.tag_seq_indexer.get_items_count()):
-                #if empirical_transition_matrix[i, j] == 0:
-                #    self.transition_matrix.data[i, j] = -9999.0
-                self.transition_matrix.data[i, j] = torch.log(empirical_transition_matrix[i, j].float() + 10**-32)
+                if empirical_transition_matrix[i, j] == 0:
+                    self.transition_matrix.data[i, j] = -9999.0
+                #self.transition_matrix.data[i, j] = torch.log(empirical_transition_matrix[i, j].float() + 10**-32)
         if self.verbose:
             print('Empirical transition matrix from the train dataset:')
             self.pretty_print_transition_matrix(empirical_transition_matrix)

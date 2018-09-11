@@ -159,10 +159,8 @@ if __name__ == "__main__":
     else:
         raise ValueError('Unknown tagger model, must be one of "BiRNN"/"BiRNNCNN"/"BiRNNCRF"/"BiRNNCNNCRF".')
 
-
-
-    if hasattr(tagger, 'crf_layer'):
-        tagger.crf_layer.init_transition_matrix_empirical(tag_sequences_train)
+    #if hasattr(tagger, 'crf_layer'):
+    #    tagger.crf_layer.init_transition_matrix_empirical(tag_sequences_train)
 
     optimizer = optim.SGD(list(tagger.parameters()), lr=args.lr, momentum=args.momentum)
     scheduler = LambdaLR(optimizer, lr_lambda=lambda epoch: 1/(1 + args.lr_decay*epoch))
