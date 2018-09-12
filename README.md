@@ -77,13 +77,19 @@ et. al., 2016](https://arxiv.org/pdf/1603.01360.pdf) and [Ma et. al., 2016](http
 
 Results for **Named Enitity Recognition CoNNL-2003 shared task (English)** with the default settings: 
 
-|         Model       |     f1 on test        |
-| ------------------- | --------------------- |
-| BiGRU               |      87.09            |
-| BiGRU + CNN         |      88.77            |
-| BiGRU + CNN + CRF   |      90.73            |
-| [Lample, et. al., 2016](https://arxiv.org/pdf/1603.01360.pdf)   |      90.94            |
-| [Ma et. al., 2016](https://arxiv.org/pdf/1603.01354.pdf)   |      91.21           |
+|         model       |     dataset           | micro-f1 on test        |
+| ------------------- | --------------------- | ----------------------- |
+| [Lample et. al., 2016](https://arxiv.org/pdf/1603.01360.pdf) | NER-2003 shared task (English)  | 90.94 |
+| [Ma et al., 2016](https://arxiv.org/pdf/1603.01354.pdf)      | NER-2003 shared task (English)  | 91.21 |
+| BiGRU (our)               | NER-2003 shared task (English)                      | 87.09 |           |
+| BiGRU + CNN (our)        | NER-2003 shared task (English)                     | 88.77  |           |
+| BiGRU + CNN + CRF  (our)   | NER-2003 shared task (English)                     | 90.73  |          |
+| BiGRU + CNN + CRF  (our)   | AM Persuasive Essays, Paragraph Level                     | 64.23  |          |
+| STag_BLCC [Eger et. al., 2017](https://arxiv.org/pdf/1704.06104.pdf)   | AM Persuasive Essays, Paragraph Level                     | 66.69  |          |
+| LSTM-ER [Eger et. al., 2017](https://arxiv.org/pdf/1704.06104.pdf)   | AM Persuasive Essays, Paragraph Level                     | 70.83  |          |
+| BiGRU + CNN + CRF  (our)   | AM Persuasive Essays, Paragraph Level                     | 64.23  |          |
+
+
 
 In order to ensure the consistency of the experiements, for evaluation we save the results in BOI-2 format and run the
 "official" Perl script from NER 2003 shared task, author: Erik Tjong Kim Sang, version: 2004-01-26, example of it's 
