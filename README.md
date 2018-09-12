@@ -89,10 +89,7 @@ Results of training the models with the default settings:
 | LSTM-ER, [Eger et. al., 2017](https://arxiv.org/pdf/1704.06104.pdf)   | AM Persuasive Essays, Paragraph Level                     | 70.83  |          |
 | BiGRU + CNN + CRF  (our)   | AM Persuasive Essays, Paragraph Level                     | 64.23  |          |
 
-
-
-In order to ensure the consistency of the experiments, for evaluation purposes we use "official" Perl script from NER 
-2003 shared task, author: Erik Tjong Kim Sang, version: 2004-01-26, example of it's output:
+In order to ensure the consistency of the experiments, for evaluation purposes we use "official" Perl script from NER 2003 shared task, author: Erik Tjong Kim Sang, version: 2004-01-26, example of it's output:
 
 ```
 processed 46435 tokens with 5648 phrases; found: 5620 phrases; correct: 5112.
