@@ -65,12 +65,15 @@ The results on **Named Enitity Recognition CoNNL-2003 shared task** with the def
         |__ seq_indexer_base.py --> abstract class for sequence indexers, they converts list of lists of string items
     to the list of lists of integer indices and back
         |__ seq_indexer_base_embeddings.py --> abstract sequence indexers class that implements work with embeddings 
-        |__ seq_indexer_word.py --> converts list of lists of words as strings to list of lists of integer indices and back, has embeddings
-        |__ seq_indexer_char.py --> converts list of lists of characters to list of lists of integer indices and back, doesn't have embeddings 
+        |__ seq_indexer_word.py --> converts list of lists of words as strings to list of lists of integer indices 
+                                    and back, has embeddings
+        |__ seq_indexer_char.py --> converts list of lists of characters to list of lists of integer indices and back, 
+                                    doesn't have embeddings 
         |__ seq_indexer_tag.py --> converts list of lists of string tags to list of lists of integer indices and back 
 |__ main.py --> main script for training/evaluation/saving tagger models
 |__ run_tagger.py --> run trained tagger model from the checkpoint file
-|__ conlleval --> "official" Perl script from NER 2003 shared task for evaluating the f1 scores, author: Erik Tjong Kim Sang, version: 2004-01-26
+|__ conlleval --> "official" Perl script from NER 2003 shared task for evaluating the f1 scores, 
+                   author: Erik Tjong Kim Sang, version: 2004-01-26
 |__ requirements.txt --> file for managing packages requirements    
 ```
 
