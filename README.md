@@ -67,7 +67,7 @@ et. al., 2016](https://arxiv.org/pdf/1603.01360.pdf) and [Ma et. al., 2016](http
         |__ seq_indexer_tag.py --> converts list of lists of string tags to list of lists of integer 
                                     indices and back, doesn't have built-in embeddings 
 |__ main.py --> main script for training/evaluation/saving tagger models
-|__ run_tagger.py --> run trained tagger model from the checkpoint file
+|__ run_tagger.py --> run the trained tagger model from the checkpoint file
 |__ conlleval --> "official" Perl script from NER 2003 shared task for evaluating the f1 scores, 
                    author: Erik Tjong Kim Sang, version: 2004-01-26
 |__ requirements.txt --> file for managing packages requirements    
@@ -75,9 +75,9 @@ et. al., 2016](https://arxiv.org/pdf/1603.01360.pdf) and [Ma et. al., 2016](http
 
 ## Evaluation
 
-Evaluation on **Named Enitity Recognition CoNNL-2003 shared task, English** with the default settings: 
+Evaluation on **Named Enitity Recognition CoNNL-2003 shared task (English)** with the default settings: 
 
-|         Model       |     F1 on test        |
+|         Model       |     f1 on test        |
 | ------------------- | --------------------- |
 | BiGRU               |      87.09            |
 | BiGRU + CNN         |      88.77            |
