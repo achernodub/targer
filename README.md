@@ -21,10 +21,10 @@ The results on **Named Enitity Recognition CoNNL-2003 shared task** with the def
 - scikit-learn 0.19.2
 
  
-## Project Structure
+## Project structure
 
 ```
-|__ articles/ --> papers related to the tagging problems, argument mining, etc. 
+|__ articles/ --> collection of papers related to the tagging, argument mining, etc. 
 |__ classes/
         |__ data_io.py --> class for reading/writing data in different CoNNL file formats
         |__ datasets_bank.py --> class for storing the train/dev/test data subsets and sampling batches from the train 
@@ -35,10 +35,12 @@ The results on **Named Enitity Recognition CoNNL-2003 shared task** with the def
         |__ utils.py --> several auxiliary utils and functions
 |__ data/
         |__ NER/ --> Datasets for Named Entity Recognition 
-                |__ CoNNL_2003_shared_task/ --> data from NER CoNLL-2003 shared task (English) in BOI-2 CoNNL format [Erik F. 
-                Tjong Kim Sang and Fien De Meulder, 2003](https://arxiv.org/pdf/cs/0306050.pdf)
+                |__ CoNNL_2003_shared_task/ --> data for NER CoNLL-2003 shared task (English) in BOI-2 CoNNL format, 
+                from  Erik F. Tjong Kim Sang and Fien De Meulder, Introduction to the CoNLL-2003 Shared Task: 
+                Language-Independent  Named Entity Recognition, 2003. 
         |__ AM/ --> Datasets for Argument Mining
-            |__ persuasive_essays/ --> persuasive essays in BOI-2 CoNNL format, data from [Eger et. al., 2017](https://arxiv.org/pdf/1704.06104.pdf)
+            |__ persuasive_essays/ --> pdata for ersuasive essays in BOI-2 CoNNL format, from: Steffen Eger, Johannes  
+            Daxenberger, Iryna Gurevych. Neural End-to-End Learning for Computational Argumentation Mining, 2017
 |__ embeddings/
         |__ get_glove_embeddings.sh --> script for downloading GloVe6B 100-dimensional word embeddings
 |__ layers/
