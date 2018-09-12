@@ -27,7 +27,8 @@ The results on **Named Enitity Recognition CoNNL-2003 shared task** with the def
 |__ articles/ --> collection of papers related to the tagging, argument mining, etc. 
 |__ classes/
         |__ data_io.py --> class for reading/writing data in different CoNNL file formats
-        |__ datasets_bank.py --> class for storing the train/dev/test data subsets and sampling batches from the train 
+        |__ datasets_bank.py --> class for storing the train/dev/test data subsets and sampling batches 
+                                 from the train dataset 
         dataset
         |__ evaluator.py --> class for evaluation of F1 scores and token-level accuracies
         |__ report.py --> class for storing the evaluation results as text files
@@ -35,13 +36,14 @@ The results on **Named Enitity Recognition CoNNL-2003 shared task** with the def
         |__ utils.py --> several auxiliary utils and functions
 |__ data/
         |__ NER/ --> Datasets for Named Entity Recognition 
-            |__ CoNNL_2003_shared_task/ --> data for NER CoNLL-2003 shared task (English) in BOI-2 CoNNL format, from 
-                                            Erik F. Tjong Kim Sang and Fien De Meulder, Introduction to the CoNLL-2003 
-                                            Shared Task:  Language-Independent  Named Entity Recognition, 2003. 
+            |__ CoNNL_2003_shared_task/ --> data for NER CoNLL-2003 shared task (English) in BOI-2 
+                                            CoNNL format, from Erik F. Tjong Kim Sang and Fien De Meulder, 
+                                            Introduction to the CoNLL-2003 Shared Task:  
+                                            Language-Independent Named Entity Recognition, 2003. 
         |__ AM/ --> Datasets for Argument Mining
-            |__ persuasive_essays/ --> data for persuasive essays in BOI-2 CoNNL format, from: Steffen Eger, Johannes  
-                                       Daxenberger, Iryna Gurevych. Neural End-to-End Learning for Computational 
-                                       Argumentation Mining, 2017
+            |__ persuasive_essays/ --> data for persuasive essays in BOI-2 CoNNL format, from: 
+                                       Steffen Eger, Johannes Daxenberger, Iryna Gurevych. Neural 
+                                       End-to-End  Learning for Computational Argumentation Mining, 2017
 |__ embeddings/
         |__ get_glove_embeddings.sh --> script for downloading GloVe6B 100-dimensional word embeddings
 |__ layers/
@@ -62,14 +64,17 @@ The results on **Named Enitity Recognition CoNNL-2003 shared task** with the def
 |__ pretrained/
         |__ tagger_NER.hdf5 --> tagger for NER, BiGRU+CNN+CRF trained on NER-2003 shared task, English 
 |__ seq_indexers/
-        |__ seq_indexer_base.py --> abstract class for sequence indexers, they converts list of lists of string items
+        |__ seq_indexer_base.py --> abstract class for sequence indexers, they converts list of lists 
+                                    of string items
     to the list of lists of integer indices and back
-        |__ seq_indexer_base_embeddings.py --> abstract sequence indexers class that implements work with embeddings 
-        |__ seq_indexer_word.py --> converts list of lists of words as strings to list of lists of integer indices 
-                                    and back, has embeddings
-        |__ seq_indexer_char.py --> converts list of lists of characters to list of lists of integer indices and back, 
-                                    doesn't have embeddings 
-        |__ seq_indexer_tag.py --> converts list of lists of string tags to list of lists of integer indices and back 
+        |__ seq_indexer_base_embeddings.py --> abstract sequence indexers class that implements work 
+                                               with embeddings 
+        |__ seq_indexer_word.py --> converts list of lists of words as strings to list of lists of integer 
+                                    indices and back, has built-in embeddings
+        |__ seq_indexer_char.py --> converts list of lists of characters to list of lists of integer indices 
+                                    and back, has built-in embeddings 
+        |__ seq_indexer_tag.py --> converts list of lists of string tags to list of lists of integer indices 
+                                    and back, doesn't have built-in embeddings 
 |__ main.py --> main script for training/evaluation/saving tagger models
 |__ run_tagger.py --> run trained tagger model from the checkpoint file
 |__ conlleval --> "official" Perl script from NER 2003 shared task for evaluating the f1 scores, 
