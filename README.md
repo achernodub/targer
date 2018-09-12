@@ -75,9 +75,9 @@ et. al., 2016](https://arxiv.org/pdf/1603.01360.pdf) and [Ma et. al., 2016](http
 
 ## Evaluation
 
-Results for **Named Enitity Recognition CoNNL-2003 shared task (English)** with the default settings: 
+Results of training the models with the default settings: 
 
-|         model       |     dataset           | micro-f1 on test        |
+|         tagger model       |     dataset           | micro-f1 on test        |
 | ------------------- | --------------------- | ----------------------- |
 | BiLSTM + CNN + CRF, [Lample et. al., 2016](https://arxiv.org/pdf/1603.01360.pdf) | NER-2003 shared task (English)  | 90.94 |
 | BiLSTM + CNN + CRF [Ma et al., 2016](https://arxiv.org/pdf/1603.01354.pdf)      | NER-2003 shared task (English)  | 91.21 |
