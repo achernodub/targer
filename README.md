@@ -35,12 +35,13 @@ The results on **Named Enitity Recognition CoNNL-2003 shared task** with the def
         |__ utils.py --> several auxiliary utils and functions
 |__ data/
         |__ NER/ --> Datasets for Named Entity Recognition 
-                |__ CoNNL_2003_shared_task/ --> data for NER CoNLL-2003 shared task (English) in BOI-2 CoNNL format, 
-                from  Erik F. Tjong Kim Sang and Fien De Meulder, Introduction to the CoNLL-2003 Shared Task: 
-                Language-Independent  Named Entity Recognition, 2003. 
+            |__ CoNNL_2003_shared_task/ --> data for NER CoNLL-2003 shared task (English) in BOI-2 CoNNL format, from 
+                                            Erik F. Tjong Kim Sang and Fien De Meulder, Introduction to the CoNLL-2003 
+                                            Shared Task:  Language-Independent  Named Entity Recognition, 2003. 
         |__ AM/ --> Datasets for Argument Mining
-            |__ persuasive_essays/ --> pdata for ersuasive essays in BOI-2 CoNNL format, from: Steffen Eger, Johannes  
-            Daxenberger, Iryna Gurevych. Neural End-to-End Learning for Computational Argumentation Mining, 2017
+            |__ persuasive_essays/ --> data for persuasive essays in BOI-2 CoNNL format, from: Steffen Eger, Johannes  
+                                       Daxenberger, Iryna Gurevych. Neural End-to-End Learning for Computational 
+                                       Argumentation Mining, 2017
 |__ embeddings/
         |__ get_glove_embeddings.sh --> script for downloading GloVe6B 100-dimensional word embeddings
 |__ layers/
