@@ -91,9 +91,8 @@ Results of training the models with the default settings:
 
 
 
-In order to ensure the consistency of the experiements, for evaluation we save the results in BOI-2 format and run the
-"official" Perl script from NER 2003 shared task, author: Erik Tjong Kim Sang, version: 2004-01-26, example of it's 
-output:
+In order to ensure the consistency of the experiments, for evaluation purposes we use "official" Perl script from NER 
+2003 shared task, author: Erik Tjong Kim Sang, version: 2004-01-26, example of it's output:
 
 ```
 processed 46435 tokens with 5648 phrases; found: 5620 phrases; correct: 5112.
