@@ -75,7 +75,7 @@ et. al., 2016](https://arxiv.org/pdf/1603.01360.pdf) and [Ma et. al., 2016](http
 
 ## Evaluation
 
-Evaluation on **Named Enitity Recognition CoNNL-2003 shared task (English)** with the default settings: 
+Results for **Named Enitity Recognition CoNNL-2003 shared task (English)** with the default settings: 
 
 |         Model       |     f1 on test        |
 | ------------------- | --------------------- |
