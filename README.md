@@ -86,10 +86,10 @@ Evaluation on **Named Enitity Recognition CoNNL-2003 shared task (English)** wit
 | [Ma et. al., 2016](https://arxiv.org/pdf/1603.01354.pdf)   |      91.21           |
 
 In order to ensure the consistency of the experiements, for evaluation we save the results in BOI-2 format and run the
-"official" Perl script from NER 2003 shared task, author: Erik Tjong Kim Sang, version: 2004-01-26.  Example of the Perl script output:
+"official" Perl script from NER 2003 shared task, author: Erik Tjong Kim Sang, version: 2004-01-26. Example of it's 
+output:
 
 ```
-Standard CoNNL perl script (author: Erik Tjong Kim Sang <erikt@uia.ua.ac.be>, version: 2004-01-26):
 processed 46435 tokens with 5648 phrases; found: 5620 phrases; correct: 5112.
 accuracy:  98.02%; precision:  90.96%; recall:  90.51%; FB1:  90.73
               LOC: precision:  90.61%; recall:  93.76%; FB1:  92.16  1726
