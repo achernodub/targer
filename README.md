@@ -1,17 +1,7 @@
 # BiLSTM-CNN-CRF tagger
 
 BiLSTM-CNN-CRF tagger is a PyTorch implementation of "mainstream" neural tagging scheme based on works of [Lample, 
-et. al., 2016](https://arxiv.org/pdf/1603.01360.pdf) and [Ma et. al., 2016](https://arxiv.org/pdf/1603.01354.pdf).  
-
-The results on **Named Enitity Recognition CoNNL-2003 shared task, English** with the default settings: 
-
-|         Model       |     f1-score on test  |
-| ------------------- | --------------------- |
-| BiGRU               |      87.09            |
-| BiGRU + CNN         |      88.77            |
-| BiGRU + CNN + CRF   |      90.73            |
-| [Lample, et. al., 2016](https://arxiv.org/pdf/1603.01360.pdf)   |      90.94            |
-| [Ma et. al., 2016](https://arxiv.org/pdf/1603.01354.pdf)   |      91.21           |
+et. al., 2016](https://arxiv.org/pdf/1603.01360.pdf) and [Ma et. al., 2016](https://arxiv.org/pdf/1603.01354.pdf). 
 
 ## Requirements
 
@@ -83,7 +73,17 @@ The results on **Named Enitity Recognition CoNNL-2003 shared task, English** wit
 |__ requirements.txt --> file for managing packages requirements    
 ```
 
-## Evaluation details
+## Evaluation
+
+Evaluation on **Named Enitity Recognition CoNNL-2003 shared task, English** with the default settings: 
+
+|         Model       |     F1 on test        |
+| ------------------- | --------------------- |
+| BiGRU               |      87.09            |
+| BiGRU + CNN         |      88.77            |
+| BiGRU + CNN + CRF   |      90.73            |
+| [Lample, et. al., 2016](https://arxiv.org/pdf/1603.01360.pdf)   |      90.94            |
+| [Ma et. al., 2016](https://arxiv.org/pdf/1603.01354.pdf)   |      91.21           |
 
 In order to ensure the consistency of the experiements, for evaluation we save the results in BOI-2 format and run the
 "official" Perl script from NER 2003 shared task, author: Erik Tjong Kim Sang, version: 2004-01-26.  Example of the Perl script output:
@@ -97,11 +97,6 @@ accuracy:  98.02%; precision:  90.96%; recall:  90.51%; FB1:  90.73
               ORG: precision:  89.56%; recall:  87.24%; FB1:  88.38  1618
               PER: precision:  96.23%; recall:  94.62%; FB1:  95.42  1590
 ``` 
-
-we use ext
-
-The 
-evaluation of f1 score is provided using  standard Perl script for CoNNL-2003 shared task by Erik Tjong Kim Sang, version: 2004-01-26.
 
 ## Usage
 
