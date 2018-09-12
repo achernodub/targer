@@ -1,16 +1,17 @@
 # BiLSTM-CNN-CRF tagger
 
-BiLSTM-CNN-CRF tagger is a PyTorch implementation of "mainstream" neural tagging scheme based on works [Lample, 
-et. al., 2016](https://arxiv.org/pdf/1603.01360.pdf) and [Ma et. al., 2016](https://arxiv.org/pdf/1603.01354.pdf). The 
-evaluation of f1 score is provided using  standard Perl script for CoNNL-2003 shared task by Erik Tjong Kim Sang, version: 2004-01-26. 
+BiLSTM-CNN-CRF tagger is a PyTorch implementation of "mainstream" neural tagging scheme based on works of [Lample, 
+et. al., 2016](https://arxiv.org/pdf/1603.01360.pdf) and [Ma et. al., 2016](https://arxiv.org/pdf/1603.01354.pdf).  
 
-The results on **Named Enitity Recognition CoNNL-2003 shared task** with the default settings: 
+The results on **Named Enitity Recognition CoNNL-2003 shared task, English** with the default settings: 
 
-|         Model       |     f1-score  |
-| ------------------- | ------------- |
-| BiGRU               |      87.09    |
-| BiGRU + CNN         |      88.77    |
-| BiGRU + CNN + CRF   |      90.73    |
+|         Model       |     f1-score on test  |
+| ------------------- | --------------------- |
+| BiGRU               |      87.09            |
+| BiGRU + CNN         |      88.77            |
+| BiGRU + CNN + CRF   |      90.73            |
+| [Lample, et. al., 2016](https://arxiv.org/pdf/1603.01360.pdf)   |      90.94            |
+| [Ma et. al., 2016](https://arxiv.org/pdf/1603.01354.pdf)   |      91.21           |
 
 ## Requirements
 
@@ -81,6 +82,26 @@ The results on **Named Enitity Recognition CoNNL-2003 shared task** with the def
                    author: Erik Tjong Kim Sang, version: 2004-01-26
 |__ requirements.txt --> file for managing packages requirements    
 ```
+
+## Evaluation details
+
+In order to ensure the consistency of the experiements, for evaluation we save the results in BOI-2 format and run the
+"official" Perl script from NER 2003 shared task, author: Erik Tjong Kim Sang, version: 2004-01-26.  Example of the Perl script output:
+
+```
+Standard CoNNL perl script (author: Erik Tjong Kim Sang <erikt@uia.ua.ac.be>, version: 2004-01-26):
+processed 46435 tokens with 5648 phrases; found: 5620 phrases; correct: 5112.
+accuracy:  98.02%; precision:  90.96%; recall:  90.51%; FB1:  90.73
+              LOC: precision:  90.61%; recall:  93.76%; FB1:  92.16  1726
+             MISC: precision:  82.94%; recall:  81.05%; FB1:  81.99  686
+              ORG: precision:  89.56%; recall:  87.24%; FB1:  88.38  1618
+              PER: precision:  96.23%; recall:  94.62%; FB1:  95.42  1590
+``` 
+
+we use ext
+
+The 
+evaluation of f1 score is provided using  standard Perl script for CoNNL-2003 shared task by Erik Tjong Kim Sang, version: 2004-01-26.
 
 ## Usage
 
