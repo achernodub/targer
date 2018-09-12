@@ -79,14 +79,14 @@ Results for **Named Enitity Recognition CoNNL-2003 shared task (English)** with 
 
 |         model       |     dataset           | micro-f1 on test        |
 | ------------------- | --------------------- | ----------------------- |
-| [Lample et. al., 2016](https://arxiv.org/pdf/1603.01360.pdf) | NER-2003 shared task (English)  | 90.94 |
-| [Ma et al., 2016](https://arxiv.org/pdf/1603.01354.pdf)      | NER-2003 shared task (English)  | 91.21 |
+| BiLSTM + CNN + CRF, [Lample et. al., 2016](https://arxiv.org/pdf/1603.01360.pdf) | NER-2003 shared task (English)  | 90.94 |
+| BiLSTM + CNN + CRF [Ma et al., 2016](https://arxiv.org/pdf/1603.01354.pdf)      | NER-2003 shared task (English)  | 91.21 |
 | BiGRU (our)               | NER-2003 shared task (English)                      | 87.09 |           |
 | BiGRU + CNN (our)        | NER-2003 shared task (English)                     | 88.77  |           |
 | BiGRU + CNN + CRF  (our)   | NER-2003 shared task (English)                     | 90.73  |          |
 ||||           
-| STag_BLCC [Eger et. al., 2017](https://arxiv.org/pdf/1704.06104.pdf)   | AM Persuasive Essays, Paragraph Level                     | 66.69  |          |
-| LSTM-ER [Eger et. al., 2017](https://arxiv.org/pdf/1704.06104.pdf)   | AM Persuasive Essays, Paragraph Level                     | 70.83  |          |
+| STag_BLCC, [Eger et. al., 2017](https://arxiv.org/pdf/1704.06104.pdf)   | AM Persuasive Essays, Paragraph Level                     | 66.69  |          |
+| LSTM-ER, [Eger et. al., 2017](https://arxiv.org/pdf/1704.06104.pdf)   | AM Persuasive Essays, Paragraph Level                     | 70.83  |          |
 | BiGRU + CNN + CRF  (our)   | AM Persuasive Essays, Paragraph Level                     | 64.23  |          |
 
 
