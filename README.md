@@ -58,7 +58,7 @@ et. al., 2016](https://arxiv.org/pdf/1603.01360.pdf) and [Ma et. al., 2016](http
         |__ seq_indexer_base.py --> abstract class for sequence indexers, they converts list of lists 
                                     of string items
     to the list of lists of integer indices and back
-        |__ seq_indexer_base_embeddings.py --> abstract sequence indexers class that implements work 
+        |__ seq_indexer_base_embeddings.py --> abstract sequence indexer class that implements work 
                                                with embeddings 
         |__ seq_indexer_word.py --> converts list of lists of words as strings to list of lists of 
                                     integer indices and back, has built-in embeddings
