@@ -86,7 +86,7 @@ Evaluation on **Named Enitity Recognition CoNNL-2003 shared task (English)** wit
 | [Ma et. al., 2016](https://arxiv.org/pdf/1603.01354.pdf)   |      91.21           |
 
 In order to ensure the consistency of the experiements, for evaluation we save the results in BOI-2 format and run the
-"official" Perl script from NER 2003 shared task, author: Erik Tjong Kim Sang, version: 2004-01-26. Example of it's 
+"official" Perl script from NER 2003 shared task, author: Erik Tjong Kim Sang, version: 2004-01-26, example of it's 
 output:
 
 ```
