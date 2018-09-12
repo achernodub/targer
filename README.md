@@ -41,7 +41,7 @@ The results on **Named Enitity Recognition CoNNL-2003 shared task** with the def
                                             Introduction to the CoNLL-2003 Shared Task:  
                                             Language-Independent Named Entity Recognition, 2003. 
         |__ AM/ --> Datasets for Argument Mining
-            |__ persuasive_essays/ --> data for persuasive essays in BOI-2 CoNNL format, from: 
+            |__ persuasive_essays/ --> data for persuasive essays in BOI-2-like CoNNL format, from: 
                                        Steffen Eger, Johannes Daxenberger, Iryna Gurevych. Neural 
                                        End-to-End  Learning for Computational Argumentation Mining, 2017
 |__ embeddings/
@@ -69,12 +69,12 @@ The results on **Named Enitity Recognition CoNNL-2003 shared task** with the def
     to the list of lists of integer indices and back
         |__ seq_indexer_base_embeddings.py --> abstract sequence indexers class that implements work 
                                                with embeddings 
-        |__ seq_indexer_word.py --> converts list of lists of words as strings to list of lists of integer 
-                                    indices and back, has built-in embeddings
-        |__ seq_indexer_char.py --> converts list of lists of characters to list of lists of integer indices 
-                                    and back, has built-in embeddings 
-        |__ seq_indexer_tag.py --> converts list of lists of string tags to list of lists of integer indices 
-                                    and back, doesn't have built-in embeddings 
+        |__ seq_indexer_word.py --> converts list of lists of words as strings to list of lists of 
+                                    integer indices and back, has built-in embeddings
+        |__ seq_indexer_char.py --> converts list of lists of characters to list of lists of integer 
+                                    indices and back, has built-in embeddings 
+        |__ seq_indexer_tag.py --> converts list of lists of string tags to list of lists of integer 
+                                    indices and back, doesn't have built-in embeddings 
 |__ main.py --> main script for training/evaluation/saving tagger models
 |__ run_tagger.py --> run trained tagger model from the checkpoint file
 |__ conlleval --> "official" Perl script from NER 2003 shared task for evaluating the f1 scores, 
