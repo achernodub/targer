@@ -41,19 +41,19 @@ class SeqIndexerWord(SeqIndexerBaseEmbeddings):
                 emb_word2unique_word_dict[emb_word] = unique_word
             else:
                 out_of_vocabulary_words_list.append(unique_word)
-        for emb_word, vec in SeqIndexerBaseEmbeddings.load_emb_for_unique_words_list(emb_fn, emb_delimiter,
-                                                                     unique_words_list=emb_word2unique_word_dict.keys(),
-                                                                     verbose=True):
+        for emb_word, vec in SeqIndexerBaseEmbeddings.load_emb_for_words_list(emb_fn, emb_delimiter,
+                                                                              emb_words_list=emb_word2unique_word_dict.keys(),
+                                                                              verbose=True):
             self.add_item(emb_word2unique_word_dict[emb_word])
             self.add_emb_vector(vec)
         if self.verbose:
             print('\nload_vocabulary_from_embeddings_file_and_unique_words_list:')
-            print(' -- len(out_of_vocabulary_words_list) = %d' % len(out_of_vocabulary_words_list))
             print('    First 50 OOV words:')
-            for i, oov_word in enumerate(self.out_of_vocabulary_words_list):
+            for i, oov_word in enumerate(out_of_vocabulary_words_list):
                 print('        out_of_vocabulary_words_list[%d] = %s' % (i, oov_word))
                 if i > 49:
                     break
+            print(' -- len(out_of_vocabulary_words_list) = %d' % len(out_of_vocabulary_words_list))
 
     def get_unique_characters_list(self, verbose=False, init_by_printable_characters=True):
         if init_by_printable_characters:
