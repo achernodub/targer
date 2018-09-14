@@ -43,7 +43,7 @@ if __name__ == "__main__":
                         help='False to continue training the char embeddings.')
     parser.add_argument('--gpu', type=int, default=0, help='GPU device number, 0 by default, -1  means CPU.')
     parser.add_argument('--check_for_lowercase', type=bool, default=True, help='Read characters caseless.')
-    parser.add_argument('--epoch_num', type=int, default=100, help='Number of epochs.')
+    parser.add_argument('--epoch_num', type=int, default=1, help='Number of epochs.')
     parser.add_argument('--min_epoch_num', type=int, default=50, help='Minimum number of epochs.')
     parser.add_argument('--rnn_hidden_dim', type=int, default=100, help='Number hidden units in the recurrent layer.')
     parser.add_argument('--rnn_type', default='GRU', help='RNN cell units type: "Vanilla", "LSTM", "GRU".')
