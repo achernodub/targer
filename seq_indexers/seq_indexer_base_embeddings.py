@@ -14,15 +14,28 @@ class SeqIndexerBaseEmbeddings(SeqIndexerBase):
     def __init__(self, gpu, check_for_lowercase, zero_digits, pad, unk, load_embeddings, embeddings_dim, verbose):
         SeqIndexerBase.__init__(self, gpu, check_for_lowercase, zero_digits, pad, unk, load_embeddings, embeddings_dim,
                                 verbose)
-
-    def load_emb_dict_from_file(self, emb_fn, emb_delimiter):
-        emb_dict = dict()
-        for line in open(emb_fn, 'r'):
+    @staticmethod
+    def load_embeddings_from_file(emb_fn, emb_delimiter, verbose=True):
+        for k, line in enumerate(open(emb_fn, 'r')):
             values = line.split(emb_delimiter)
+            if len(values) < 50:
+                continue
             word = values[0]
             emb_vector = list(map(lambda t: float(t), filter(lambda n: n and not n.isspace(), values[1:])))
-            emb_dict[word] = emb_vector
-        return emb_dict
+            if verbose:
+                if k % 25000 == 0:
+                    print('Reading embeddings file %s, line = %d' % (emb_fn, k))
+            yield word, emb_vector
+
+    @staticmethod
+    def load_embeddings_word_list_from_file(emb_fn, emb_delimiter, verbose=True):
+        return [word for word, _ in SeqIndexerBaseEmbeddings.load_embeddings_from_file(emb_fn, emb_delimiter, verbose)]
+
+    @staticmethod
+    def load_emb_for_unique_words_list(emb_fn, emb_delimiter, emb_words_list, verbose=True):
+        for emb_word, vec in SeqIndexerBaseEmbeddings.load_embeddings_from_file(emb_fn, emb_delimiter, verbose):
+            if emb_word in emb_words_list:
+                yield emb_word, vec
 
     def generate_zero_emb_vector(self):
         if self.embeddings_dim == 0:

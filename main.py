@@ -69,7 +69,8 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    args.word_seq_indexer_path = 'word_seq_indexer.hdf5'
+    #args.emb_fn = 'embeddings/wiki.en.vec'
+    #args.word_seq_indexer_path = 'word_seq_indexer_NER_fasttext.hdf5'
     #args.epoch_num = 1
 
     np.random.seed(args.seed_num)

@@ -20,61 +20,35 @@ class SeqIndexerWord(SeqIndexerBaseEmbeddings):
                                           pad='<pad>', unk='<unk>', load_embeddings=True, embeddings_dim=embeddings_dim,
                                           verbose=verbose)
 
+    def get_embeddings_word(self, word, embeddings_word_list):
+        if word in embeddings_word_list:
+            return word
+        elif self.check_for_lowercase and word.lower() in embeddings_word_list:
+            return word.lower()
+        elif self.zero_digits and re.sub('\d', '0', word) in embeddings_word_list:
+            return re.sub('\d', '0', word)
+        elif self.check_for_lowercase and self.zero_digits and re.sub('\d', '0', word.lower()) in embeddings_word_list:
+            return re.sub('\d', '0', word.lower())
+
     def load_items_from_embeddings_file_and_unique_words_list(self, emb_fn, emb_delimiter, unique_words_list):
-        emb_dict = SeqIndexerBaseEmbeddings.load_emb_dict_from_file(self, emb_fn, emb_delimiter)
-        original_words_num = 0
-        lowercase_words_num = 0
-        zero_digits_replaced_num = 0
-        zero_digits_replaced_lowercase_num = 0
-        soundex_replaced_num = 0
-        #soundex_dict = dict()
-        #for word_emb in emb_dict.keys():
-        #    try:
-        #        word_emb_soundex_hash = soundex(word_emb)
-        #        soundex_dict[word_emb_soundex_hash] = word_emb
-        #    except:
-        #        continue
-        self.out_of_vocabulary_words_list = list()
-        for word in unique_words_list:
-            if word in emb_dict.keys():
-                self.add_item(word)
-                self.add_emb_vector(emb_dict[word])
-                original_words_num += 1
-            elif self.check_for_lowercase and word.lower() in emb_dict.keys():
-                self.add_item(word)
-                self.add_emb_vector(emb_dict[word.lower()])
-                lowercase_words_num += 1
-            elif self.zero_digits and re.sub('\d', '0', word) in emb_dict.keys():
-                self.add_item(word)
-                self.add_emb_vector(emb_dict[re.sub('\d', '0', word)])
-                zero_digits_replaced_num += 1
-            elif self.check_for_lowercase and self.zero_digits and re.sub('\d', '0', word.lower()) in emb_dict.keys():
-                self.add_item(word)
-                self.add_emb_vector(emb_dict[re.sub('\d', '0', word.lower())])
-                zero_digits_replaced_lowercase_num += 1
-            elif 2 == 1 and spell(word) in emb_dict.keys():
-                pass
-                #self.add_element(word)
-                #self.__add_emb_vector(emb_dict[spell(word)])
-                #print('word = %s, spell(word) = %s' % (word, spell(word)))
-                #soundex_replaced_num += 1
-            #elif soundex(word) in soundex_dict.keys():
-            #        soundex_word = soundex_dict[soundex(word)]
-            #        self.add_element(word)
-            #        self.__add_emb_vector(emb_dict[soundex_word])
-            #        #print('word=%s, soundex_word=%s' % (word, soundex_word))
-            #        soundex_replaced_num += 1
+        embeddings_word_list = SeqIndexerBaseEmbeddings.load_embeddings_word_list_from_file(emb_fn, emb_delimiter,
+                                                                                            verbose=True)
+        emb_word2unique_word_dict = dict()
+        out_of_vocabulary_words_list = list()
+        for unique_word in unique_words_list:
+            emb_word = self.get_embeddings_word(unique_word, embeddings_word_list)
+            if emb_word is not None:
+                emb_word2unique_word_dict[emb_word] = unique_word
             else:
-                self.out_of_vocabulary_words_list.append(word)
-                continue
+                out_of_vocabulary_words_list.append(unique_word)
+        for emb_word, vec in SeqIndexerBaseEmbeddings.load_emb_for_unique_words_list(emb_fn, emb_delimiter,
+                                                                     unique_words_list=emb_word2unique_word_dict.keys(),
+                                                                     verbose=True):
+            self.add_item(emb_word2unique_word_dict[emb_word])
+            self.add_emb_vector(vec)
         if self.verbose:
             print('\nload_vocabulary_from_embeddings_file_and_unique_words_list:')
-            print(' -- original_words_num = %d' % original_words_num)
-            print(' -- lowercase_words_num = %d' % lowercase_words_num)
-            print(' -- zero_digits_replaced_num = %d' % zero_digits_replaced_num)
-            print(' -- zero_digits_replaced_lowercase_num = %d' % zero_digits_replaced_lowercase_num)
-            print(' -- soundex_replaced_num = %d' % soundex_replaced_num)
-            print(' -- len(out_of_vocabulary_words_list) = %d' % len(self.out_of_vocabulary_words_list))
+            print(' -- len(out_of_vocabulary_words_list) = %d' % len(out_of_vocabulary_words_list))
             print('    First 50 OOV words:')
             for i, oov_word in enumerate(self.out_of_vocabulary_words_list):
                 print('        out_of_vocabulary_words_list[%d] = %s' % (i, oov_word))
