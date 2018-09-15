@@ -18,7 +18,7 @@ class SeqIndexerBaseEmbeddings(SeqIndexerBase):
     def load_embeddings_from_file(emb_fn, emb_delimiter, verbose=True):
         for k, line in enumerate(open(emb_fn, 'r')):
             values = line.split(emb_delimiter)
-            if len(values) < 50:
+            if len(values) < 5:
                 continue
             word = values[0]
             emb_vector = list(map(lambda t: float(t), filter(lambda n: n and not n.isspace(), values[1:])))
@@ -32,9 +32,13 @@ class SeqIndexerBaseEmbeddings(SeqIndexerBase):
         return [word for word, _ in SeqIndexerBaseEmbeddings.load_embeddings_from_file(emb_fn, emb_delimiter, verbose)]
 
     @staticmethod
-    def load_emb_for_unique_words_list(emb_fn, emb_delimiter, emb_words_list, verbose=True):
+    def load_emb_for_words_list(emb_fn, emb_delimiter, emb_words_list, verbose=True):
+        cnt = 0
         for emb_word, vec in SeqIndexerBaseEmbeddings.load_embeddings_from_file(emb_fn, emb_delimiter, verbose):
             if emb_word in emb_words_list:
+                cnt += 1
+                if verbose and cnt % 1000 == 0:
+                    print('load embedding word %d / %d' % (cnt, len(emb_words_list)))
                 yield emb_word, vec
 
     def generate_zero_emb_vector(self):
