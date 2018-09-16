@@ -46,11 +46,7 @@ class DatasetsBank():
 
     def get_train_batches(self, batch_size):
         random_indices = np.random.permutation(np.arange(self.train_data_num))
-        word_sequences_train_batch_list = []
-        tag_sequences_train_batch_list = []
-        for k in range(self.train_data_num // batch_size): # we drop the last batch
+        for k in range(self.train_data_num // batch_size): # oh yes, we drop the last batch
             batch_indices = random_indices[k:k + batch_size].tolist()
-            inputs_train_batch, targets_train_batch = self.__get_train_batch(batch_indices)
-            word_sequences_train_batch_list.append(inputs_train_batch)
-            tag_sequences_train_batch_list.append(targets_train_batch)
-        return word_sequences_train_batch_list, tag_sequences_train_batch_list
+            word_sequences_train_batch, tag_sequences_train_batch = self.__get_train_batch(batch_indices)
+            yield word_sequences_train_batch, tag_sequences_train_batch

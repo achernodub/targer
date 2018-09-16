@@ -75,6 +75,7 @@ if __name__ == "__main__":
     args.rnn_hidden_dim = 300
     args.word_seq_indexer_path = 'word_seq_indexer_NER_fasttext.hdf5'
     args.epoch_num = 100
+    args.batch_size = 1
 
     np.random.seed(args.seed_num)
     torch.manual_seed(args.seed_num)
@@ -179,10 +180,8 @@ if __name__ == "__main__":
         if args.lr_decay > 0:
             scheduler.step()
         time_start = time.time()
-        word_sequences_train_batch_list, tag_sequences_train_batch_list = datasets_bank.get_train_batches(args.batch_size)
         loss_sum = 0
-        for i, (word_sequences_train_batch, tag_sequences_train_batch) in enumerate(zip(word_sequences_train_batch_list,
-                                                                                        tag_sequences_train_batch_list)):
+        for i, (word_sequences_train_batch, tag_sequences_train_batch) in enumerate(datasets_bank.get_train_batches(args.batch_size)):
             tagger.train()
             tagger.zero_grad()
             loss = tagger.get_loss(word_sequences_train_batch, tag_sequences_train_batch)
