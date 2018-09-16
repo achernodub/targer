@@ -75,7 +75,7 @@ if __name__ == "__main__":
     args.emb_dim = 300
     args.rnn_hidden_dim = 300
     args.epoch_num = 100
-    args.batch_size = 10
+    args.batch_size = 10 #
 
     np.random.seed(args.seed_num)
     torch.manual_seed(args.seed_num)
