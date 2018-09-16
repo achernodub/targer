@@ -71,9 +71,9 @@ if __name__ == "__main__":
 
     # Non-default settings
     args.emb_fn = 'embeddings/wiki.en.vec'
+    args.word_seq_indexer_path = 'word_seq_indexer_NER_fasttext.hdf5'
     args.emb_dim = 300
     args.rnn_hidden_dim = 300
-    args.word_seq_indexer_path = 'word_seq_indexer_NER_fasttext.hdf5'
     args.epoch_num = 100
     args.batch_size = 1
 
