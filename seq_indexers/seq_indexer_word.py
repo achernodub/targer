@@ -40,28 +40,28 @@ class SeqIndexerWord(SeqIndexerBaseEmbeddings):
         return None
 
     def load_items_from_embeddings_file_and_unique_words_list(self, emb_fn, emb_delimiter, unique_words_list):
-        embeddings_word_list = SeqIndexerBaseEmbeddings.load_embeddings_word_list_from_file(emb_fn, emb_delimiter,
-                                                                                            verbose=True)
-        emb_word2unique_word_dict = dict()
+        # Get the full list of available case-sensitive words from text file with pretrained embeddings
+        embeddings_words_list = [emb_word for emb_word, _ in SeqIndexerBaseEmbeddings.load_embeddings_from_file(emb_fn,
+                                                                                                          emb_delimiter,
+                                                                                                          verbose=True)]
+        # Create reverse mapping word from the embeddings file -> list of unique words from the dataset
+        emb_word_dict2unique_word_list = dict()
         out_of_vocabulary_words_list = list()
-
         for unique_word in unique_words_list:
-            emb_word = self.get_embeddings_word(unique_word, embeddings_word_list)
-            if emb_word is not None:
-                if emb_word not in emb_word2unique_word_dict:
-                    emb_word2unique_word_dict[emb_word] = unique_word
-            else:
+            emb_word = self.get_embeddings_word(unique_word, embeddings_words_list)
+            if emb_word is None:
                 out_of_vocabulary_words_list.append(unique_word)
-
-        print('len(unique_words_list)=', len(unique_words_list))
-        print('len(emb_word2unique_word_dict.keys())=', len(emb_word2unique_word_dict.keys()))
-        A=0
-        for emb_word, vec in SeqIndexerBaseEmbeddings.load_emb_for_words_list(emb_fn, emb_delimiter,
-                                                                              emb_words_list=emb_word2unique_word_dict.keys(),
-                                                                              verbose=True):
-            self.add_item(emb_word2unique_word_dict[emb_word])
-            self.add_emb_vector(vec)
-            A+=1
+            else:
+                if emb_word not in emb_word_dict2unique_word_list:
+                    emb_word_dict2unique_word_list[emb_word] = [unique_word]
+                else:
+                    emb_word_dict2unique_word_list[emb_word].append(unique_word)
+        # Add pretrained embeddings for unique_words
+        for emb_word, emb_vec in SeqIndexerBaseEmbeddings.load_embeddings_from_file(emb_fn, emb_delimiter,verbose=True):
+            if emb_word in emb_word_dict2unique_word_list:
+                for unique_word in emb_word_dict2unique_word_list[emb_word]:
+                    self.add_item(unique_word)
+                    self.add_emb_vector(emb_vec)
         if self.verbose:
             print('\nload_vocabulary_from_embeddings_file_and_unique_words_list:')
             print('    First 50 OOV words:')
@@ -74,7 +74,6 @@ class SeqIndexerWord(SeqIndexerBaseEmbeddings):
             print(' -- lowercase_words_num = %d' % self.lowercase_words_num)
             print(' -- zero_digits_replaced_num = %d' % self.zero_digits_replaced_num)
             print(' -- zero_digits_replaced_lowercase_num = %d' % self.zero_digits_replaced_lowercase_num)
-            print('A=',A)
 
     def get_unique_characters_list(self, verbose=False, init_by_printable_characters=True):
         if init_by_printable_characters:

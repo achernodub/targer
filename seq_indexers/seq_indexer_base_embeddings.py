@@ -27,20 +27,6 @@ class SeqIndexerBaseEmbeddings(SeqIndexerBase):
                     print('Reading embeddings file %s, line = %d' % (emb_fn, k))
             yield word, emb_vector
 
-    @staticmethod
-    def load_embeddings_word_list_from_file(emb_fn, emb_delimiter, verbose=True):
-        return [word for word, _ in SeqIndexerBaseEmbeddings.load_embeddings_from_file(emb_fn, emb_delimiter, verbose)]
-
-    @staticmethod
-    def load_emb_for_words_list(emb_fn, emb_delimiter, emb_words_list, verbose=True):
-        cnt = 0
-        for emb_word, vec in SeqIndexerBaseEmbeddings.load_embeddings_from_file(emb_fn, emb_delimiter, verbose):
-            if emb_word in emb_words_list:
-                cnt += 1
-                if verbose and cnt % 1000 == 0:
-                    print('load embedding word %d / %d' % (cnt, len(emb_words_list)))
-                yield emb_word, vec
-
     def generate_zero_emb_vector(self):
         if self.embeddings_dim == 0:
             raise ValueError('embeddings_dim is not known.')
