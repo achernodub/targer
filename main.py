@@ -43,7 +43,7 @@ if __name__ == "__main__":
                         help='False to continue training the char embeddings.')
     parser.add_argument('--gpu', type=int, default=0, help='GPU device number, 0 by default, -1  means CPU.')
     parser.add_argument('--check_for_lowercase', type=bool, default=True, help='Read characters caseless.')
-    parser.add_argument('--epoch_num', type=int, default=1, help='Number of epochs.')
+    parser.add_argument('--epoch_num', type=int, default=100, help='Number of epochs.')
     parser.add_argument('--min_epoch_num', type=int, default=50, help='Minimum number of epochs.')
     parser.add_argument('--rnn_hidden_dim', type=int, default=100, help='Number hidden units in the recurrent layer.')
     parser.add_argument('--rnn_type', default='GRU', help='RNN cell units type: "Vanilla", "LSTM", "GRU".')
@@ -69,9 +69,12 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    #args.emb_fn = 'embeddings/wiki.en.vec'
-    #args.word_seq_indexer_path = 'word_seq_indexer_NER_fasttext.hdf5'
-    #args.epoch_num = 1
+    # Non-default settings
+    args.emb_fn = 'embeddings/wiki.en.vec'
+    args.emb_dim = 300
+    args.rnn_hidden_dim = 300
+    args.word_seq_indexer_path = 'word_seq_indexer_NER_fasttext.hdf5'
+    args.epoch_num = 1
 
     np.random.seed(args.seed_num)
     torch.manual_seed(args.seed_num)
