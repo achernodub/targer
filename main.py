@@ -74,7 +74,7 @@ if __name__ == "__main__":
     args.emb_dim = 300
     args.rnn_hidden_dim = 300
     args.word_seq_indexer_path = 'word_seq_indexer_NER_fasttext.hdf5'
-    args.epoch_num = 1
+    args.epoch_num = 100
 
     np.random.seed(args.seed_num)
     torch.manual_seed(args.seed_num)
