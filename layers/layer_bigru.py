@@ -7,6 +7,7 @@
 
 import torch
 import torch.nn as nn
+from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 
 from layers.layer_birnn_base import LayerBiRNNBase
 
@@ -21,28 +22,13 @@ class LayerBiGRU(LayerBiRNNBase):
                           batch_first=True,
                           bidirectional=True)
 
-    def forward(self, input_tensor, mask_tensor): #input_tensor shape: batch_size x max_seq_len x dim
-        batch_size, max_seq_len, _ = input_tensor.shape
+    def forward(self, input_tensor, input_lens, pad_idx): #input_tensor shape: batch_size x max_seq_len x dim
+        batch_size = len(input_lens)
         h0 = self.tensor_ensure_gpu(torch.zeros(self.num_layers * self.num_directions, batch_size, self.hidden_dim))
-        output, _ = self.rnn(input_tensor, h0)
-        return self.apply_mask(output, mask_tensor)  # shape: batch_size x max_seq_len x hidden_dim*2
+        input_packed = pack_padded_sequence(input_tensor, lengths=input_lens, batch_first=True)
+        output_packed, _ = self.rnn(input_packed, h0)
+        output, _ = pad_packed_sequence(output_packed, batch_first=True, padding_value=pad_idx)
+        return output # shape: batch_size x max_seq_len x hidden_dim*2
 
     def is_cuda(self):
         return self.rnn.weight_hh_l0.is_cuda
-
-    '''
-    def __forward_old(self, input_tensor): #input_tensor shape: batch_size x max_seq_len x dim
-        batch_size, max_seq_len, _ = input_tensor.shape
-        # Init rnn's states by zeros
-        rnn_forward_h = self.make_gpu(torch.zeros(batch_size, self.hidden_dim))
-        rnn_backward_h = self.make_gpu(torch.zeros(batch_size, self.hidden_dim))
-        # Forward pass in both directions
-        output = self.make_gpu(torch.zeros(batch_size, max_seq_len, self.hidden_dim * 2))
-        for l in range(max_seq_len):
-            n = max_seq_len - l - 1
-            rnn_forward_h = self.rnn_forward_layer(input_tensor[:, l, :], rnn_forward_h)
-            rnn_backward_h = self.rnn_backward_layer(input_tensor[:, n, :], rnn_backward_h)
-            output[:, l, :self.hidden_dim] = rnn_forward_h
-            output[:, n, self.hidden_dim:] = rnn_backward_h
-        return output  # shape: batch_size x max_seq_len x hidden_dim*2
-    '''
