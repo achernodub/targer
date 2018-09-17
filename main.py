@@ -80,8 +80,8 @@ if __name__ == "__main__":
     args.fn_train = 'data/AM/persuasive_essays/Paragraph_Level/train.dat.abs'
     args.fn_dev = 'data/AM/persuasive_essays/Paragraph_Level/dev.dat.abs'
     args.fn_test = 'data/AM/persuasive_essays/Paragraph_Level/test.dat.abs'
-    args.batch_size = 1
     args.epoch_num = 5
+    args.batch_size = 10
 
     np.random.seed(args.seed_num)
     torch.manual_seed(args.seed_num)
