@@ -13,7 +13,7 @@ class LayerWordEmbeddings(LayerBase):
         super(LayerWordEmbeddings, self).__init__(gpu)
         embeddings_tensor = word_seq_indexer.get_loaded_embeddings_tensor()
         self.embeddings = nn.Embedding.from_pretrained(embeddings=embeddings_tensor, freeze=freeze_word_embeddings)
-        self.embeddings.padding_idx = 0
+        self.embeddings.padding_idx = word_seq_indexer.pad_idx
         self.word_seq_indexer = word_seq_indexer
         self.freeze_embeddings = freeze_word_embeddings
         self.embeddings_num = embeddings_tensor.shape[0]
