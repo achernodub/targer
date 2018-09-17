@@ -50,9 +50,7 @@ class Evaluator():
         return f1, connl_str
 
     @staticmethod
-    def get_evaluation_train_dev_test(tagger, datasets_bank, batch_size=-1):
-        if batch_size == -1:
-            batch_size = tagger.batch_size
+    def get_evaluation_train_dev_test(tagger, datasets_bank, batch_size=100):
         outputs_tag_sequences_train = tagger.predict_tags_from_words(word_sequences=datasets_bank.word_sequences_train,
                                                                      batch_size=batch_size)
         outputs_tag_sequences_dev = tagger.predict_tags_from_words(word_sequences=datasets_bank.word_sequences_dev,

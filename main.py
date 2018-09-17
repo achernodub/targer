@@ -84,7 +84,6 @@ if __name__ == "__main__":
     args.epoch_num = 5
     args.batch_size = 10
     args.model = 'BiRNN'
-    args.rnn_type = 'LSTM'
 
     np.random.seed(args.seed_num)
     torch.manual_seed(args.seed_num)
@@ -201,11 +200,10 @@ if __name__ == "__main__":
                 print('\r-- train epoch %d/%d, batch %d/%d (%1.2f%%), loss = %03.4f.' % (epoch, args.epoch_num, i + 1,
                                                                                         iterations_num,
                                                                                         ceil(i*100.0/iterations_num),
-                                                                                        loss.item()), end='', flush=True)
+                                                                                        loss.item()),end='',flush=True)
         # Evaluate tagger
         f1_train, f1_dev, f1_test, acc_train, acc_dev, acc_test = Evaluator.get_evaluation_train_dev_test(tagger,
-                                                                                                          datasets_bank,
-                                                                                                          1)  # args.batch_size
+                                                                                                        datasets_bank)
         print('\n== eval train / dev / test | micro-f1: %1.2f / %1.2f / %1.2f, acc: %1.2f%% / %1.2f%% / %1.2f%%.' %
               (f1_train, f1_dev, f1_test, acc_train, acc_dev, acc_test))
         report.write_epoch_scores(epoch, f1_train, f1_dev, f1_test)

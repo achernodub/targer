@@ -5,7 +5,7 @@
 .. moduleauthor:: Artem Chernodub
 """
 
-from classes.utils import argsortlist
+from classes.utils import argsort_sequences_by_lens
 import numpy as np
 
 class DatasetsBank():
@@ -38,16 +38,16 @@ class DatasetsBank():
         self.__add_to_unique_words_list(word_sequences_test)
 
     @staticmethod
-    def __get_batch(sequences, indices):
+    def get_sequences_by_indices(sequences, indices):
         return [sequences[i] for i in indices]
 
     def __get_train_batch(self, batch_indices, sort=True):
-        word_sequences_train_batch = DatasetsBank.__get_batch(self.word_sequences_train, batch_indices)
-        tag_sequences_train_batch = DatasetsBank.__get_batch(self.tag_sequences_train, batch_indices)
+        word_sequences_train_batch = DatasetsBank.get_sequences_by_indices(self.word_sequences_train, batch_indices)
+        tag_sequences_train_batch = DatasetsBank.get_sequences_by_indices(self.tag_sequences_train, batch_indices)
         if sort:
-            sorted_idx = argsortlist(word_sequences_train_batch)
-            word_sequences_train_batch = DatasetsBank.__get_batch(word_sequences_train_batch, sorted_idx)
-            tag_sequences_train_batch = DatasetsBank.__get_batch(tag_sequences_train_batch, sorted_idx)
+            sort_indices, _ = argsort_sequences_by_lens(word_sequences_train_batch)
+            word_sequences_train_batch = DatasetsBank.get_sequences_by_indices(word_sequences_train_batch, sort_indices)
+            tag_sequences_train_batch = DatasetsBank.get_sequences_by_indices(tag_sequences_train_batch, sort_indices)
         return word_sequences_train_batch, tag_sequences_train_batch
 
     def get_train_batches(self, batch_size):

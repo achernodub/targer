@@ -38,5 +38,10 @@ def get_datetime_str():
 def argsort(seq):
     return sorted(range(len(seq)), key=seq.__getitem__)
 
-def argsortlist(list_in):
-    return argsort([-len(item) for item in list_in])
+def argsort_sequences_by_lens(list_in):
+    data_num = len(list_in)
+    sort_indices = argsort([-len(item) for item in list_in])
+    reverse_sort_indices = [-1 for _ in range(data_num)]
+    for i in range(data_num):
+        reverse_sort_indices[sort_indices[i]] = i
+    return sort_indices, reverse_sort_indices

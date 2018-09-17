@@ -14,6 +14,8 @@ import os.path
 import torch
 import torch.nn as nn
 
+from classes.datasets_bank import DatasetsBank
+from classes.utils import argsort_sequences_by_lens
 
 class TaggerBase(nn.Module):
     """
@@ -60,6 +62,8 @@ class TaggerBase(nn.Module):
 
     def predict_idx_from_words(self, word_sequences):
         self.eval()
+        sort_indices, reverse_sort_indices = argsort_sequences_by_lens(word_sequences)
+        word_sequences = DatasetsBank.get_sequences_by_indices(word_sequences, sort_indices)
         outputs_tensor = self.forward(word_sequences) # batch_size x num_class+1 x max_seq_len
         output_idx_sequences = list()
         for k in range(len(word_sequences)):
@@ -69,6 +73,7 @@ class TaggerBase(nn.Module):
                 max_no = curr_output.argmax(dim=0)
                 idx_seq.append(max_no.item() + 1)
             output_idx_sequences.append(idx_seq)
+        output_idx_sequences = DatasetsBank.get_sequences_by_indices(output_idx_sequences, reverse_sort_indices)
         return output_idx_sequences
 
     def predict_tags_from_words(self, word_sequences, batch_size=-1):
