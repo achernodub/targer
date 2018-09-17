@@ -5,12 +5,10 @@
 .. moduleauthor:: Artem Chernodub
 """
 
+from classes.utils import argsortlist
 import numpy as np
 
 class DatasetsBank():
-    """
-    """
-
     def __init__(self, verbose=True):
         self.verbose = verbose
         self.unique_words_list = list()
@@ -39,9 +37,17 @@ class DatasetsBank():
         self.tag_sequences_test = tag_sequences_test
         self.__add_to_unique_words_list(word_sequences_test)
 
-    def __get_train_batch(self, batch_indices):
-        word_sequences_train_batch = [self.word_sequences_train[i] for i in batch_indices]
-        tag_sequences_train_batch = [self.tag_sequences_train[i] for i in batch_indices]
+    @staticmethod
+    def __get_batch(sequences, indices):
+        return [sequences[i] for i in indices]
+
+    def __get_train_batch(self, batch_indices, sort=True):
+        word_sequences_train_batch = DatasetsBank.__get_batch(self.word_sequences_train, batch_indices)
+        tag_sequences_train_batch = DatasetsBank.__get_batch(self.tag_sequences_train, batch_indices)
+        if sort:
+            sorted_idx = argsortlist(word_sequences_train_batch)
+            word_sequences_train_batch = DatasetsBank.__get_batch(word_sequences_train_batch, sorted_idx)
+            tag_sequences_train_batch = DatasetsBank.__get_batch(tag_sequences_train_batch, sorted_idx)
         return word_sequences_train_batch, tag_sequences_train_batch
 
     def get_train_batches(self, batch_size):
