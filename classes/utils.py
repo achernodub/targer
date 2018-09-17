@@ -34,3 +34,9 @@ def get_words_num(word_sequences):
 def get_datetime_str():
     d = datetime.datetime.now()
     return '%02d_%02d_%02d_%02d_%02d' % (d.year, d.month, d.day, d.hour, d.minute)
+
+def argsort(seq):
+    return sorted(range(len(seq)), key=seq.__getitem__)
+
+def argsortlist(list_in):
+    return argsort([-len(item) for item in list_in])
