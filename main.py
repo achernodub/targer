@@ -81,8 +81,8 @@ if __name__ == "__main__":
     #args.fn_dev = 'data/AM/persuasive_essays/Paragraph_Level/dev.dat.abs'
     #args.fn_test = 'data/AM/persuasive_essays/Paragraph_Level/test.dat.abs'
     #args.word_seq_indexer_path = 'wsi_AM.hdf5'
-    #args.epoch_num = 100
-    args.batch_size = 10
+    #args.epoch_num = 5
+    #args.batch_size = 1
     #args.model = 'BiRNNCNNCRF'
 
     np.random.seed(args.seed_num)
@@ -203,7 +203,8 @@ if __name__ == "__main__":
                                                                                         loss.item()),end='',flush=True)
         # Evaluate tagger
         f1_train, f1_dev, f1_test, acc_train, acc_dev, acc_test = Evaluator.get_evaluation_train_dev_test(tagger,
-                                                                                                        datasets_bank)
+                                                                                                        datasets_bank,
+                                                                                             batch_size=args.batch_size)
         print('\n== eval train / dev / test | micro-f1: %1.2f / %1.2f / %1.2f, acc: %1.2f%% / %1.2f%% / %1.2f%%.' %
               (f1_train, f1_dev, f1_test, acc_train, acc_dev, acc_test))
         report.write_epoch_scores(epoch, f1_train, f1_dev, f1_test)
