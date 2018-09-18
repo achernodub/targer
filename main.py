@@ -77,18 +77,18 @@ if __name__ == "__main__":
     #args.epoch_num = 100
     #args.batch_size = 10
 
-    #args.fn_train = 'data/AM/persuasive_essays/Paragraph_Level/train.dat.abs'
-    #args.fn_dev = 'data/AM/persuasive_essays/Paragraph_Level/dev.dat.abs'
-    #args.fn_test = 'data/AM/persuasive_essays/Paragraph_Level/test.dat.abs'
-    #args.word_seq_indexer_path = 'wsi_AM.hdf5'
-    #args.epoch_num = 5
-    #args.batch_size = 1
-    #args.model = 'BiRNNCNNCRF'
+    args.fn_train = 'data/AM/persuasive_essays/Paragraph_Level/train.dat.abs'
+    args.fn_dev = 'data/AM/persuasive_essays/Paragraph_Level/dev.dat.abs'
+    args.fn_test = 'data/AM/persuasive_essays/Paragraph_Level/test.dat.abs'
+    args.word_seq_indexer_path = 'wsi_AM.hdf5'
+    args.epoch_num = 5
+    args.batch_size = 1
+    args.model = 'BiRNN'
 
-    args.lr = 0.015
-    args.lr_decay = 0.05
-    args.epoch_num = 200
-    args.batch_size = 10
+    #args.lr = 0.015
+    #args.lr_decay = 0.05
+    #args.epoch_num = 200
+    #args.batch_size = 10
 
     np.random.seed(args.seed_num)
     torch.manual_seed(args.seed_num)
@@ -193,7 +193,7 @@ if __name__ == "__main__":
         if args.lr_decay > 0:
             scheduler.step()
         time_start = time.time()
-        loss_sum = 0
+        total_loss = 0
         for i, (word_sequences_train_batch, tag_sequences_train_batch) in enumerate(datasets_bank.get_train_batches(args.batch_size)):
             tagger.train()
             tagger.zero_grad()
@@ -201,11 +201,12 @@ if __name__ == "__main__":
             loss.backward()
             tagger.clip_gradients(args.clip_grad)
             optimizer.step()
+            total_loss += loss.item()
             if i % 1 == 0:
-                print('\r-- train epoch %d/%d, batch %d/%d (%1.2f%%), loss = %03.4f.' % (epoch, args.epoch_num, i + 1,
-                                                                                        iterations_num,
+                print('\r-- train epoch %d/%d, batch %d/%d (%1.2f%%), total_loss = %1.2f.' % (epoch, args.epoch_num,
+                                                                                               i + 1, iterations_num,
                                                                                         ceil(i*100.0/iterations_num),
-                                                                                        loss.item()),end='',flush=True)
+                                                                                        total_loss),end='',flush=True)
         # Evaluate tagger
         f1_train, f1_dev, f1_test, acc_train, acc_dev, acc_test = Evaluator.get_evaluation_train_dev_test(tagger,
                                                                                                         datasets_bank,
