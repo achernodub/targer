@@ -77,13 +77,13 @@ if __name__ == "__main__":
     #args.epoch_num = 100
     #args.batch_size = 10
 
-    args.fn_train = 'data/AM/persuasive_essays/Paragraph_Level/train.dat.abs'
-    args.fn_dev = 'data/AM/persuasive_essays/Paragraph_Level/dev.dat.abs'
-    args.fn_test = 'data/AM/persuasive_essays/Paragraph_Level/test.dat.abs'
+    #args.fn_train = 'data/AM/persuasive_essays/Paragraph_Level/train.dat.abs'
+    #args.fn_dev = 'data/AM/persuasive_essays/Paragraph_Level/dev.dat.abs'
+    #args.fn_test = 'data/AM/persuasive_essays/Paragraph_Level/test.dat.abs'
     #args.word_seq_indexer_path = 'wsi_AM.hdf5'
-    args.epoch_num = 100
-    args.batch_size = 1
-    args.model = 'BiRNNCNNCRF'
+    #args.epoch_num = 100
+    #args.batch_size = 1
+    #args.model = 'BiRNNCNNCRF'
 
     np.random.seed(args.seed_num)
     torch.manual_seed(args.seed_num)
