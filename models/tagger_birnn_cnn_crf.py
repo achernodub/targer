@@ -10,13 +10,15 @@ import math
 import torch
 import torch.nn as nn
 
-from models.tagger_base import TaggerBase
+from classes.datasets_bank import DatasetsBank
+from classes.utils import argsort_sequences_by_lens
 from layers.layer_word_embeddings import LayerWordEmbeddings
 from layers.layer_bilstm import LayerBiLSTM
 from layers.layer_bigru import LayerBiGRU
 from layers.layer_char_embeddings import LayerCharEmbeddings
 from layers.layer_char_cnn import LayerCharCNN
 from layers.layer_crf import LayerCRF
+from models.tagger_base import TaggerBase
 
 class TaggerBiRNNCNNCRF(TaggerBase):
     def __init__(self, word_seq_indexer, tag_seq_indexer, class_num, batch_size=1, rnn_hidden_dim=100,
@@ -62,43 +64,35 @@ class TaggerBiRNNCNNCRF(TaggerBase):
             self.cuda(device=self.gpu)
 
     def _forward_birnn(self, word_sequences):
-        mask = self.get_mask(word_sequences)
+        word_seq_lens = [len(word_seq) for word_seq in word_sequences]
         z_word_embed = self.word_embeddings_layer(word_sequences)
         z_word_embed_d = self.dropout(z_word_embed)
         z_char_embed = self.char_embeddings_layer(word_sequences)
         z_char_embed_d = self.dropout(z_char_embed)
         z_char_cnn = self.char_cnn_layer(z_char_embed_d)
         z = torch.cat((z_word_embed_d, z_char_cnn), dim=2)
-        rnn_output_h = self.birnn_layer(z, mask)
-        #rnn_output_h_d = self.dropout(rnn_output_h) # shape: batch_size x max_seq_len x rnn_hidden_dim*2
+        rnn_output_h = self.birnn_layer(z, input_lens=word_seq_lens, pad_idx=self.word_seq_indexer.pad_idx)
         features_rnn_compressed = self.lin_layer(rnn_output_h)
-        return self.apply_mask(features_rnn_compressed, mask)
+        return features_rnn_compressed
 
     def get_loss(self, word_sequences_train_batch, tag_sequences_train_batch):
         targets_tensor_train_batch = self.tag_seq_indexer.items2tensor(tag_sequences_train_batch)
-        features_rnn = self._forward_birnn(word_sequences_train_batch) # batch_num x max_seq_len x class_num
         mask = self.get_mask(word_sequences_train_batch)  # batch_num x max_seq_len
+        features_rnn = self.apply_mask(self._forward_birnn(word_sequences_train_batch), mask) # batch_num x max_seq_len x class_num
         numerator = self.crf_layer.numerator(features_rnn, targets_tensor_train_batch, mask)
-        '''numerator1 = self.crf_layer.numerator1(features_rnn, targets_tensor_train_batch, mask)
-
-        mse = torch.mean((numerator - numerator1).float())
-        if mse > 0.001:
-            print('numerator', numerator)
-            print('numerator1', numerator1)
-            print(numerator == numerator1)
-            print('mse=', mse)
-            exit()'''
-
         denominator = self.crf_layer.denominator(features_rnn, mask)
         nll_loss = -torch.mean(numerator - denominator)
         return nll_loss
 
     def predict_idx_from_words(self, word_sequences):
         self.eval()
-        features_rnn_compressed  = self._forward_birnn(word_sequences)
+        sort_indices, reverse_sort_indices = argsort_sequences_by_lens(word_sequences)
+        word_sequences = DatasetsBank.get_sequences_by_indices(word_sequences, sort_indices)
         mask = self.get_mask(word_sequences)
-        idx_sequences = self.crf_layer.decode_viterbi(features_rnn_compressed, mask)
-        return idx_sequences
+        features_rnn_compressed = self.apply_mask(self._forward_birnn(word_sequences), mask)
+        output_idx_sequences = self.crf_layer.decode_viterbi(features_rnn_compressed, mask)
+        output_idx_sequences = DatasetsBank.get_sequences_by_indices(output_idx_sequences, reverse_sort_indices)
+        return output_idx_sequences
 
     def predict_tags_from_words(self, word_sequences, batch_size=-1):
         if batch_size == -1:

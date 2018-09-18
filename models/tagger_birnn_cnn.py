@@ -57,17 +57,15 @@ class TaggerBiRNNCNN(TaggerBase):
         self.nll_loss = nn.NLLLoss(ignore_index=0)  # "0" target values actually are zero-padded parts of sequences
 
     def forward(self, word_sequences):
-        mask = self.get_mask(word_sequences)
+        word_seq_lens = [len(word_seq) for word_seq in word_sequences]
         z_word_embed = self.word_embeddings_layer(word_sequences)
         z_word_embed_d = self.dropout(z_word_embed)
         z_char_embed = self.char_embeddings_layer(word_sequences)
         z_char_embed_d = self.dropout(z_char_embed)
         z_char_cnn = self.char_cnn_layer(z_char_embed_d)
         z = torch.cat((z_word_embed_d, z_char_cnn), dim=2)
-        rnn_output_h = self.birnn_layer(z, mask)
-        #rnn_output_h_d = self.dropout(rnn_output_h) # shape: batch_size x max_seq_len x rnn_hidden_dim*2
-        #z_rnn_out = self.lin_layer(rnn_output_h_d).permute(0, 2, 1) # shape: batch_size x class_num + 1 x max_seq_len
-        z_rnn_out = self.apply_mask(self.lin_layer(rnn_output_h), mask)
+        rnn_output_h = self.birnn_layer(z, input_lens=word_seq_lens, pad_idx=self.word_seq_indexer.pad_idx)
+        z_rnn_out = self.lin_layer(rnn_output_h)
         y = self.log_softmax_layer(z_rnn_out.permute(0, 2, 1))
         return y
 
