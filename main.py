@@ -7,6 +7,7 @@ import time
 
 import numpy as np
 import torch
+import torch.nn as nn
 import torch.optim as optim
 from torch.optim.lr_scheduler import LambdaLR
 
@@ -52,7 +53,7 @@ if __name__ == "__main__":
     parser.add_argument('--char_cnn_filter_num', type=int, default=30, help='Number of filters in Char CNN.')
     parser.add_argument('--char_window_size', type=int, default=3, help='Convolution1D size.')
     parser.add_argument('--dropout_ratio', type=float, default=0.5, help='Dropout ratio.')
-    parser.add_argument('--clip_grad', type=float, default=5, help='Clipping gradients maximum L2 norm.')
+    parser.add_argument('--clip_grad', type=float, default=5.0, help='Clipping gradients maximum L2 norm.')
     parser.add_argument('--opt_method', default='sgd', help='Optimization method: "sgd", "adam".')
     parser.add_argument('--lr', type=float, default=0.005, help='Learning rate.')
     parser.add_argument('--lr_decay', type=float, default=0, help='Learning decay rate.') # 0.05
@@ -81,8 +82,9 @@ if __name__ == "__main__":
     args.fn_dev = 'data/AM/persuasive_essays/Paragraph_Level/dev.dat.abs'
     args.fn_test = 'data/AM/persuasive_essays/Paragraph_Level/test.dat.abs'
     args.word_seq_indexer_path = 'wsi_AM.hdf5'
-    args.epoch_num = 5
+    args.epoch_num = 20
     args.batch_size = 1
+    #args.lr *= 0.1
     args.model = 'BiRNN'
 
     #args.lr = 0.015
@@ -199,7 +201,8 @@ if __name__ == "__main__":
             tagger.zero_grad()
             loss = tagger.get_loss(word_sequences_train_batch, tag_sequences_train_batch)
             loss.backward()
-            tagger.clip_gradients(args.clip_grad)
+            #nn.utils.clip_grad_value_(tagger.parameters(), 0.01)
+            #tagger.clip_gradients(args.clip_grad)
             optimizer.step()
             total_loss += loss.item()
             if i % 1 == 0:
@@ -213,7 +216,8 @@ if __name__ == "__main__":
                                                                                              batch_size=args.batch_size)
         print('\n== eval train / dev / test | micro-f1: %1.2f / %1.2f / %1.2f, acc: %1.2f%% / %1.2f%% / %1.2f%%.' %
               (f1_train, f1_dev, f1_test, acc_train, acc_dev, acc_test))
-        report.write_epoch_scores(epoch, f1_train, f1_dev, f1_test)
+        #report.write_epoch_scores(epoch, f1_train, f1_dev, f1_test)
+        report.write_epoch_scores(epoch, total_loss, f1_dev, f1_test)
 
         # Early stopping
         if f1_dev > best_f1_dev:

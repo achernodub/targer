@@ -69,7 +69,8 @@ class TaggerBase(nn.Module):
         for k in range(len(word_sequences)):
             idx_seq = list()
             for l in range(len(word_sequences[k])):
-                curr_output = outputs_tensor[k, 1:, l] # ignore the first component of output
+                #curr_output = outputs_tensor[k, 1:, l] # ignore the first component of output
+                curr_output = outputs_tensor[k, :, l]
                 max_no = curr_output.argmax(dim=0)
                 idx_seq.append(max_no.item() + 1)
             output_idx_sequences.append(idx_seq)
