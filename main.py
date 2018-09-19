@@ -82,7 +82,7 @@ if __name__ == "__main__":
     args.fn_dev = 'data/AM/persuasive_essays/Paragraph_Level/dev.dat.abs'
     args.fn_test = 'data/AM/persuasive_essays/Paragraph_Level/test.dat.abs'
     args.word_seq_indexer_path = 'wsi_AM.hdf5'
-    args.epoch_num = 20
+    args.epoch_num = 10
     args.batch_size = 1
     #args.lr *= 0.1
     args.model = 'BiRNN'
