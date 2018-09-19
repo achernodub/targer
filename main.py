@@ -82,10 +82,10 @@ if __name__ == "__main__":
     args.fn_dev = 'data/AM/persuasive_essays/Paragraph_Level/dev.dat.abs'
     args.fn_test = 'data/AM/persuasive_essays/Paragraph_Level/test.dat.abs'
     args.word_seq_indexer_path = 'wsi_AM.hdf5'
-    args.epoch_num = 10
+    args.epoch_num = 20
     args.batch_size = 1
     #args.lr *= 0.1
-    args.model = 'BiRNN'
+    args.model = 'BiRNNCNN'
 
     #args.lr = 0.015
     #args.lr_decay = 0.05
@@ -201,15 +201,15 @@ if __name__ == "__main__":
             tagger.zero_grad()
             loss = tagger.get_loss(word_sequences_train_batch, tag_sequences_train_batch)
             loss.backward()
-            #nn.utils.clip_grad_value_(tagger.parameters(), 0.01)
-            #tagger.clip_gradients(args.clip_grad)
+            tagger.clip_gradients(args.clip_grad)
             optimizer.step()
             total_loss += loss.item()
             if i % 1 == 0:
-                print('\r-- train epoch %d/%d, batch %d/%d (%1.2f%%), total_loss = %1.2f.' % (epoch, args.epoch_num,
-                                                                                               i + 1, iterations_num,
+                print('\r-- train epoch %d/%d, batch %d/%d (%1.2f%%), loss = %1.4f.' % (epoch, args.epoch_num,
+                                                                                        i + 1, iterations_num,
                                                                                         ceil(i*100.0/iterations_num),
-                                                                                        total_loss),end='',flush=True)
+                                                                                        total_loss/iterations_num),
+                                                                                        end='',flush=True)
         # Evaluate tagger
         f1_train, f1_dev, f1_test, acc_train, acc_dev, acc_test = Evaluator.get_evaluation_train_dev_test(tagger,
                                                                                                         datasets_bank,
@@ -217,7 +217,7 @@ if __name__ == "__main__":
         print('\n== eval train / dev / test | micro-f1: %1.2f / %1.2f / %1.2f, acc: %1.2f%% / %1.2f%% / %1.2f%%.' %
               (f1_train, f1_dev, f1_test, acc_train, acc_dev, acc_test))
         #report.write_epoch_scores(epoch, f1_train, f1_dev, f1_test)
-        report.write_epoch_scores(epoch, total_loss, f1_dev, f1_test)
+        report.write_epoch_scores(epoch, total_loss/iterations_num, f1_dev, f1_test)
 
         # Early stopping
         if f1_dev > best_f1_dev:
