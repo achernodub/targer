@@ -86,12 +86,11 @@ if __name__ == "__main__":
     args.batch_size = 10
     args.model = 'BiRNNCNNCRF'
 
-    args.lr = 0.015
-    args.lr_decay = 0.05
+    args.opt_method = 'adam'
+    #args.lr = 0.015
+    #args.lr_decay = 0.05
     #args.epoch_num = 200
     #args.batch_size = 10
-
-    args.opt_method = 'adam'
 
     np.random.seed(args.seed_num)
     torch.manual_seed(args.seed_num)
