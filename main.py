@@ -82,10 +82,13 @@ if __name__ == "__main__":
     #args.fn_test = 'data/AM/persuasive_essays/Paragraph_Level/test.dat.abs'
     #args.word_seq_indexer_path = 'wsi_AM.hdf5'
     #args.epoch_num = 20
-    args.batch_size = 1
     #args.model = 'BiRNNCNNCRF'
     #args.checkout_fn = 'tagger_NER_adam_init.hdf5'
     args.word_seq_indexer_path = 'wsi_NER.hdf5'
+
+    args.batch_size = 1
+    args.opt_method == 'sgd'
+    args.lr = 0.005
 
     np.random.seed(args.seed_num)
     torch.manual_seed(args.seed_num)
