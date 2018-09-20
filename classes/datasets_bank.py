@@ -67,10 +67,6 @@ class DatasetsBankSorted():
         sort_indices, _ = argsort_sequences_by_lens(word_sequences_train)
         self.word_sequences_train = get_sequences_by_indices(word_sequences_train, sort_indices)
         self.tag_sequences_train = get_sequences_by_indices(tag_sequences_train, sort_indices)
-
-        print(len(word_sequences_train))
-        print(len(self.word_sequences_train))
-        exit()
         self.train_data_num = len(word_sequences_train)
         self.__add_to_unique_words_list(word_sequences_train)
 
@@ -84,14 +80,15 @@ class DatasetsBankSorted():
         self.tag_sequences_test = tag_sequences_test
         self.__add_to_unique_words_list(word_sequences_test)
 
-    def __get_train_batch(self, batch_indices):
-        word_sequences_train_batch = [self.word_sequences_train[i] for i in batch_indices]
-        tag_sequences_train_batch = [self.tag_sequences_train[i] for i in batch_indices]
-        return word_sequences_train_batch, tag_sequences_train_batch
+    def __get_train_batch(self, batch_size, batch_no):
+        i = batch_no * batch_size
+        j = min((batch_no + 1) * batch_size, self.train_data_num + 1)
+        #print('\n', i, j, '\n')
+        #print(self.word_sequences_train[i:j])
+        return self.word_sequences_train[i:j], self.tag_sequences_train[i:j]
 
     def get_train_batches(self, batch_size):
-        random_indices = np.random.permutation(np.arange(self.train_data_num))
-        for k in range(self.train_data_num // batch_size): # oh yes, we drop the last batch
-            batch_indices = random_indices[k:k + batch_size].tolist()
-            word_sequences_train_batch, tag_sequences_train_batch = self.__get_train_batch(batch_indices)
-            yield word_sequences_train_batch, tag_sequences_train_batch
+        batch_num = self.train_data_num // batch_size
+        random_indices = np.random.permutation(np.arange(batch_num)).tolist()
+        for k in random_indices:
+            yield self.__get_train_batch(batch_size, batch_no=k)

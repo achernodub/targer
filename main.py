@@ -69,6 +69,32 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
+    # Non-default settings
+    #args.emb_fn = 'embeddings/wiki.en.vec'
+    #args.word_seq_indexer_path = 'word_seq_indexer_NER_fasttext.hdf5'
+    #args.emb_dim = 300
+    #args.rnn_hidden_dim = 300
+    #args.epoch_num = 100
+    #args.batch_size = 10
+
+    #args.fn_train = 'data/AM/persuasive_essays/Paragraph_Level/train.dat.abs'
+    #args.fn_dev = 'data/AM/persuasive_essays/Paragraph_Level/dev.dat.abs'
+    #args.fn_test = 'data/AM/persuasive_essays/Paragraph_Level/test.dat.abs'
+    #args.word_seq_indexer_path = 'wsi_AM.hdf5'
+    args.word_seq_indexer_path = 'wsi_NER.hdf5'
+    args.epoch_num = 20
+    #args.model = 'BiRNN'
+    args.model = 'BiRNNCNNCRF'
+    #args.checkout_fn = 'tagger_NER_adam_init.hdf5'
+    #args.word_seq_indexer_path = 'wsi_NER.hdf5'
+
+    args.batch_size = 10
+    #args.opt_method = 'adam'
+    args.opt_method = 'sgd'
+    #args.lr = 0.005
+    args.lr = 0.015
+    args.lr_decay = 0.05
+
     np.random.seed(args.seed_num)
     torch.manual_seed(args.seed_num)
     if args.gpu >= 0:
@@ -81,7 +107,7 @@ if __name__ == "__main__":
     word_sequences_test, tag_sequences_test = DataIO.read_CoNNL_universal(args.fn_test, verbose=True)
 
     # DatasetsBank provides storing the different dataset subsets (train/dev/test) and sampling batches from them
-    datasets_bank = DatasetsBank(verbose=True)
+    datasets_bank = DatasetsBankSorted(verbose=True)
     datasets_bank.add_train_sequences(word_sequences_train, tag_sequences_train)
     datasets_bank.add_dev_sequences(word_sequences_dev, tag_sequences_dev)
     datasets_bank.add_test_sequences(word_sequences_test, tag_sequences_test)
@@ -159,7 +185,12 @@ if __name__ == "__main__":
     #if hasattr(tagger, 'crf_layer'):
     #    tagger.crf_layer.init_transition_matrix_empirical(tag_sequences_train)
 
-    optimizer = optim.SGD(list(tagger.parameters()), lr=args.lr, momentum=args.momentum)
+    if args.opt_method == 'sgd':
+        optimizer = optim.SGD(list(tagger.parameters()), lr=args.lr, momentum=args.momentum)
+    elif args.opt_method == 'adam':
+        optimizer = optim.Adam(list(tagger.parameters()))
+    else:
+        raise ValueError('Unknown tagger model, must be one of "sgd"/"adam".')
     scheduler = LambdaLR(optimizer, lr_lambda=lambda epoch: 1/(1 + args.lr_decay*epoch))
     iterations_num = int(datasets_bank.train_data_num / args.batch_size)
     best_f1_dev = -1
