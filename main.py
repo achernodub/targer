@@ -44,7 +44,7 @@ if __name__ == "__main__":
                         help='False to continue training the char embeddings.')
     parser.add_argument('--gpu', type=int, default=0, help='GPU device number, 0 by default, -1  means CPU.')
     parser.add_argument('--check_for_lowercase', type=bool, default=True, help='Read characters caseless.')
-    parser.add_argument('--epoch_num', type=int, default=100, help='Number of epochs.')
+    parser.add_argument('--epoch_num', type=int, default=200, help='Number of epochs.')
     parser.add_argument('--min_epoch_num', type=int, default=50, help='Minimum number of epochs.')
     parser.add_argument('--rnn_hidden_dim', type=int, default=100, help='Number hidden units in the recurrent layer.')
     parser.add_argument('--rnn_type', default='GRU', help='RNN cell units type: "Vanilla", "LSTM", "GRU".')
@@ -54,10 +54,9 @@ if __name__ == "__main__":
     parser.add_argument('--char_window_size', type=int, default=3, help='Convolution1D size.')
     parser.add_argument('--dropout_ratio', type=float, default=0.5, help='Dropout ratio.')
     parser.add_argument('--clip_grad', type=float, default=5.0, help='Clipping gradients maximum L2 norm.')
-    parser.add_argument('--opt_method', default='sgd', help='Optimization method: "sgd", "adam".')
-    parser.add_argument('--lr', type=float, default=0.005, help='Learning rate.')
+    parser.add_argument('--opt_method', default='adam', help='Optimization method: "sgd", "adam".')
+    parser.add_argument('--lr', type=float, default=0.001, help='Learning rate.')
     parser.add_argument('--lr_decay', type=float, default=0, help='Learning decay rate.') # 0.05
-    parser.add_argument('--momentum', type=float, default=0.9, help='Learning momentum rate.')
     parser.add_argument('--batch_size', type=int, default=1, help='Batch size, samples.')
     parser.add_argument('--verbose', type=bool, default=True, help='Show additional information.')
     parser.add_argument('--seed_num', type=int, default=42, help='Random seed number, but 42 is the best forever!')
@@ -78,19 +77,13 @@ if __name__ == "__main__":
     #args.epoch_num = 100
     #args.batch_size = 10
 
-    args.fn_train = 'data/AM/persuasive_essays/Paragraph_Level/train.dat.abs'
-    args.fn_dev = 'data/AM/persuasive_essays/Paragraph_Level/dev.dat.abs'
-    args.fn_test = 'data/AM/persuasive_essays/Paragraph_Level/test.dat.abs'
-    args.word_seq_indexer_path = 'wsi_AM.hdf5'
-    args.epoch_num = 20
-    args.batch_size = 10
-    args.model = 'BiRNNCNNCRF'
-
-    args.opt_method = 'adam'
-    #args.lr = 0.015
-    #args.lr_decay = 0.05
-    #args.epoch_num = 200
+    #args.fn_train = 'data/AM/persuasive_essays/Paragraph_Level/train.dat.abs'
+    #args.fn_dev = 'data/AM/persuasive_essays/Paragraph_Level/dev.dat.abs'
+    #args.fn_test = 'data/AM/persuasive_essays/Paragraph_Level/test.dat.abs'
+    #args.word_seq_indexer_path = 'wsi_AM.hdf5'
+    #args.epoch_num = 20
     #args.batch_size = 10
+    #args.model = 'BiRNNCNNCRF'
 
     np.random.seed(args.seed_num)
     torch.manual_seed(args.seed_num)
@@ -183,9 +176,9 @@ if __name__ == "__main__":
     #    tagger.crf_layer.init_transition_matrix_empirical(tag_sequences_train)
 
     if args.opt_method == 'sgd':
-        optimizer = optim.SGD(list(tagger.parameters()), lr=args.lr, momentum=args.momentum)
+        optimizer = optim.SGD(list(tagger.parameters()), lr=args.lr, momentum=0.9)
     elif args.opt_method == 'adam':
-        optimizer = optim.Adam(list(tagger.parameters()))
+        optimizer = optim.Adam(list(tagger.parameters()), lr=args.lr, betas=(0.9, 0.999))
     else:
         raise ValueError('Unknown opt_method, must be one of "sgd"/"adam".')
     scheduler = LambdaLR(optimizer, lr_lambda=lambda epoch: 1/(1 + args.lr_decay*epoch))

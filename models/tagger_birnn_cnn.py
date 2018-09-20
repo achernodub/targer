@@ -61,9 +61,9 @@ class TaggerBiRNNCNN(TaggerBase):
         z_word_embed = self.word_embeddings_layer(word_sequences)
         z_char_embed_d = self.dropout(self.char_embeddings_layer(word_sequences))
         z_char_cnn = self.char_cnn_layer(z_char_embed_d)
-        z = torch.cat((z_word_embed, z_char_cnn), dim=2)
+        z_d = self.dropout(torch.cat((z_word_embed, z_char_cnn), dim=2))
         rnn_output_h = self.birnn_layer(z, input_lens=word_seq_lens, pad_idx=self.word_seq_indexer.pad_idx)
-        z_rnn_out = self.lin_layer(self.dropout(rnn_output_h))
+        z_rnn_out = self.lin_layer(rnn_output_h)
         y = self.log_softmax_layer(z_rnn_out.permute(0, 2, 1))
         return y
 
