@@ -57,7 +57,7 @@ if __name__ == "__main__":
     parser.add_argument('--opt_method', default='adam', help='Optimization method: "sgd", "adam".')
     parser.add_argument('--lr', type=float, default=0.001, help='Learning rate.')
     parser.add_argument('--lr_decay', type=float, default=0, help='Learning decay rate.') # 0.05
-    parser.add_argument('--batch_size', type=int, default=1, help='Batch size, samples.')
+    parser.add_argument('--batch_size', type=int, default=10, help='Batch size, samples.')
     parser.add_argument('--verbose', type=bool, default=True, help='Show additional information.')
     parser.add_argument('--seed_num', type=int, default=42, help='Random seed number, but 42 is the best forever!')
     parser.add_argument('--checkpoint_fn', default=None, help='Path to save the trained model.')
@@ -84,6 +84,7 @@ if __name__ == "__main__":
     #args.epoch_num = 20
     #args.batch_size = 10
     #args.model = 'BiRNNCNNCRF'
+    args.checkout_fn = 'tagger_NER_adam.hdf5'
 
     np.random.seed(args.seed_num)
     torch.manual_seed(args.seed_num)
