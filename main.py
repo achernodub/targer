@@ -78,14 +78,14 @@ if __name__ == "__main__":
     #args.epoch_num = 100
     #args.batch_size = 10
 
-    args.fn_train = 'data/AM/persuasive_essays/Paragraph_Level/train.dat.abs'
-    args.fn_dev = 'data/AM/persuasive_essays/Paragraph_Level/dev.dat.abs'
-    args.fn_test = 'data/AM/persuasive_essays/Paragraph_Level/test.dat.abs'
-    args.word_seq_indexer_path = 'wsi_AM.hdf5'
-    args.epoch_num = 20
-    args.batch_size = 1
+    #args.fn_train = 'data/AM/persuasive_essays/Paragraph_Level/train.dat.abs'
+    #args.fn_dev = 'data/AM/persuasive_essays/Paragraph_Level/dev.dat.abs'
+    #args.fn_test = 'data/AM/persuasive_essays/Paragraph_Level/test.dat.abs'
+    #args.word_seq_indexer_path = 'wsi_AM.hdf5'
+    #args.epoch_num = 20
+    #args.batch_size = 1
     #args.lr *= 0.1
-    args.model = 'BiRNNCNN'
+    #args.model = 'BiRNNCNN'
 
     #args.lr = 0.015
     #args.lr_decay = 0.05
