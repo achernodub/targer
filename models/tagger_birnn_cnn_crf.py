@@ -65,12 +65,12 @@ class TaggerBiRNNCNNCRF(TaggerBase):
 
     def _forward_birnn(self, word_sequences):
         word_seq_lens = [len(word_seq) for word_seq in word_sequences]
-        z_word_embed = self.word_embeddings_layer(word_sequences)
+        z_word_embed_d = self.dropout(self.word_embeddings_layer(word_sequences))
         z_char_embed_d = self.dropout(self.char_embeddings_layer(word_sequences))
         z_char_cnn = self.char_cnn_layer(z_char_embed_d)
-        z = torch.cat((z_word_embed, z_char_cnn), dim=2)
+        z = self.dropout(torch.cat((z_word_embed_d, z_char_cnn), dim=2))
         rnn_output_h = self.birnn_layer(z, input_lens=word_seq_lens, pad_idx=self.word_seq_indexer.pad_idx)
-        features_rnn_compressed = self.lin_layer(self.dropout(rnn_output_h))
+        features_rnn_compressed = self.lin_layer(rnn_output_h)
         return features_rnn_compressed
 
     def get_loss(self, word_sequences_train_batch, tag_sequences_train_batch):

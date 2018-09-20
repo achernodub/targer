@@ -78,19 +78,20 @@ if __name__ == "__main__":
     #args.epoch_num = 100
     #args.batch_size = 10
 
-    #args.fn_train = 'data/AM/persuasive_essays/Paragraph_Level/train.dat.abs'
-    #args.fn_dev = 'data/AM/persuasive_essays/Paragraph_Level/dev.dat.abs'
-    #args.fn_test = 'data/AM/persuasive_essays/Paragraph_Level/test.dat.abs'
-    #args.word_seq_indexer_path = 'wsi_AM.hdf5'
-    #args.epoch_num = 20
-    #args.batch_size = 1
-    #args.lr *= 0.1
-    #args.model = 'BiRNNCNN'
+    args.fn_train = 'data/AM/persuasive_essays/Paragraph_Level/train.dat.abs'
+    args.fn_dev = 'data/AM/persuasive_essays/Paragraph_Level/dev.dat.abs'
+    args.fn_test = 'data/AM/persuasive_essays/Paragraph_Level/test.dat.abs'
+    args.word_seq_indexer_path = 'wsi_AM.hdf5'
+    args.epoch_num = 20
+    args.batch_size = 10
+    args.model = 'BiRNNCNNCRF'
 
     args.lr = 0.015
     args.lr_decay = 0.05
-    args.epoch_num = 200
-    args.batch_size = 10
+    #args.epoch_num = 200
+    #args.batch_size = 10
+
+    args.opt_method = 'adam'
 
     np.random.seed(args.seed_num)
     torch.manual_seed(args.seed_num)
@@ -182,7 +183,12 @@ if __name__ == "__main__":
     #if hasattr(tagger, 'crf_layer'):
     #    tagger.crf_layer.init_transition_matrix_empirical(tag_sequences_train)
 
-    optimizer = optim.SGD(list(tagger.parameters()), lr=args.lr, momentum=args.momentum)
+    if args.opt_method == 'sgd':
+        optimizer = optim.SGD(list(tagger.parameters()), lr=args.lr, momentum=args.momentum)
+    elif args.opt_method == 'adam':
+        optimizer = optim.Adam(list(tagger.parameters()))
+    else:
+        raise ValueError('Unknown opt_method, must be one of "sgd"/"adam".')
     scheduler = LambdaLR(optimizer, lr_lambda=lambda epoch: 1/(1 + args.lr_decay*epoch))
     iterations_num = int(datasets_bank.train_data_num / args.batch_size)
     best_f1_dev = -1
@@ -201,7 +207,7 @@ if __name__ == "__main__":
             tagger.zero_grad()
             loss = tagger.get_loss(word_sequences_train_batch, tag_sequences_train_batch)
             loss.backward()
-            tagger.clip_gradients(args.clip_grad)
+            nn.utils.clip_grad_value_(tagger.parameters(), args.clip_grad)
             optimizer.step()
             total_loss += loss.item()
             if i % 1 == 0:

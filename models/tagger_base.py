@@ -39,9 +39,6 @@ class TaggerBase(nn.Module):
         else:
             self.cpu()
 
-    def clip_gradients(self, clip_grad):
-        nn.utils.clip_grad_value_(self.parameters(), clip_grad)
-
     def save(self, checkpoint_fn):
         self.cpu()
         torch.save(self, checkpoint_fn)
