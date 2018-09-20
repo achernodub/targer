@@ -11,7 +11,7 @@ import torch.optim as optim
 from torch.optim.lr_scheduler import LambdaLR
 
 from classes.data_io import DataIO
-from classes.datasets_bank import DatasetsBank
+from classes.datasets_bank import DatasetsBank, DatasetsBankSorted
 
 from seq_indexers.seq_indexer_word import SeqIndexerWord
 from seq_indexers.seq_indexer_tag import SeqIndexerTag
