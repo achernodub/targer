@@ -84,7 +84,7 @@ if __name__ == "__main__":
     #args.epoch_num = 20
     #args.batch_size = 10
     #args.model = 'BiRNNCNNCRF'
-    args.checkout_fn = 'tagger_NER_adam.hdf5'
+    args.checkout_fn = 'tagger_NER_adam_init.hdf5'
 
     np.random.seed(args.seed_num)
     torch.manual_seed(args.seed_num)
@@ -173,8 +173,8 @@ if __name__ == "__main__":
     else:
         raise ValueError('Unknown tagger model, must be one of "BiRNN"/"BiRNNCNN"/"BiRNNCRF"/"BiRNNCNNCRF".')
 
-    #if hasattr(tagger, 'crf_layer'):
-    #    tagger.crf_layer.init_transition_matrix_empirical(tag_sequences_train)
+    if hasattr(tagger, 'crf_layer'):
+        tagger.crf_layer.init_transition_matrix_empirical(tag_sequences_train)
 
     if args.opt_method == 'sgd':
         optimizer = optim.SGD(list(tagger.parameters()), lr=args.lr, momentum=0.9)
