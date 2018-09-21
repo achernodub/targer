@@ -72,10 +72,10 @@ if __name__ == "__main__":
 
     # Non-default settings
     args.word_seq_indexer_path = 'wsi_NER.hdf5'
-    args.batch_size = 10
+    args.batch_size = 2
     args.opt_method = 'adam'
-    args.lr = 0.015
-    args.lr_decay = 0.05
+    args.lr = 1e-3
+    args.lr_decay = 0
 
     np.random.seed(args.seed_num)
     torch.manual_seed(args.seed_num)
@@ -164,13 +164,13 @@ if __name__ == "__main__":
     else:
         raise ValueError('Unknown tagger model, must be one of "BiRNN"/"BiRNNCNN"/"BiRNNCRF"/"BiRNNCNNCRF".')
 
-    #if hasattr(tagger, 'crf_layer'):
-    #    tagger.crf_layer.init_transition_matrix_empirical(tag_sequences_train)
+    if hasattr(tagger, 'crf_layer'):
+        tagger.crf_layer.init_transition_matrix_empirical(tag_sequences_train)
 
     if args.opt_method == 'sgd':
         optimizer = optim.SGD(list(tagger.parameters()), lr=args.lr, momentum=args.momentum)
     elif args.opt_method == 'adam':
-        optimizer = optim.Adam(list(tagger.parameters()))
+        optimizer = optim.Adam(list(tagger.parameters()), lr=args.lr, betas=(0.9, 0.999))
     else:
         raise ValueError('Unknown tagger model, must be one of "sgd"/"adam".')
     scheduler = LambdaLR(optimizer, lr_lambda=lambda epoch: 1/(1 + args.lr_decay*epoch))

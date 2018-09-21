@@ -64,14 +64,11 @@ class TaggerBiRNNCNNCRF(TaggerBase):
     def _forward_birnn(self, word_sequences):
         mask = self.get_mask(word_sequences)
         z_word_embed = self.word_embeddings_layer(word_sequences)
-        z_word_embed_d = self.dropout(z_word_embed)
-        z_char_embed = self.char_embeddings_layer(word_sequences)
-        z_char_embed_d = self.dropout(z_char_embed)
-        z_char_cnn = self.char_cnn_layer(z_char_embed_d)
-        z = self.dropout(torch.cat((z_word_embed_d, z_char_cnn), dim=2))
-        rnn_output_h = self.dropout(self.birnn_layer(z, mask))
-        rnn_output_h_d = self.dropout(rnn_output_h) # shape: batch_size x max_seq_len x rnn_hidden_dim*2
-        features_rnn_compressed = self.dropout(self.lin_layer(rnn_output_h_d))
+        z_char_embed_d = self.dropout(self.char_embeddings_layer(word_sequences))
+        z_char_cnn_d = self.dropout(self.char_cnn_layer(z_char_embed_d))
+        z = self.dropout(torch.cat((z_word_embed, z_char_cnn_d), dim=2))
+        rnn_output_h = self.dropout(self.birnn_layer(z, mask)) # shape: batch_size x max_seq_len x rnn_hidden_dim*2
+        features_rnn_compressed = self.dropout(self.lin_layer(rnn_output_h))
         return self.apply_mask(features_rnn_compressed, mask)
 
     def get_loss(self, word_sequences_train_batch, tag_sequences_train_batch):
