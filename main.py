@@ -55,10 +55,10 @@ if __name__ == "__main__":
     parser.add_argument('--dropout_ratio', type=float, default=0.5, help='Dropout ratio.')
     parser.add_argument('--clip_grad', type=float, default=5, help='Clipping gradients maximum L2 norm.')
     parser.add_argument('--opt_method', default='sgd', help='Optimization method: "sgd", "adam".')
-    parser.add_argument('--lr', type=float, default=0.005, help='Learning rate.')
+    parser.add_argument('--lr', type=float, default=0.001, help='Learning rate.')
     parser.add_argument('--lr_decay', type=float, default=0, help='Learning decay rate.') # 0.05
     parser.add_argument('--momentum', type=float, default=0.9, help='Learning momentum rate.')
-    parser.add_argument('--batch_size', type=int, default=1, help='Batch size, samples.')
+    parser.add_argument('--batch_size', type=int, default=10, help='Batch size, samples.')
     parser.add_argument('--verbose', type=bool, default=True, help='Show additional information.')
     parser.add_argument('--seed_num', type=int, default=42, help='Random seed number, but 42 is the best forever!')
     parser.add_argument('--checkpoint_fn', default=None, help='Path to save the trained model.')
@@ -72,10 +72,8 @@ if __name__ == "__main__":
 
     # Non-default settings
     args.word_seq_indexer_path = 'wsi_NER.hdf5'
-    args.batch_size = 2
-    args.opt_method = 'adam'
-    args.lr = 1e-3
-    args.lr_decay = 0
+    #args.batch_size = 10
+    #args.opt_method = 'adam'
 
     np.random.seed(args.seed_num)
     torch.manual_seed(args.seed_num)
