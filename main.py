@@ -72,8 +72,6 @@ if __name__ == "__main__":
 
     # Non-default settings
     args.word_seq_indexer_path = 'wsi_NER.hdf5'
-    #args.batch_size = 10
-    #args.opt_method = 'adam'
 
     np.random.seed(args.seed_num)
     torch.manual_seed(args.seed_num)
@@ -198,6 +196,7 @@ if __name__ == "__main__":
                                                                                         ceil(i*100.0/iterations_num),
                                                                                         loss_sum*100 / iterations_num),
                                                                                         end='', flush=True)
+        exit()
         # Evaluate tagger
         f1_train, f1_dev, f1_test, acc_train, acc_dev, acc_test = Evaluator.get_evaluation_train_dev_test(tagger,
                                                                                                           datasets_bank,

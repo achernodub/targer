@@ -5,6 +5,7 @@
 .. moduleauthor:: Artem Chernodub
 """
 
+from random import randint
 import numpy as np
 from classes.utils import argsort_sequences_by_lens, get_sequences_by_indices
 
@@ -86,9 +87,25 @@ class DatasetsBankSorted():
         return self.word_sequences_train[i:j], self.tag_sequences_train[i:j]
 
     def get_train_batches(self, batch_size):
-        from random import randint
         rand_seed = randint(0, batch_size - 1)
         batch_num = self.train_data_num // batch_size
         random_indices = np.random.permutation(np.arange(batch_num - 1)).tolist()
         for k in random_indices:
             yield self.__get_train_batch(batch_size, batch_no=k, rand_seed=rand_seed)
+
+    def __get_train_batch_regularized(self, batch_size, rand_batch_size, batch_no):
+        i = batch_no * batch_size
+        j = min((batch_no + 1) * batch_size, self.train_data_num + 1)
+        word_sequences_train_batch = self.word_sequences_train[i:j]
+        tag_sequences_train_batch = self.tag_sequences_train[i:j]
+        for k in range(rand_batch_size):
+            r = randint(0, self.train_data_num)
+            word_sequences_train_batch.append(self.word_sequences_train[r])
+            tag_sequences_train_batch.append(self.tag_sequences_train[r])
+        return word_sequences_train_batch, tag_sequences_train_batch
+
+    def get_train_batches_regularized(self, batch_size):
+        batch_num = self.train_data_num // batch_size
+        random_indices = np.random.permutation(np.arange(batch_num)).tolist()
+        for k in random_indices:
+            yield self.__get_train_batch_regularized(batch_size-2, rand_batch_size=2, batch_no=k)
