@@ -70,8 +70,8 @@ class TaggerBiRNNCNNCRF(TaggerBase):
         z_char_cnn = self.char_cnn_layer(z_char_embed_d)
         z = torch.cat((z_word_embed_d, z_char_cnn), dim=2)
         rnn_output_h = self.birnn_layer(z, mask)
-        #rnn_output_h_d = self.dropout(rnn_output_h) # shape: batch_size x max_seq_len x rnn_hidden_dim*2
-        features_rnn_compressed = self.lin_layer(rnn_output_h)
+        rnn_output_h_d = self.dropout(rnn_output_h) # shape: batch_size x max_seq_len x rnn_hidden_dim*2
+        features_rnn_compressed = self.lin_layer(rnn_output_h_d)
         return self.apply_mask(features_rnn_compressed, mask)
 
     def get_loss(self, word_sequences_train_batch, tag_sequences_train_batch):

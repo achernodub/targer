@@ -80,15 +80,15 @@ class DatasetsBankSorted():
         self.tag_sequences_test = tag_sequences_test
         self.__add_to_unique_words_list(word_sequences_test)
 
-    def __get_train_batch(self, batch_size, batch_no):
-        i = batch_no * batch_size
-        j = min((batch_no + 1) * batch_size, self.train_data_num + 1)
-        #print('\n', i, j, '\n')
-        #print(self.word_sequences_train[i:j])
+    def __get_train_batch(self, batch_size, batch_no, rand_seed=0):
+        i = batch_no * batch_size + rand_seed
+        j = min((batch_no + 1) * batch_size, self.train_data_num + 1) + rand_seed
         return self.word_sequences_train[i:j], self.tag_sequences_train[i:j]
 
     def get_train_batches(self, batch_size):
+        from random import randint
+        rand_seed = randint(0, batch_size - 1)
         batch_num = self.train_data_num // batch_size
-        random_indices = np.random.permutation(np.arange(batch_num)).tolist()
+        random_indices = np.random.permutation(np.arange(batch_num - 1)).tolist()
         for k in random_indices:
-            yield self.__get_train_batch(batch_size, batch_no=k)
+            yield self.__get_train_batch(batch_size, batch_no=k, rand_seed=rand_seed)
