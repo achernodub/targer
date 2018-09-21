@@ -73,7 +73,7 @@ if __name__ == "__main__":
     # Non-default settings
     args.word_seq_indexer_path = 'wsi_NER.hdf5'
     args.batch_size = 10
-    args.opt_method = 'sgd'
+    args.opt_method = 'adam'
     args.lr = 0.015
     args.lr_decay = 0.05
 
