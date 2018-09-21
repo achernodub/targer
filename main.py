@@ -182,7 +182,7 @@ if __name__ == "__main__":
             scheduler.step()
         time_start = time.time()
         loss_sum = 0
-        for i, (word_sequences_train_batch, tag_sequences_train_batch) in enumerate(datasets_bank.get_train_batches(args.batch_size)):
+        for i, (word_sequences_train_batch, tag_sequences_train_batch) in enumerate(datasets_bank.get_train_batches_regularized(args.batch_size)):
             tagger.train()
             tagger.zero_grad()
             loss = tagger.get_loss(word_sequences_train_batch, tag_sequences_train_batch)
@@ -196,7 +196,6 @@ if __name__ == "__main__":
                                                                                         ceil(i*100.0/iterations_num),
                                                                                         loss_sum*100 / iterations_num),
                                                                                         end='', flush=True)
-        exit()
         # Evaluate tagger
         f1_train, f1_dev, f1_test, acc_train, acc_dev, acc_test = Evaluator.get_evaluation_train_dev_test(tagger,
                                                                                                           datasets_bank,
