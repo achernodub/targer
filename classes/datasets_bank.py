@@ -50,7 +50,10 @@ class DatasetsBank():
             word_sequences_train_batch, tag_sequences_train_batch = self.__get_train_batch(batch_indices)
             yield word_sequences_train_batch, tag_sequences_train_batch
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 99a3ed7d8b47c43898014e1a24a82eebbf40826f
 class DatasetsBankSorted():
     def __init__(self, verbose=True):
         self.verbose = verbose
@@ -108,4 +111,8 @@ class DatasetsBankSorted():
         batch_num = self.train_data_num // batch_size
         random_indices = np.random.permutation(np.arange(batch_num)).tolist()
         for k in random_indices:
+<<<<<<< HEAD
             yield self.__get_train_batch_regularized(batch_size-2, rand_batch_size=2, batch_no=k)
+=======
+            yield self.__get_train_batch_regularized(batch_size-2, rand_batch_size=2, batch_no=k)
+>>>>>>> 99a3ed7d8b47c43898014e1a24a82eebbf40826f

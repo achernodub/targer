@@ -47,4 +47,8 @@ def argsort_sequences_by_lens(list_in):
     reverse_sort_indices = [-1 for _ in range(data_num)]
     for i in range(data_num):
         reverse_sort_indices[sort_indices[i]] = i
+<<<<<<< HEAD
     return sort_indices, reverse_sort_indices
+=======
+    return sort_indices, reverse_sort_indices
+>>>>>>> 99a3ed7d8b47c43898014e1a24a82eebbf40826f

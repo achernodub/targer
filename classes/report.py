@@ -14,7 +14,6 @@ class Report():
         self.text += '\n'.join([hp for hp in str(args).replace('Namespace(', '').replace(')', '').split(', ')])
         self.text += '\n\n %5s | %5s | %5s | %5s' % ('epoch', 'train', 'dev', 'test')
         self.text += '\n' + '-' * 40
-        self.__save()
 
     def write_epoch_scores(self, epoch, score_train, score_dev, score_test):
         self.text += '\n %5s | %5s | %5s | %5s' % \

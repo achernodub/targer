@@ -12,7 +12,11 @@ import torch.optim as optim
 from torch.optim.lr_scheduler import LambdaLR
 
 from classes.data_io import DataIO
+<<<<<<< HEAD
 from classes.datasets_bank import DatasetsBank, DatasetsBankSorted
+=======
+from classes.datasets_bank import DatasetsBankSorted
+>>>>>>> 99a3ed7d8b47c43898014e1a24a82eebbf40826f
 
 from seq_indexers.seq_indexer_word import SeqIndexerWord
 from seq_indexers.seq_indexer_tag import SeqIndexerTag
@@ -70,7 +74,11 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
+<<<<<<< HEAD
     # Non-default settings
+=======
+    #Custom params
+>>>>>>> 99a3ed7d8b47c43898014e1a24a82eebbf40826f
     args.word_seq_indexer_path = 'wsi_NER.hdf5'
 
     np.random.seed(args.seed_num)
@@ -163,12 +171,16 @@ if __name__ == "__main__":
     if hasattr(tagger, 'crf_layer'):
         tagger.crf_layer.init_transition_matrix_empirical(tag_sequences_train)
 
+<<<<<<< HEAD
     if args.opt_method == 'sgd':
         optimizer = optim.SGD(list(tagger.parameters()), lr=args.lr, momentum=args.momentum)
     elif args.opt_method == 'adam':
         optimizer = optim.Adam(list(tagger.parameters()), lr=args.lr, betas=(0.9, 0.999))
     else:
         raise ValueError('Unknown tagger model, must be one of "sgd"/"adam".')
+=======
+    optimizer = optim.SGD(list(tagger.parameters()), lr=args.lr, momentum=args.momentum, weight_decay=0.01)
+>>>>>>> 99a3ed7d8b47c43898014e1a24a82eebbf40826f
     scheduler = LambdaLR(optimizer, lr_lambda=lambda epoch: 1/(1 + args.lr_decay*epoch))
     iterations_num = int(datasets_bank.train_data_num / args.batch_size)
     best_f1_dev = -1
@@ -187,7 +199,11 @@ if __name__ == "__main__":
             tagger.zero_grad()
             loss = tagger.get_loss(word_sequences_train_batch, tag_sequences_train_batch)
             loss.backward()
+<<<<<<< HEAD
             nn.utils.clip_grad_value_(tagger.parameters(), args.clip_grad)
+=======
+            nn.utils.clip_grad_norm_(tagger.parameters(), args.clip_grad)
+>>>>>>> 99a3ed7d8b47c43898014e1a24a82eebbf40826f
             optimizer.step()
             loss_sum += loss.item()
             if i % 1 == 0:
