@@ -7,11 +7,12 @@ import time
 
 import numpy as np
 import torch
+import torch.nn as nn
 import torch.optim as optim
 from torch.optim.lr_scheduler import LambdaLR
 
 from classes.data_io import DataIO
-from classes.datasets_bank import DatasetsBank
+from classes.datasets_bank import DatasetsBankSorted
 
 from seq_indexers.seq_indexer_word import SeqIndexerWord
 from seq_indexers.seq_indexer_tag import SeqIndexerTag
@@ -57,7 +58,7 @@ if __name__ == "__main__":
     parser.add_argument('--lr', type=float, default=0.005, help='Learning rate.')
     parser.add_argument('--lr_decay', type=float, default=0, help='Learning decay rate.') # 0.05
     parser.add_argument('--momentum', type=float, default=0.9, help='Learning momentum rate.')
-    parser.add_argument('--batch_size', type=int, default=1, help='Batch size, samples.')
+    parser.add_argument('--batch_size', type=int, default=10, help='Batch size, samples.')
     parser.add_argument('--verbose', type=bool, default=True, help='Show additional information.')
     parser.add_argument('--seed_num', type=int, default=42, help='Random seed number, but 42 is the best forever!')
     parser.add_argument('--checkpoint_fn', default=None, help='Path to save the trained model.')
@@ -69,13 +70,8 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    # Non-default settings
-    args.emb_fn = 'embeddings/wiki.en.vec'
-    args.word_seq_indexer_path = 'word_seq_indexer_NER_fasttext.hdf5'
-    args.emb_dim = 300
-    args.rnn_hidden_dim = 300
-    args.epoch_num = 100
-    args.batch_size = 10
+    #Custom params
+    args.word_seq_indexer_path = 'wsi_NER.hdf5'
 
     np.random.seed(args.seed_num)
     torch.manual_seed(args.seed_num)
@@ -89,7 +85,7 @@ if __name__ == "__main__":
     word_sequences_test, tag_sequences_test = DataIO.read_CoNNL_universal(args.fn_test, verbose=True)
 
     # DatasetsBank provides storing the different dataset subsets (train/dev/test) and sampling batches from them
-    datasets_bank = DatasetsBank(verbose=True)
+    datasets_bank = DatasetsBankSorted(verbose=True)
     datasets_bank.add_train_sequences(word_sequences_train, tag_sequences_train)
     datasets_bank.add_dev_sequences(word_sequences_dev, tag_sequences_dev)
     datasets_bank.add_test_sequences(word_sequences_test, tag_sequences_test)
@@ -167,7 +163,7 @@ if __name__ == "__main__":
     #if hasattr(tagger, 'crf_layer'):
     #    tagger.crf_layer.init_transition_matrix_empirical(tag_sequences_train)
 
-    optimizer = optim.SGD(list(tagger.parameters()), lr=args.lr, momentum=args.momentum)
+    optimizer = optim.SGD(list(tagger.parameters()), lr=args.lr, momentum=args.momentum, weight_decay=0.01)
     scheduler = LambdaLR(optimizer, lr_lambda=lambda epoch: 1/(1 + args.lr_decay*epoch))
     iterations_num = int(datasets_bank.train_data_num / args.batch_size)
     best_f1_dev = -1
@@ -186,7 +182,7 @@ if __name__ == "__main__":
             tagger.zero_grad()
             loss = tagger.get_loss(word_sequences_train_batch, tag_sequences_train_batch)
             loss.backward()
-            tagger.clip_gradients(args.clip_grad)
+            nn.utils.clip_grad_norm_(tagger.parameters(), args.clip_grad)
             optimizer.step()
             if i % 1 == 0:
                 print('\r-- train epoch %d/%d, batch %d/%d (%1.2f%%), loss = %03.4f.' % (epoch, args.epoch_num, i + 1,
