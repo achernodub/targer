@@ -229,3 +229,4 @@ if __name__ == "__main__":
     report.write_final_score(f1_test_final)
     print(report.text)
     print(test_connl_str)
+
