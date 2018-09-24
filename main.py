@@ -72,7 +72,7 @@ if __name__ == "__main__":
 
     # Custom params
     #args.checkpoint_fn = 'tagger_NER.hdf5'
-    #args.word_seq_indexer_path = 'wsi_NER.hdf5'
+    args.word_seq_indexer_path = 'wsi_NER.hdf5'
 
     np.random.seed(args.seed_num)
     torch.manual_seed(args.seed_num)
@@ -198,6 +198,9 @@ if __name__ == "__main__":
         print('\n== eval train / dev / test | micro-f1: %1.2f / %1.2f / %1.2f, acc: %1.2f%% / %1.2f%% / %1.2f%%.' %
               (f1_train, f1_dev, f1_test, acc_train, acc_dev, acc_test))
         report.write_epoch_scores(epoch, f1_train, f1_dev, f1_test)
+
+        # Save curr tagger
+        tagger.save('tagger_NER_epoch_%03d.hdf5' % epoch)
 
         # Early stopping
         if f1_dev > best_f1_dev:
