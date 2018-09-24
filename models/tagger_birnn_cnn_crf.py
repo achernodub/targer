@@ -37,8 +37,7 @@ class TaggerBiRNNCNNCRF(TaggerBase):
         self.word_len = word_len
         self.char_cnn_filter_num = char_cnn_filter_num
         self.char_window_size = char_window_size
-        self.word_embeddings_layer = LayerWordEmbeddings(word_seq_indexer, gpu, freeze_word_embeddings,
-                                                         pad_idx=word_seq_indexer.pad_idx)
+        self.word_embeddings_layer = LayerWordEmbeddings(word_seq_indexer, gpu, freeze_word_embeddings)
         self.char_embeddings_layer = LayerCharEmbeddings(gpu, char_embeddings_dim, freeze_char_embeddings,
                                                          word_len, word_seq_indexer.get_unique_characters_list())
         self.char_cnn_layer = LayerCharCNN(gpu, char_embeddings_dim, char_cnn_filter_num, char_window_size,
@@ -65,11 +64,14 @@ class TaggerBiRNNCNNCRF(TaggerBase):
     def _forward_birnn(self, word_sequences):
         mask = self.get_mask(word_sequences)
         z_word_embed = self.word_embeddings_layer(word_sequences)
-        z_char_embed_d = self.dropout(self.char_embeddings_layer(word_sequences))
-        z_char_cnn_d = self.dropout(self.char_cnn_layer(z_char_embed_d))
-        z = self.dropout(torch.cat((z_word_embed, z_char_cnn_d), dim=2))
-        rnn_output_h = self.dropout(self.birnn_layer(z, mask)) # shape: batch_size x max_seq_len x rnn_hidden_dim*2
-        features_rnn_compressed = self.dropout(self.lin_layer(rnn_output_h))
+        z_word_embed_d = self.dropout(z_word_embed)
+        z_char_embed = self.char_embeddings_layer(word_sequences)
+        z_char_embed_d = self.dropout(z_char_embed)
+        z_char_cnn = self.char_cnn_layer(z_char_embed_d)
+        z = torch.cat((z_word_embed_d, z_char_cnn), dim=2)
+        rnn_output_h = self.birnn_layer(z, mask)
+        #rnn_output_h_d = self.dropout(rnn_output_h) # shape: batch_size x max_seq_len x rnn_hidden_dim*2
+        features_rnn_compressed = self.lin_layer(rnn_output_h)
         return self.apply_mask(features_rnn_compressed, mask)
 
     def get_loss(self, word_sequences_train_batch, tag_sequences_train_batch):
@@ -77,6 +79,16 @@ class TaggerBiRNNCNNCRF(TaggerBase):
         features_rnn = self._forward_birnn(word_sequences_train_batch) # batch_num x max_seq_len x class_num
         mask = self.get_mask(word_sequences_train_batch)  # batch_num x max_seq_len
         numerator = self.crf_layer.numerator(features_rnn, targets_tensor_train_batch, mask)
+        '''numerator1 = self.crf_layer.numerator1(features_rnn, targets_tensor_train_batch, mask)
+
+        mse = torch.mean((numerator - numerator1).float())
+        if mse > 0.001:
+            print('numerator', numerator)
+            print('numerator1', numerator1)
+            print(numerator == numerator1)
+            print('mse=', mse)
+            exit()'''
+
         denominator = self.crf_layer.denominator(features_rnn, mask)
         nll_loss = -torch.mean(numerator - denominator)
         return nll_loss
