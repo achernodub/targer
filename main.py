@@ -7,11 +7,12 @@ import time
 
 import numpy as np
 import torch
+import torch.nn as nn
 import torch.optim as optim
 from torch.optim.lr_scheduler import LambdaLR
 
 from classes.data_io import DataIO
-from classes.datasets_bank import DatasetsBank
+from classes.datasets_bank import DatasetsBankSorted
 
 from seq_indexers.seq_indexer_word import SeqIndexerWord
 from seq_indexers.seq_indexer_tag import SeqIndexerTag
@@ -69,6 +70,10 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
+    # Custom params
+    #args.checkpoint_fn = 'tagger_NER.hdf5'
+    args.word_seq_indexer_path = 'wsi_NER.hdf5'
+
     np.random.seed(args.seed_num)
     torch.manual_seed(args.seed_num)
     if args.gpu >= 0:
@@ -81,7 +86,7 @@ if __name__ == "__main__":
     word_sequences_test, tag_sequences_test = DataIO.read_CoNNL_universal(args.fn_test, verbose=True)
 
     # DatasetsBank provides storing the different dataset subsets (train/dev/test) and sampling batches from them
-    datasets_bank = DatasetsBank(verbose=True)
+    datasets_bank = DatasetsBankSorted(verbose=True)
     datasets_bank.add_train_sequences(word_sequences_train, tag_sequences_train)
     datasets_bank.add_dev_sequences(word_sequences_dev, tag_sequences_dev)
     datasets_bank.add_test_sequences(word_sequences_test, tag_sequences_test)
@@ -156,9 +161,8 @@ if __name__ == "__main__":
     else:
         raise ValueError('Unknown tagger model, must be one of "BiRNN"/"BiRNNCNN"/"BiRNNCRF"/"BiRNNCNNCRF".')
 
-    #if hasattr(tagger, 'crf_layer'):
-    #    tagger.crf_layer.init_transition_matrix_empirical(tag_sequences_train)
-
+    if hasattr(tagger, 'crf_layer'):
+        tagger.crf_layer.init_transition_matrix_empirical(tag_sequences_train)
     optimizer = optim.SGD(list(tagger.parameters()), lr=args.lr, momentum=args.momentum)
     scheduler = LambdaLR(optimizer, lr_lambda=lambda epoch: 1/(1 + args.lr_decay*epoch))
     iterations_num = int(datasets_bank.train_data_num / args.batch_size)
@@ -178,13 +182,15 @@ if __name__ == "__main__":
             tagger.zero_grad()
             loss = tagger.get_loss(word_sequences_train_batch, tag_sequences_train_batch)
             loss.backward()
-            tagger.clip_gradients(args.clip_grad)
+            nn.utils.clip_grad_norm_(tagger.parameters(), args.clip_grad)
             optimizer.step()
+            loss_sum += loss.item()
             if i % 1 == 0:
-                print('\r-- train epoch %d/%d, batch %d/%d (%1.2f%%), loss = %03.4f.' % (epoch, args.epoch_num, i + 1,
+                print('\r-- train epoch %d/%d, batch %d/%d (%1.2f%%), loss = %1.2f.' % (epoch, args.epoch_num, i + 1,
                                                                                         iterations_num,
                                                                                         ceil(i*100.0/iterations_num),
-                                                                                        loss.item()), end='', flush=True)
+                                                                                        loss_sum*100 / iterations_num),
+                                                                                        end='', flush=True)
         # Evaluate tagger
         f1_train, f1_dev, f1_test, acc_train, acc_dev, acc_test = Evaluator.get_evaluation_train_dev_test(tagger,
                                                                                                           datasets_bank,
