@@ -1,3 +1,10 @@
+"""
+.. module:: LayerCRF
+    :synopsis: LayerCRF implements Conditional Random Fields (Ma.et.al., 2016 style)
+
+.. moduleauthor:: Artem Chernodub
+"""
+
 from math import log
 
 import torch
@@ -134,9 +141,3 @@ class LayerCRF(LayerBase):
                 curr_best_state = backpointers[k, n, curr_best_state].item()
                 best_path[k].insert(0, curr_best_state)
         return best_path
-
-
-def log_sum_exp(x):
-    max_score, _ = torch.max(x, -1)
-    max_score_broadcast = max_score.unsqueeze(-1).expand_as(x)
-    return max_score + torch.log(torch.sum(torch.exp(x - max_score_broadcast), -1))
