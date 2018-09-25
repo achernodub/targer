@@ -86,7 +86,7 @@ class TaggerBiRNNCNNCRF(TaggerBase):
         self.eval()
         features_rnn_compressed_masked  = self._forward_birnn(word_sequences)
         mask = self.get_mask(word_sequences)
-        idx_sequences = self.crf_layer.decode_viterbi(features_rnn_compressed_masked, mask, no)
+        idx_sequences = self.crf_layer.decode_viterbi(features_rnn_compressed_masked, mask)
         #if no == 9:
         #    print('\nBB features_rnn_compressed_masked SINGLE', features_rnn_compressed_masked[:, :, :])
         #    print('\nfeatures_rnn_compressed_masked.shape SINGLE', features_rnn_compressed_masked.shape)
@@ -96,6 +96,14 @@ class TaggerBiRNNCNNCRF(TaggerBase):
         #    print('\nfeatures_rnn_compressed_masked.shape', features_rnn_compressed_masked.shape)
         #    print('\nidx_sequences', idx_sequences[9])
         return idx_sequences
+
+    def __save_debug(self, no, X):
+        if no == 9:
+            #print('\nСС SINGLE', X[:, :, :])
+            torch.save(X[:, 0, :], 'a.hdf5')
+        elif no == -1:
+            #print('\nСС BATCH', X[9, :, :])
+            torch.save(X[9, 0, :], 'b.hdf5')
 
     def predict_tags_from_words(self, word_sequences, batch_size=-1):
         if batch_size == -1:
