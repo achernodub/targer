@@ -61,7 +61,7 @@ class TaggerBiRNNCNNCRF(TaggerBase):
         if gpu >= 0:
             self.cuda(device=self.gpu)
 
-    def _forward_birnn(self, word_sequences, no):
+    def _forward_birnn(self, word_sequences):
         mask = self.get_mask(word_sequences)
         z_word_embed = self.word_embeddings_layer(word_sequences)
         z_word_embed_d = self.dropout(z_word_embed)
@@ -82,9 +82,9 @@ class TaggerBiRNNCNNCRF(TaggerBase):
         nll_loss = -torch.mean(numerator - denominator)
         return nll_loss
 
-    def predict_idx_from_words(self, word_sequences, no):
+    def predict_idx_from_words(self, word_sequences, no=-1):
         self.eval()
-        features_rnn_compressed_masked  = self._forward_birnn(word_sequences, no)
+        features_rnn_compressed_masked  = self._forward_birnn(word_sequences)
         mask = self.get_mask(word_sequences)
         idx_sequences = self.crf_layer.decode_viterbi(features_rnn_compressed_masked, mask, no)
         #if no == 9:

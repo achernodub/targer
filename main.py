@@ -70,9 +70,8 @@ if __name__ == "__main__":
                                                                                 'file.')
 
     args = parser.parse_args()
-
     # Custom params
-    #args.checkpoint_fn = 'tagger_NER.hdf5'
+    args.checkpoint_fn = 'tagger_NER_batch10.hdf5'
     args.word_seq_indexer_path = 'wsi_NER.hdf5'
     args.batch_size = 10
     #args.model = 'hahaha'
@@ -204,7 +203,6 @@ if __name__ == "__main__":
         print('\n== eval train / dev / test | micro-f1: %1.2f / %1.2f / %1.2f, acc: %1.2f%% / %1.2f%% / %1.2f%%.' %
               (f1_train, f1_dev, f1_test, acc_train, acc_dev, acc_test))
         report.write_epoch_scores(epoch, f1_train, f1_dev, f1_test)
-        exit()
         # Save curr tagger
         tagger.save('tagger_NER_epoch_%03d.hdf5' % epoch)
 
