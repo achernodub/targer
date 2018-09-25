@@ -62,7 +62,8 @@ if __name__ == "__main__":
     parser.add_argument('--batch_size', type=int, default=1, help='Batch size, samples.')
     parser.add_argument('--verbose', type=bool, default=True, help='Show additional information.')
     parser.add_argument('--seed_num', type=int, default=42, help='Random seed number, but 42 is the best forever!')
-    parser.add_argument('--checkpoint_fn', default=None, help='Path to save the trained model.')
+    parser.add_argument('--load_checkpoint_fn', default=None, help='Path to load from the trained model.')
+    parser.add_argument('--save_checkpoint_fn', default=None, help='Path to save the trained model.')
     parser.add_argument('--match_alpha_ratio', type=float, default='0.999',
                         help='Alpha ratio from non-strict matching, options: 0.999 or 0.5')
     parser.add_argument('--patience', type=int, default=15, help='Patience for early stopping.')
@@ -71,10 +72,10 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     # Custom params
-    args.checkpoint_fn = 'tagger_NER_batch10.hdf5'
+    #args.save_checkpoint_fn = 'tagger_NER_batch10.hdf5'
     args.word_seq_indexer_path = 'wsi_NER.hdf5'
     args.batch_size = 10
-    #args.model = 'hahaha'
+    #args.load_checkpoint_fn = 'A_tagger_NER_epoch_006.hdf5'
 
     np.random.seed(args.seed_num)
     torch.manual_seed(args.seed_num)
@@ -109,64 +110,12 @@ if __name__ == "__main__":
     tag_seq_indexer = SeqIndexerTag(gpu=args.gpu)
     tag_seq_indexer.load_items_from_tag_sequences(tag_sequences_train)
 
-    # Select model type
-    if args.model == 'BiRNN':
-        tagger = TaggerBiRNN(word_seq_indexer=word_seq_indexer,
-                             tag_seq_indexer=tag_seq_indexer,
-                             class_num=tag_seq_indexer.get_class_num(),
-                             batch_size=args.batch_size,
-                             rnn_hidden_dim=args.rnn_hidden_dim,
-                             freeze_word_embeddings=args.freeze_word_embeddings,
-                             dropout_ratio=args.dropout_ratio,
-                             rnn_type=args.rnn_type,
-                             gpu=args.gpu)
-    elif args.model == 'BiRNNCNN':
-        tagger = TaggerBiRNNCNN(word_seq_indexer=word_seq_indexer,
-                                tag_seq_indexer=tag_seq_indexer,
-                                class_num=tag_seq_indexer.get_class_num(),
-                                batch_size=args.batch_size,
-                                rnn_hidden_dim=args.rnn_hidden_dim,
-                                freeze_word_embeddings=args.freeze_word_embeddings,
-                                dropout_ratio=args.dropout_ratio,
-                                rnn_type=args.rnn_type,
-                                gpu=args.gpu,
-                                freeze_char_embeddings=args.freeze_char_embeddings,
-                                char_embeddings_dim=args.char_embeddings_dim,
-                                word_len=args.word_len,
-                                char_cnn_filter_num=args.char_cnn_filter_num,
-                                char_window_size=args.char_window_size)
-    elif args.model == 'BiRNNCRF':
-        tagger = TaggerBiRNNCRF(word_seq_indexer=word_seq_indexer,
-                                tag_seq_indexer=tag_seq_indexer,
-                                class_num=tag_seq_indexer.get_class_num(),
-                                batch_size=args.batch_size,
-                                rnn_hidden_dim=args.rnn_hidden_dim,
-                                freeze_word_embeddings=args.freeze_word_embeddings,
-                                dropout_ratio=args.dropout_ratio,
-                                rnn_type=args.rnn_type,
-                                gpu=args.gpu)
-    elif args.model == 'BiRNNCNNCRF':
-        tagger = TaggerBiRNNCNNCRF(word_seq_indexer=word_seq_indexer,
-                                   tag_seq_indexer=tag_seq_indexer,
-                                   class_num=tag_seq_indexer.get_class_num(),
-                                   batch_size=args.batch_size,
-                                   rnn_hidden_dim=args.rnn_hidden_dim,
-                                   freeze_word_embeddings=args.freeze_word_embeddings,
-                                   dropout_ratio=args.dropout_ratio,
-                                   rnn_type=args.rnn_type,
-                                   gpu=args.gpu,
-                                   freeze_char_embeddings=args.freeze_char_embeddings,
-                                   char_embeddings_dim=args.char_embeddings_dim,
-                                   word_len=args.word_len,
-                                   char_cnn_filter_num=args.char_cnn_filter_num,
-                                   char_window_size=args.char_window_size)
+    # Create or load pre-trained tagger
+    if args.load_checkpoint_fn is None:
+        tagger = TaggerBase.create(args, word_seq_indexer, tag_seq_indexer, tag_sequences_train)
     else:
-        tagger = TaggerBase.load('A_tagger_NER_epoch_006.hdf5', args.gpu)
-        tagger.batch_size = args.batch_size
-        #raise ValueError('Unknown tagger model, must be one of "BiRNN"/"BiRNNCNN"/"BiRNNCRF"/"BiRNNCNNCRF".')
+        tagger = TaggerBase.load(args.load_checkpoint_fn, args.gpu)
 
-    if hasattr(tagger, 'crf_layer'):
-        tagger.crf_layer.init_transition_matrix_empirical(tag_sequences_train)
     optimizer = optim.SGD(list(tagger.parameters()), lr=args.lr, momentum=args.momentum)
     scheduler = LambdaLR(optimizer, lr_lambda=lambda epoch: 1/(1 + args.lr_decay*epoch))
     iterations_num = int(datasets_bank.train_data_num / args.batch_size)
@@ -200,8 +149,8 @@ if __name__ == "__main__":
         f1_train, f1_dev, f1_test, acc_train, acc_dev, acc_test = Evaluator.get_evaluation_train_dev_test(tagger,
                                                                                                           datasets_bank,
                                                                                                           batch_size=100)
-        print('\n== eval train / dev / test | micro-f1: %1.2f / %1.2f / %1.2f, acc: %1.2f%% / %1.2f%% / %1.2f%%.' %
-              (f1_train, f1_dev, f1_test, acc_train, acc_dev, acc_test))
+        print('\n== eval epoch %d/%d train / dev / test | micro-f1: %1.2f / %1.2f / %1.2f, acc: %1.2f%% / %1.2f%% / %1.2f%%.' %
+              (epoch, args.epoch_num, f1_train, f1_dev, f1_test, acc_train, acc_dev, acc_test))
         report.write_epoch_scores(epoch, f1_train, f1_dev, f1_test)
         # Save curr tagger
         # tagger.save('tagger_NER_epoch_%03d.hdf5' % epoch)
@@ -219,11 +168,11 @@ if __name__ == "__main__":
             break
 
     # Save final trained tagger to disk
-    #if args.checkpoint_fn is not None:
-    #    tagger.save(args.checkpoint_fn)
+    if args.save_checkpoint_fn is not None:
+        tagger.save(args.save_checkpoint_fn)
 
     # Make final evaluation of trained tagger
-    output_tag_sequences_test = tagger.predict_tags_from_words(datasets_bank.word_sequences_test)
+    output_tag_sequences_test = tagger.predict_tags_from_words(datasets_bank.word_sequences_test, batch_size=100)
     f1_test_final, test_connl_str = Evaluator.get_f1_connl_script(tagger=tagger,
                                                      word_sequences=datasets_bank.word_sequences_test,
                                                      targets_tag_sequences=datasets_bank.tag_sequences_test,
