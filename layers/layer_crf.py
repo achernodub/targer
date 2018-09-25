@@ -114,6 +114,7 @@ class LayerCRF(LayerBase):
         # features_rnn_compressed: batch x max_seq_len x states_num
         # mask_tensor: batch_num x max_seq_len
         batch_size, max_seq_len = mask_tensor.shape
+        seq_len_list = [int(mask_tensor[k].sum().item()) for k in range(batch_size)]
         # Step 1. Calculate scores & backpointers
         score = self.tensor_ensure_gpu(torch.Tensor(batch_size, self.states_num).fill_(-9999.))
         score[:, self.sos_idx] = 0.0
@@ -130,14 +131,13 @@ class LayerCRF(LayerBase):
             curr_mask = mask_tensor[:, n].unsqueeze(1).expand(batch_size, self.states_num)
             score = score * (1 - curr_mask) + (curr_score + curr_emissions) * curr_mask
             backpointers[:, n, :] = curr_backpointers # shape: batch_size x max_seq_len x state_num
-        best_score, last_best_state = torch.max(score, 1)
+        best_score_batch, last_best_state_batch = torch.max(score, 1)
         # Step 2. Find the best path
-        seq_len_list = [int(mask_tensor[k].sum().item()) for k in range(batch_size)]
-        best_path = [[i] for i in last_best_state.tolist()]
+        best_path_batch = [[state] for state in last_best_state_batch.tolist()]
         for k in range(batch_size):
-            curr_best_state = last_best_state[k]
+            curr_best_state = last_best_state_batch[k]
             curr_seq_len = seq_len_list[k]
             for n in reversed(range(1, curr_seq_len)):
                 curr_best_state = backpointers[k, n, curr_best_state].item()
-                best_path[k].insert(0, curr_best_state)
-        return best_path
+                best_path_batch[k].insert(0, curr_best_state)
+        return best_path_batch
