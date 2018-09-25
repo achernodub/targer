@@ -65,10 +65,11 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     # Custom params
-    args.save_checkpoint_fn = 'tagger_NER_batch10.hdf5'
     args.word_seq_indexer_path = 'wsi_NER.hdf5'
     args.batch_size = 10
+    #args.save_checkpoint_fn = 'tagger_NER_batch10.hdf5'
     #args.load_checkpoint_fn = 'A_tagger_NER_epoch_006.hdf5'
+    args.opt_method = 'adam'
 
     np.random.seed(args.seed_num)
     torch.manual_seed(args.seed_num)
@@ -109,7 +110,13 @@ if __name__ == "__main__":
     else:
         tagger = TaggerIO.load_tagger(args.load_checkpoint_fn, args.gpu)
 
-    optimizer = optim.SGD(list(tagger.parameters()), lr=args.lr, momentum=args.momentum)
+    # Create optimizer
+    if args.opt_method == 'sgd':
+        optimizer = optim.SGD(list(tagger.parameters()), lr=args.lr, momentum=args.momentum)
+    elif args.opt_method == 'adam':
+        optimizer = optim.Adam(list(tagger.parameters()))
+    else:
+        raise ValueError('Unknown optimizer, must be one of "sgd"/"adam".')
     scheduler = LambdaLR(optimizer, lr_lambda=lambda epoch: 1/(1 + args.lr_decay*epoch))
     iterations_num = int(datasets_bank.train_data_num / args.batch_size)
     best_f1_dev = -1
