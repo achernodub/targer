@@ -66,10 +66,10 @@ if __name__ == "__main__":
     args = parser.parse_args()
     # Custom params
     args.word_seq_indexer_path = 'wsi_NER.hdf5'
-    args.batch_size = 10
+    args.batch_size = 1
     #args.save_checkpoint_fn = 'tagger_NER_batch10.hdf5'
     #args.load_checkpoint_fn = 'A_tagger_NER_epoch_006.hdf5'
-    args.opt_method = 'adam'
+    args.opt_method = 'sgd'
 
     np.random.seed(args.seed_num)
     torch.manual_seed(args.seed_num)
