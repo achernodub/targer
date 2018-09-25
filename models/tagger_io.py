@@ -1,3 +1,10 @@
+"""
+.. module:: TaggerIO
+    :synopsis: TaggerIO contains wrappers to create and load tagger models
+
+.. moduleauthor:: Artem Chernodub
+"""
+
 import os.path
 
 import torch

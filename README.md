@@ -48,6 +48,7 @@ et. al., 2016](https://arxiv.org/pdf/1603.01360.pdf) and [Ma et. al., 2016](http
         |__ layer_crf.py --> class implements conditional random field (CRF) 
 |__ models/
         |__ tagger_base.py --> abstract base class for all types of taggers
+        |__ tagger_io.py --> contains wrappers to create and load tagger models
         |__ tagger_birnn.py --> vanilla BiLSTM/BiGRU tagger model
         |__ tagger_birnn_crf.py --> BiLSTM/BiGRU + CRF tagger model
         |__ tagger_birnn_cnn.py --> BiLSTM/BiGRU + char-level CNN tagger model
