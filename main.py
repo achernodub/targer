@@ -13,19 +13,12 @@ from torch.optim.lr_scheduler import LambdaLR
 
 from classes.data_io import DataIO
 from classes.datasets_bank import DatasetsBankSorted
-
-from seq_indexers.seq_indexer_word import SeqIndexerWord
-from seq_indexers.seq_indexer_tag import SeqIndexerTag
-
 from classes.evaluator import Evaluator
 from classes.report import Report
 from classes.utils import *
-
-from models.tagger_base import TaggerBase
-from models.tagger_birnn import TaggerBiRNN
-from models.tagger_birnn_cnn import TaggerBiRNNCNN
-from models.tagger_birnn_crf import TaggerBiRNNCRF
-from models.tagger_birnn_cnn_crf import TaggerBiRNNCNNCRF
+from seq_indexers.seq_indexer_word import SeqIndexerWord
+from seq_indexers.seq_indexer_tag import SeqIndexerTag
+from models.tagger_io import TaggerIO
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Learning tagging problem using neural networks')
@@ -112,9 +105,9 @@ if __name__ == "__main__":
 
     # Create or load pre-trained tagger
     if args.load_checkpoint_fn is None:
-        tagger = TaggerBase.create(args, word_seq_indexer, tag_seq_indexer, tag_sequences_train)
+        tagger = TaggerIO.create_tagger(args, word_seq_indexer, tag_seq_indexer, tag_sequences_train)
     else:
-        tagger = TaggerBase.load(args.load_checkpoint_fn, args.gpu)
+        tagger = TaggerIO.load_tagger(args.load_checkpoint_fn, args.gpu)
 
     optimizer = optim.SGD(list(tagger.parameters()), lr=args.lr, momentum=args.momentum)
     scheduler = LambdaLR(optimizer, lr_lambda=lambda epoch: 1/(1 + args.lr_decay*epoch))
@@ -169,7 +162,7 @@ if __name__ == "__main__":
 
     # Save final trained tagger to disk
     if args.save_checkpoint_fn is not None:
-        tagger.save(args.save_checkpoint_fn)
+        tagger.save_tagger(args.save_checkpoint_fn)
 
     # Make final evaluation of trained tagger
     output_tag_sequences_test = tagger.predict_tags_from_words(datasets_bank.word_sequences_test, batch_size=100)
