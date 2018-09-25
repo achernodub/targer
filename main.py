@@ -204,7 +204,7 @@ if __name__ == "__main__":
               (f1_train, f1_dev, f1_test, acc_train, acc_dev, acc_test))
         report.write_epoch_scores(epoch, f1_train, f1_dev, f1_test)
         # Save curr tagger
-        tagger.save('tagger_NER_epoch_%03d.hdf5' % epoch)
+        # tagger.save('tagger_NER_epoch_%03d.hdf5' % epoch)
 
         # Early stopping
         if f1_dev > best_f1_dev:
