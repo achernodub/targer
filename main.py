@@ -21,6 +21,7 @@ from classes.evaluator import Evaluator
 from classes.report import Report
 from classes.utils import *
 
+from models.tagger_base import TaggerBase
 from models.tagger_birnn import TaggerBiRNN
 from models.tagger_birnn_cnn import TaggerBiRNNCNN
 from models.tagger_birnn_crf import TaggerBiRNNCRF
@@ -73,6 +74,8 @@ if __name__ == "__main__":
     # Custom params
     #args.checkpoint_fn = 'tagger_NER.hdf5'
     args.word_seq_indexer_path = 'wsi_NER.hdf5'
+    args.batch_size = 10
+    #args.model = 'hahaha'
 
     np.random.seed(args.seed_num)
     torch.manual_seed(args.seed_num)
@@ -159,7 +162,9 @@ if __name__ == "__main__":
                                    char_cnn_filter_num=args.char_cnn_filter_num,
                                    char_window_size=args.char_window_size)
     else:
-        raise ValueError('Unknown tagger model, must be one of "BiRNN"/"BiRNNCNN"/"BiRNNCRF"/"BiRNNCNNCRF".')
+        tagger = TaggerBase.load('A_tagger_NER_epoch_006.hdf5', args.gpu)
+        tagger.batch_size = args.batch_size
+        #raise ValueError('Unknown tagger model, must be one of "BiRNN"/"BiRNNCNN"/"BiRNNCRF"/"BiRNNCNNCRF".')
 
     if hasattr(tagger, 'crf_layer'):
         tagger.crf_layer.init_transition_matrix_empirical(tag_sequences_train)
@@ -172,25 +177,26 @@ if __name__ == "__main__":
     report = Report(report_fn, args, score_name='micro-f1')
     print('\nStart training...\n')
     for epoch in range(1, args.epoch_num + 1):
-        tagger.train()
-        if args.lr_decay > 0:
-            scheduler.step()
         time_start = time.time()
-        loss_sum = 0
-        for i, (word_sequences_train_batch, tag_sequences_train_batch) in enumerate(datasets_bank.get_train_batches(args.batch_size)):
+        if epoch > 0:
             tagger.train()
-            tagger.zero_grad()
-            loss = tagger.get_loss(word_sequences_train_batch, tag_sequences_train_batch)
-            loss.backward()
-            nn.utils.clip_grad_norm_(tagger.parameters(), args.clip_grad)
-            optimizer.step()
-            loss_sum += loss.item()
-            if i % 1 == 0:
-                print('\r-- train epoch %d/%d, batch %d/%d (%1.2f%%), loss = %1.2f.' % (epoch, args.epoch_num, i + 1,
-                                                                                        iterations_num,
-                                                                                        ceil(i*100.0/iterations_num),
-                                                                                        loss_sum*100 / iterations_num),
-                                                                                        end='', flush=True)
+            if args.lr_decay > 0:
+                scheduler.step()
+            loss_sum = 0
+            for i, (word_sequences_train_batch, tag_sequences_train_batch) in enumerate(datasets_bank.get_train_batches(args.batch_size)):
+                tagger.train()
+                tagger.zero_grad()
+                loss = tagger.get_loss(word_sequences_train_batch, tag_sequences_train_batch)
+                loss.backward()
+                nn.utils.clip_grad_norm_(tagger.parameters(), args.clip_grad)
+                optimizer.step()
+                loss_sum += loss.item()
+                if i % 1 == 0:
+                    print('\r-- train epoch %d/%d, batch %d/%d (%1.2f%%), loss = %1.2f.' % (epoch, args.epoch_num, i + 1,
+                                                                                            iterations_num,
+                                                                                            ceil(i*100.0/iterations_num),
+                                                                                            loss_sum*100 / iterations_num),
+                                                                                            end='', flush=True)
         # Evaluate tagger
         f1_train, f1_dev, f1_test, acc_train, acc_dev, acc_test = Evaluator.get_evaluation_train_dev_test(tagger,
                                                                                                           datasets_bank,
@@ -198,7 +204,7 @@ if __name__ == "__main__":
         print('\n== eval train / dev / test | micro-f1: %1.2f / %1.2f / %1.2f, acc: %1.2f%% / %1.2f%% / %1.2f%%.' %
               (f1_train, f1_dev, f1_test, acc_train, acc_dev, acc_test))
         report.write_epoch_scores(epoch, f1_train, f1_dev, f1_test)
-
+        exit()
         # Save curr tagger
         tagger.save('tagger_NER_epoch_%03d.hdf5' % epoch)
 
@@ -215,8 +221,8 @@ if __name__ == "__main__":
             break
 
     # Save final trained tagger to disk
-    if args.checkpoint_fn is not None:
-        tagger.save(args.checkpoint_fn)
+    #if args.checkpoint_fn is not None:
+    #    tagger.save(args.checkpoint_fn)
 
     # Make final evaluation of trained tagger
     output_tag_sequences_test = tagger.predict_tags_from_words(datasets_bank.word_sequences_test)

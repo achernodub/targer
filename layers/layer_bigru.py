@@ -30,19 +30,20 @@ class LayerBiGRU(LayerBiRNNBase):
     def is_cuda(self):
         return self.rnn.weight_hh_l0.is_cuda
 
-    '''
-    def __forward_old(self, input_tensor): #input_tensor shape: batch_size x max_seq_len x dim
+    def forward_old(self, input_tensor, mask_tensor): #input_tensor shape: batch_size x max_seq_len x dim
         batch_size, max_seq_len, _ = input_tensor.shape
         # Init rnn's states by zeros
-        rnn_forward_h = self.make_gpu(torch.zeros(batch_size, self.hidden_dim))
-        rnn_backward_h = self.make_gpu(torch.zeros(batch_size, self.hidden_dim))
+        rnn_forward_h = self.tensor_ensure_gpu(torch.zeros(batch_size, self.hidden_dim))
+        rnn_backward_h = self.tensor_ensure_gpu(torch.zeros(batch_size, self.hidden_dim))
         # Forward pass in both directions
-        output = self.make_gpu(torch.zeros(batch_size, max_seq_len, self.hidden_dim * 2))
+        output = self.tensor_ensure_gpu(torch.zeros(batch_size, max_seq_len, self.hidden_dim * 2))
         for l in range(max_seq_len):
             n = max_seq_len - l - 1
             rnn_forward_h = self.rnn_forward_layer(input_tensor[:, l, :], rnn_forward_h)
             rnn_backward_h = self.rnn_backward_layer(input_tensor[:, n, :], rnn_backward_h)
-            output[:, l, :self.hidden_dim] = rnn_forward_h
-            output[:, n, self.hidden_dim:] = rnn_backward_h
-        return output  # shape: batch_size x max_seq_len x hidden_dim*2
-    '''
+            #print('rnn_backward_h.shape', rnn_backward_h.shape)
+            #print('mask_tensor.shape', mask_tensor.shape)
+            output[:, l, :self.hidden_dim] = self.apply_mask(rnn_forward_h, mask_tensor[:, l])
+            #output[:, n, self.hidden_dim:] = self.apply_mask(rnn_backward_h, mask_tensor[:, n])
+            output[:, n, self.hidden_dim:] = self.tensor_ensure_gpu(torch.zeros(batch_size, self.hidden_dim))
+        return output # shape: batch_size x max_seq_len x hidden_dim*2
