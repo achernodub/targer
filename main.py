@@ -199,7 +199,7 @@ if __name__ == "__main__":
         # Evaluate tagger
         f1_train, f1_dev, f1_test, acc_train, acc_dev, acc_test = Evaluator.get_evaluation_train_dev_test(tagger,
                                                                                                           datasets_bank,
-                                                                                                          args.batch_size)
+                                                                                                          batch_size=100)
         print('\n== eval train / dev / test | micro-f1: %1.2f / %1.2f / %1.2f, acc: %1.2f%% / %1.2f%% / %1.2f%%.' %
               (f1_train, f1_dev, f1_test, acc_train, acc_dev, acc_test))
         report.write_epoch_scores(epoch, f1_train, f1_dev, f1_test)
