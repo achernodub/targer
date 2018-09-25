@@ -69,11 +69,9 @@ class LayerCRF(LayerBase):
         return self.transition_matrix.is_cuda
 
     def numerator(self, features_rnn_compressed, states_tensor, mask_tensor):
-        #
         # features_input_tensor: batch_num x max_seq_len x states_num
         # states_tensor: batch_num x max_seq_len
         # mask_tensor: batch_num x max_seq_len
-        #
         batch_num, max_seq_len = mask_tensor.shape
         score = self.tensor_ensure_gpu(torch.zeros(batch_num, dtype=torch.float))
         start_states_tensor = self.tensor_ensure_gpu(torch.zeros(batch_num, 1, dtype=torch.long).fill_(self.sos_idx))
@@ -89,8 +87,8 @@ class LayerCRF(LayerBase):
             score = score + curr_emission*curr_mask + curr_transition*curr_mask
         return score
 
-    def denominator(self, features_rnn_compressed, mask_tensor): # forward algorithm
-        # features_rnn_compressed: batch x max_seq_len x tags_num
+    def denominator(self, features_rnn_compressed, mask_tensor):
+        # features_rnn_compressed: batch x max_seq_len x states_num
         # mask_tensor: batch_num x max_seq_len
         batch_num, max_seq_len = mask_tensor.shape
         score = self.tensor_ensure_gpu(torch.zeros(batch_num, self.states_num, dtype=torch.float).fill_(-9999.0))
@@ -100,26 +98,19 @@ class LayerCRF(LayerBase):
             curr_score = score.unsqueeze(1).expand(-1, *self.transition_matrix.size())
             curr_emission = features_rnn_compressed[:, n].unsqueeze(-1).expand_as(curr_score)
             curr_transition = self.transition_matrix.unsqueeze(0).expand_as(curr_score)
-            curr_score = log_sum_exp(curr_score + curr_emission + curr_transition)
+            curr_score = torch.logsumexp(curr_score + curr_emission + curr_transition, dim=2)
             score = curr_score * curr_mask + score * (1 - curr_mask)
-        score = log_sum_exp(score)
+        score = torch.logsumexp(score, dim=1)
         return score
 
-    def save_debug(self, no, X):
-        if no == 9:
-            #print('\nСС SINGLE', X[:, :, :])
-            torch.save(X[:, 0, :], 'a.hdf5')
-        elif no == -1:
-            #print('\nСС BATCH', X[9, :, :])
-            torch.save(X[9, 0, :], 'b.hdf5')
-
-    # curr_mask = mask_tensor[:, n].unsqueeze(-1).expand_as(score)
-    def decode_viterbi(self, features_rnn_compressed, mask_tensor, no): # Viterbi decoding
-        #print('A')
+    def decode_viterbi(self, features_rnn_compressed, mask_tensor):
+        # features_rnn_compressed: batch x max_seq_len x states_num
+        # mask_tensor: batch_num x max_seq_len
         batch_size, max_seq_len = mask_tensor.shape
-        backpointers = self.tensor_ensure_gpu(torch.LongTensor(batch_size, max_seq_len, self.states_num))
+        # Step 1. Calculate scores & backpointers
         score = self.tensor_ensure_gpu(torch.Tensor(batch_size, self.states_num).fill_(-9999.))
         score[:, self.sos_idx] = 0.0
+        backpointers = self.tensor_ensure_gpu(torch.LongTensor(batch_size, max_seq_len, self.states_num))
         for n in range(max_seq_len):
             curr_emissions = features_rnn_compressed[:, n]
             curr_score = self.tensor_ensure_gpu(torch.Tensor(batch_size, self.states_num))
@@ -131,51 +122,19 @@ class LayerCRF(LayerBase):
                 curr_backpointers[:, curr_state] = max_indices
             curr_mask = mask_tensor[:, n].unsqueeze(1).expand(batch_size, self.states_num)
             score = score * (1 - curr_mask) + (curr_score + curr_emissions) * curr_mask
-            backpointers[:, n, :] = curr_backpointers
-        best_score, best_tag = torch.max(score, 1)
-        #print('B')
-        # Find best sequence
-        seq_len_list = [int(scalar(mask_tensor[k].sum())) for k in range(batch_size)]
-        backpointers_list = backpointers.tolist()
-        best_path = [[i] for i in best_tag.tolist()]
+            backpointers[:, n, :] = curr_backpointers # shape: batch_size x max_seq_len x state_num
+        best_score, last_best_state = torch.max(score, 1)
+        # Step 2. Find the best path
+        seq_len_list = [int(mask_tensor[k].sum().item()) for k in range(batch_size)]
+        best_path = [[i] for i in last_best_state.tolist()]
         for k in range(batch_size):
-            best_tag_k = best_tag[k]
-            seq_len = seq_len_list[k]
-            for curr_backpointers in reversed(backpointers_list[k][:seq_len]):
-                best_tag_k = curr_backpointers[best_tag_k]
-                best_path[k].append(best_tag_k)
-            best_path[k].pop()
-            best_path[k].reverse()
-        #print('C')
-        #if no == 9:
-        #    print('best_path SINGLE', best_path[0])
-        #elif no == -1:
-        #    print('best path BATCH', best_path[9])
+            curr_best_state = last_best_state[k]
+            curr_seq_len = seq_len_list[k]
+            for n in reversed(range(1, curr_seq_len)):
+                curr_best_state = backpointers[k, n, curr_best_state].item()
+                best_path[k].insert(0, curr_best_state)
         return best_path
 
-CUDA = True
-
-def Tensor(*args):
-    x = torch.Tensor(*args)
-    return x.cuda() if CUDA else x
-
-def LongTensor(*args):
-    x = torch.LongTensor(*args)
-    return x.cuda() if CUDA else x
-
-def randn(*args):
-    x = torch.randn(*args)
-    return x.cuda() if CUDA else x
-
-def zeros(*args):
-    x = torch.zeros(*args)
-    return x.cuda() if CUDA else x
-
-def scalar(x):
-    return x.view(-1).data.tolist()[0]
-
-def argmax(x): # for 1D tensor
-    return scalar(torch.max(x, 0)[1])
 
 def log_sum_exp(x):
     max_score, _ = torch.max(x, -1)
