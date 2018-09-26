@@ -80,7 +80,7 @@ Results of training the models with the default settings:
 
 |         tagger model       |     dataset           | micro-f1 on test        |
 | ------------------- | --------------------- | ----------------------- |
-| BiLSTM + CNN + CRF, [Lample et. al., 2016](https://arxiv.org/pdf/1603.01360.pdf) | NER-2003 shared task (English)  | 90.94 |
+| BiLSTM + CNN + CRF [Lample et. al., 2016](https://arxiv.org/pdf/1603.01360.pdf) | NER-2003 shared task (English)  | 90.94 |
 | BiLSTM + CNN + CRF [Ma et al., 2016](https://arxiv.org/pdf/1603.01354.pdf)      | NER-2003 shared task (English)  | 91.21 |
 | BiLSTM + CNN + CRF  (our)   | NER-2003 shared task (English)                     | 90.88  |          |
 ||||           
@@ -287,5 +287,5 @@ optional arguments:
          78 |       7.34 |      99.79 |      93.78 |      89.96 |      99.97 |      98.75 |      97.78 
          79 |       7.34 |      99.80 |      93.95 |      90.25 |      99.97 |      98.79 |      97.88 
 ---------------------------------------------------------------------------------------------------------
-Final eval on test: micro-f1 test = 90.88
+Final eval on test, "save best", best epoch on dev 48, micro-f1 test = 90.88
 ```

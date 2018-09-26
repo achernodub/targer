@@ -29,7 +29,7 @@ class Report():
 
     def write_final_score(self, final_score_name, final_score):
         self.text += self.blank_line
-        self.text += '\n Final eval on test: %s = %1.2f' % (final_score_name, final_score)
+        self.text += '\n%s = %1.2f' % (final_score_name, final_score)
         self.__save()
 
     def __save(self):

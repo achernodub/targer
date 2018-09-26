@@ -66,8 +66,8 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     # Custom params
-    args.word_seq_indexer_path = 'wsi_NER.hdf5'
-    args.save_checkpoint_fn = 'tagger_NER_BiLSTMCNNCRF.hdf5'
+    #args.word_seq_indexer_path = 'wsi_NER.hdf5'
+    #args.save_checkpoint_fn = 'tagger_NER_BiLSTMCNNCRF.hdf5'
 
     np.random.seed(args.seed_num)
     torch.manual_seed(args.seed_num)
@@ -123,6 +123,7 @@ if __name__ == "__main__":
                                                   'acc. test'))
     iterations_num = int(datasets_bank.train_data_num / args.batch_size)
     best_f1_dev = -1
+    best_epoch = -1
     best_f1_test = -1
     best_test_connl_str = 'N\A'
     patience_counter = 0
@@ -163,6 +164,7 @@ if __name__ == "__main__":
         if f1_dev > best_f1_dev:
             best_f1_dev = f1_dev
             best_f1_test = f1_test
+            best_epoch = epoch
             best_test_connl_str = test_connl_str
             patience_counter = 0
             if args.save_checkpoint_fn is not None and args.save_best:
@@ -183,8 +185,8 @@ if __name__ == "__main__":
 
     # Show and save the final scores
     if args.save_best:
-        report.write_final_score('micro-f1 test', best_f1_test)
+        report.write_final_score('Final eval on test, "save best", best epoch on dev 48, micro-f1 test = %d)' % best_epoch, best_f1_test)
         print(best_test_connl_str)
     else:
-        report.write_final_score('micro-f1 test', f1_test)
+        report.write_final_score('Final eval on test,  micro-f1 test = %d)' % epoch, f1_test)
         print(test_connl_str)
