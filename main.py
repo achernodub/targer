@@ -65,9 +65,6 @@ if __name__ == "__main__":
     parser.add_argument('--save_best', type=bool, default=True, help = 'Save best on dev model as a final.')
 
     args = parser.parse_args()
-    # Custom params
-    #args.word_seq_indexer_path = 'wsi_NER.hdf5'
-    #args.save_checkpoint_fn = 'tagger_NER_BiLSTMCNNCRF.hdf5'
 
     np.random.seed(args.seed_num)
     torch.manual_seed(args.seed_num)
