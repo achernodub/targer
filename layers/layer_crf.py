@@ -105,9 +105,11 @@ class LayerCRF(LayerBase):
             curr_score = score.unsqueeze(1).expand(-1, *self.transition_matrix.size())
             curr_emission = features_rnn_compressed[:, n].unsqueeze(-1).expand_as(curr_score)
             curr_transition = self.transition_matrix.unsqueeze(0).expand_as(curr_score)
-            curr_score = torch.logsumexp(curr_score + curr_emission + curr_transition, dim=2)
+            #curr_score = torch.logsumexp(curr_score + curr_emission + curr_transition, dim=2)
+            curr_score = log_sum_exp(curr_score + curr_emission + curr_transition)
             score = curr_score * curr_mask + score * (1 - curr_mask)
-        score = torch.logsumexp(score, dim=1)
+        #score = torch.logsumexp(score, dim=1)
+        score = log_sum_exp(score)
         return score
 
     def decode_viterbi(self, features_rnn_compressed, mask_tensor):
@@ -141,3 +143,8 @@ class LayerCRF(LayerBase):
                 curr_best_state = backpointers[k, n, curr_best_state].item()
                 best_path_batch[k].insert(0, curr_best_state)
         return best_path_batch
+
+    def log_sum_exp(x):
+        max_score, _ = torch.max(x, -1)
+        max_score_broadcast = max_score.unsqueeze(-1).expand_as(x)
+        return max_score + torch.log(torch.sum(torch.exp(x - max_score_broadcast), -1))

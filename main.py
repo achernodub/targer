@@ -150,7 +150,7 @@ if __name__ == "__main__":
                                                                                                           datasets_bank,
                                                                                                           batch_size=100)
         print('\n== eval epoch %d/%d train / dev / test | micro-f1: %1.2f / %1.2f / %1.2f, acc: %1.2f%% / %1.2f%% / %1.2f%%.' %
-              (epoch, args.epoch_num, f1_train, f1_dev, f1_test, acc_train, acc_dev, acc_test))
+              (epoch, args.epoch_num, loss_sum*100 / iterations_num, f1_dev, f1_test, acc_train, acc_dev, acc_test))
         report.write_epoch_scores(epoch, f1_train, f1_dev, f1_test)
         # Save curr tagger
         # tagger.save('tagger_NER_epoch_%03d.hdf5' % epoch)
