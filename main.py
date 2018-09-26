@@ -59,9 +59,10 @@ if __name__ == "__main__":
     parser.add_argument('--save_checkpoint_fn', default=None, help='Path to save the trained model.')
     parser.add_argument('--match_alpha_ratio', type=float, default='0.999',
                         help='Alpha ratio from non-strict matching, options: 0.999 or 0.5')
-    parser.add_argument('--patience', type=int, default=15, help='Patience for early stopping.')
+    parser.add_argument('--patience', type=int, default=30, help='Patience for early stopping.')
     parser.add_argument('--word_seq_indexer_path', type=str, default=None, help='Load word_seq_indexer object from hdf5\ '
                                                                                 'file.')
+    parser.add_argument('--save_best', type=bool, default=True, help = 'Save best on dev model as a final.')
 
     args = parser.parse_args()
     # Custom params
@@ -70,7 +71,7 @@ if __name__ == "__main__":
     args.lr = 0.015
     args.lr_decay = 0.05
     args.opt_method = 'sgd'
-    #args.save_checkpoint_fn = 'tagger_NER_batch10.hdf5'
+    args.save_checkpoint_fn = 'tagger_NER.hdf5'
     #args.load_checkpoint_fn = 'A_tagger_NER_epoch_006.hdf5'
 
     np.random.seed(args.seed_num)
@@ -161,6 +162,8 @@ if __name__ == "__main__":
         if f1_dev > best_f1_dev:
             best_f1_dev = f1_dev
             patience_counter = 0
+            if args.save_best:
+                tagger.save_tagger(args.save_checkpoint_fn)
             print('## [BEST epoch], %d seconds.\n' % (time.time() - time_start))
         else:
             patience_counter += 1
@@ -172,7 +175,7 @@ if __name__ == "__main__":
             break
 
     # Save final trained tagger to disk
-    if args.save_checkpoint_fn is not None:
+    if args.save_checkpoint_fn is not None and not args.save_best:
         tagger.save_tagger(args.save_checkpoint_fn)
 
     # Make final evaluation of trained tagger
