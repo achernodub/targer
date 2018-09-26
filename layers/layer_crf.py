@@ -144,7 +144,7 @@ class LayerCRF(LayerBase):
                 best_path_batch[k].insert(0, curr_best_state)
         return best_path_batch
 
-    def log_sum_exp(x):
-        max_score, _ = torch.max(x, -1)
-        max_score_broadcast = max_score.unsqueeze(-1).expand_as(x)
-        return max_score + torch.log(torch.sum(torch.exp(x - max_score_broadcast), -1))
+def log_sum_exp(x):
+    max_score, _ = torch.max(x, -1)
+    max_score_broadcast = max_score.unsqueeze(-1).expand_as(x)
+    return max_score + torch.log(torch.sum(torch.exp(x - max_score_broadcast), -1))
