@@ -59,6 +59,19 @@ class TaggerBiRNNCNN(TaggerBase):
     def forward(self, word_sequences):
         mask = self.get_mask(word_sequences)
         z_word_embed = self.word_embeddings_layer(word_sequences)
+        z_char_embed = self.char_embeddings_layer(word_sequences)
+        z_char_embed_d = self.dropout(z_char_embed)
+        z_char_cnn_d = self.dropout(self.char_cnn_layer(z_char_embed_d))
+        z = torch.cat((z_word_embed, z_char_cnn_d), dim=2)
+        rnn_output_h = self.birnn_layer(z, mask)
+        rnn_output_h_d = self.dropout(rnn_output_h) # shape: batch_size x max_seq_len x rnn_hidden_dim*2
+        z_rnn_out = self.apply_mask(self.lin_layer(rnn_output_h_d), mask)
+        y = self.log_softmax_layer(z_rnn_out.permute(0, 2, 1))
+        return y
+
+    def forward_1b(self, word_sequences):
+        mask = self.get_mask(word_sequences)
+        z_word_embed = self.word_embeddings_layer(word_sequences)
         z_word_embed_d = self.dropout(z_word_embed)
         z_char_embed = self.char_embeddings_layer(word_sequences)
         z_char_embed_d = self.dropout(z_char_embed)
@@ -70,6 +83,7 @@ class TaggerBiRNNCNN(TaggerBase):
         z_rnn_out = self.apply_mask(self.lin_layer(rnn_output_h), mask)
         y = self.log_softmax_layer(z_rnn_out.permute(0, 2, 1))
         return y
+
 
     def get_loss(self, word_sequences_train_batch, tag_sequences_train_batch):
         outputs_tensor_train_batch_one_hot = self.forward(word_sequences_train_batch)
