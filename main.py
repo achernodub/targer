@@ -41,7 +41,7 @@ if __name__ == "__main__":
     parser.add_argument('--epoch_num', type=int, default=100, help='Number of epochs.')
     parser.add_argument('--min_epoch_num', type=int, default=50, help='Minimum number of epochs.')
     parser.add_argument('--rnn_hidden_dim', type=int, default=100, help='Number hidden units in the recurrent layer.')
-    parser.add_argument('--rnn_type', default='GRU', help='RNN cell units type: "Vanilla", "LSTM", "GRU".')
+    parser.add_argument('--rnn_type', default='LSTM', help='RNN cell units type: "Vanilla", "LSTM", "GRU".')
     parser.add_argument('--char_embeddings_dim', type=int, default=25, help='Char embeddings dim, only for char CNNs.')
     parser.add_argument('--word_len', type=int, default=20, help='Max length of words in characters for char CNNs.')
     parser.add_argument('--char_cnn_filter_num', type=int, default=30, help='Number of filters in Char CNN.')
@@ -57,18 +57,17 @@ if __name__ == "__main__":
     parser.add_argument('--seed_num', type=int, default=42, help='Random seed number, but 42 is the best forever!')
     parser.add_argument('--load_checkpoint_fn', default=None, help='Path to load from the trained model.')
     parser.add_argument('--save_checkpoint_fn', default=None, help='Path to save the trained model.')
+    parser.add_argument('--word_seq_indexer_path', type=str, default=None,
+                        help='Load word_seq_indexer object from hdf5 file.')
     parser.add_argument('--match_alpha_ratio', type=float, default='0.999',
                         help='Alpha ratio from non-strict matching, options: 0.999 or 0.5')
-    parser.add_argument('--patience', type=int, default=30, help='Patience for early stopping.')
-    parser.add_argument('--word_seq_indexer_path', type=str, default=None, help='Load word_seq_indexer object from hdf5\ '
-                                                                                'file.')
+    parser.add_argument('--patience', type=int, default=10, help='Patience for early stopping.')
     parser.add_argument('--save_best', type=bool, default=True, help = 'Save best on dev model as a final.')
 
     args = parser.parse_args()
     # Custom params
     args.word_seq_indexer_path = 'wsi_NER.hdf5'
-    args.save_checkpoint_fn = 'tagger_LSTM_NER.hdf5'
-    args.rnn_type = 'LSTM'
+    args.save_checkpoint_fn = 'tagger_NER_BiLSTMCNNCRF.hdf5'
 
     np.random.seed(args.seed_num)
     torch.manual_seed(args.seed_num)
@@ -117,12 +116,16 @@ if __name__ == "__main__":
     else:
         raise ValueError('Unknown optimizer, must be one of "sgd"/"adam".')
     scheduler = LambdaLR(optimizer, lr_lambda=lambda epoch: 1/(1 + args.lr_decay*epoch))
-    iterations_num = int(datasets_bank.train_data_num / args.batch_size)
-    best_f1_dev = -1
-    patience_counter = 0
+
+    # Prepare report and temporary variables for "save best" strategy
     report_fn = 'report_%s_%s_batch%d_%dep.txt' % (get_datetime_str(), args.model, args.batch_size, args.epoch_num)
     report = Report(report_fn, args, score_names=('train loss', 'f1-train', 'f1-dev', 'f1-test', 'acc. train', 'acc. dev',
                                                   'acc. test'))
+    iterations_num = int(datasets_bank.train_data_num / args.batch_size)
+    best_f1_dev = -1
+    best_f1_test = -1
+    best_test_connl_str = 'N\A'
+    patience_counter = 0
     print('\nStart training...\n')
     for epoch in range(0, args.epoch_num + 1):
         time_start = time.time()
@@ -146,7 +149,7 @@ if __name__ == "__main__":
                                                                                             loss_sum*100 / iterations_num),
                                                                                             end='', flush=True)
         # Evaluate tagger
-        f1_train, f1_dev, f1_test, acc_train, acc_dev, acc_test = Evaluator.get_evaluation_train_dev_test(tagger,
+        f1_train, f1_dev, f1_test, acc_train, acc_dev, acc_test, test_connl_str = Evaluator.get_evaluation_train_dev_test(tagger,
                                                                                                           datasets_bank,
                                                                                                           batch_size=100)
         print('\n== eval epoch %d/%d train / dev / test | micro-f1: %1.2f / %1.2f / %1.2f, acc: %1.2f%% / %1.2f%% / %1.2f%%.'
@@ -159,6 +162,8 @@ if __name__ == "__main__":
         # Early stopping
         if f1_dev > best_f1_dev:
             best_f1_dev = f1_dev
+            best_f1_test = f1_test
+            best_test_connl_str = test_connl_str
             patience_counter = 0
             if args.save_checkpoint_fn is not None and args.save_best:
                 tagger.save_tagger(args.save_checkpoint_fn)
@@ -172,16 +177,14 @@ if __name__ == "__main__":
         if patience_counter > args.patience and epoch > args.min_epoch_num:
             break
 
-    # Save final trained tagger to disk
+    # Save final trained tagger to disk, if it is not already saved according to "save best"
     if args.save_checkpoint_fn is not None and not args.save_best:
         tagger.save_tagger(args.save_checkpoint_fn)
 
-    # Make final evaluation of trained tagger
-    output_tag_sequences_test = tagger.predict_tags_from_words(datasets_bank.word_sequences_test, batch_size=100)
-    f1_test_final, test_connl_str = Evaluator.get_f1_connl_script(tagger=tagger,
-                                                     word_sequences=datasets_bank.word_sequences_test,
-                                                     targets_tag_sequences=datasets_bank.tag_sequences_test,
-                                                     outputs_tag_sequences=output_tag_sequences_test)
-    report.write_final_score(f1_test_final)
-    print(report.text)
-    print(test_connl_str)
+    # Show and save the final scores
+    if args.save_best:
+        report.write_final_score('micro-f1 test', best_f1_test)
+        print(best_test_connl_str)
+    else:
+        report.write_final_score('micro-f1 test', f1_test)
+        print(test_connl_str)

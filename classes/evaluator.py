@@ -67,10 +67,11 @@ class Evaluator():
                                                   word_sequences=datasets_bank.word_sequences_dev,
                                                   targets_tag_sequences=datasets_bank.tag_sequences_dev,
                                                   outputs_tag_sequences=outputs_tag_sequences_dev)
-        f1_test, _ = Evaluator.get_f1_connl_script(tagger=tagger,
+        f1_test, test_connl_str = Evaluator.get_f1_connl_script(tagger=tagger,
                                                    word_sequences=datasets_bank.word_sequences_test,
                                                    targets_tag_sequences=datasets_bank.tag_sequences_test,
                                                    outputs_tag_sequences=outputs_tag_sequences_test)
+
         acc_train = Evaluator.get_acuracy_token_level(tagger=tagger,
                                                       word_sequences=datasets_bank.word_sequences_train,
                                                       targets_tag_sequences=datasets_bank.tag_sequences_train,
@@ -83,7 +84,7 @@ class Evaluator():
                                                      word_sequences=datasets_bank.word_sequences_test,
                                                      targets_tag_sequences=datasets_bank.tag_sequences_test,
                                                      outputs_tag_sequences=outputs_tag_sequences_test)
-        return f1_train, f1_dev, f1_test, acc_train, acc_dev, acc_test
+        return f1_train, f1_dev, f1_test, acc_train, acc_dev, acc_test, test_connl_str
 
     @staticmethod
     def get_f1_components_from_words(targets_tag_sequences, outputs_tag_sequences, match_alpha_ratio=0.999):

@@ -17,7 +17,8 @@ class Report():
             header += ' %10s ' % score_name
             if n < len(score_names) - 1: header += '|'
         self.text += header
-        self.text += '\n' + '-' * len(header)
+        self.blank_line = '\n' + '-' * len(header)
+        self.text += self.blank_line
 
     def write_epoch_scores(self, epoch, scores):
         self.text += '\n %10s |' % ('%d'% epoch)
@@ -26,12 +27,13 @@ class Report():
             if n < len(scores) - 1: self.text += '|'
         self.__save()
 
-    def write_final_score(self, f1_test_final):
-        self.text += '\n' + '-' * 40
-        self.text += '\n Final eval on test: %s = %1.2f' % (self.score_name, f1_test_final)
+    def write_final_score(self, final_score_name, final_score):
+        self.text += self.blank_line
+        self.text += '\n Final eval on test: %s = %1.2f' % (final_score_name, final_score)
         self.__save()
 
     def __save(self):
         if self.fn is not None:
             with open(self.fn, mode='w') as text_file:
                 text_file.write(self.text)
+
