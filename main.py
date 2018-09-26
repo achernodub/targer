@@ -164,8 +164,10 @@ if __name__ == "__main__":
             print('## [BEST epoch], %d seconds.\n' % (time.time() - time_start))
         else:
             patience_counter += 1
-            print('## [no improvement micro-f1 on DEV during the last %d epochs, %d seconds].\n' % (patience_counter,
-                                                                                             (time.time()-time_start)))
+            print('## [no improvement micro-f1 on DEV during the last %d epochs (f1_dev=%1.2f), %d seconds].\n' %
+                                                                                                 (patience_counter,
+                                                                                                 f1_dev,
+                                                                                                 (time.time()-time_start)))
         if patience_counter > args.patience and epoch > args.min_epoch_num:
             break
 
