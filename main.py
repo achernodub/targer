@@ -67,7 +67,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
     # Custom params
     args.word_seq_indexer_path = 'wsi_NER.hdf5'
-    args.save_checkpoint_fn = 'tagger_NER.hdf5'
+    args.save_checkpoint_fn = 'tagger_LSTM_NER.hdf5'
+    args.rnn_type = 'LSTM'
 
     np.random.seed(args.seed_num)
     torch.manual_seed(args.seed_num)
