@@ -165,7 +165,7 @@ if __name__ == "__main__":
             print('## [BEST epoch], %d seconds.\n' % (time.time() - time_start))
         else:
             patience_counter += 1
-            print('## [no improvement micro-f1 on DEV during the last %d epochs (f1_dev=%1.2f), %d seconds].\n' %
+            print('## [no improvement micro-f1 on DEV during the last %d epochs (best_f1_dev=%1.2f), %d seconds].\n' %
                                                                                                  (patience_counter,
                                                                                                  f1_dev,
                                                                                                  (time.time()-time_start)))
