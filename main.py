@@ -49,10 +49,10 @@ if __name__ == "__main__":
     parser.add_argument('--dropout_ratio', type=float, default=0.5, help='Dropout ratio.')
     parser.add_argument('--clip_grad', type=float, default=5, help='Clipping gradients maximum L2 norm.')
     parser.add_argument('--opt_method', default='sgd', help='Optimization method: "sgd", "adam".')
-    parser.add_argument('--lr', type=float, default=0.005, help='Learning rate.')
-    parser.add_argument('--lr_decay', type=float, default=0, help='Learning decay rate.') # 0.05
+    parser.add_argument('--batch_size', type=int, default=10, help='Batch size, samples.')
+    parser.add_argument('--lr', type=float, default=0.015, help='Learning rate.')
+    parser.add_argument('--lr_decay', type=float, default=0.05, help='Learning decay rate.') # 0.05
     parser.add_argument('--momentum', type=float, default=0.9, help='Learning momentum rate.')
-    parser.add_argument('--batch_size', type=int, default=1, help='Batch size, samples.')
     parser.add_argument('--verbose', type=bool, default=True, help='Show additional information.')
     parser.add_argument('--seed_num', type=int, default=42, help='Random seed number, but 42 is the best forever!')
     parser.add_argument('--load_checkpoint_fn', default=None, help='Path to load from the trained model.')
@@ -67,12 +67,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     # Custom params
     args.word_seq_indexer_path = 'wsi_NER.hdf5'
-    args.batch_size = 10
-    args.lr = 0.015
-    args.lr_decay = 0.05
-    args.opt_method = 'sgd'
     args.save_checkpoint_fn = 'tagger_NER.hdf5'
-    #args.load_checkpoint_fn = 'A_tagger_NER_epoch_006.hdf5'
 
     np.random.seed(args.seed_num)
     torch.manual_seed(args.seed_num)
@@ -117,7 +112,7 @@ if __name__ == "__main__":
     if args.opt_method == 'sgd':
         optimizer = optim.SGD(list(tagger.parameters()), lr=args.lr, momentum=args.momentum)
     elif args.opt_method == 'adam':
-        optimizer = optim.Adam(list(tagger.parameters()))
+        optimizer = optim.Adam(list(tagger.parameters()), lr=args.lr, betas=(0.9, 0.999))
     else:
         raise ValueError('Unknown optimizer, must be one of "sgd"/"adam".')
     scheduler = LambdaLR(optimizer, lr_lambda=lambda epoch: 1/(1 + args.lr_decay*epoch))
@@ -125,15 +120,16 @@ if __name__ == "__main__":
     best_f1_dev = -1
     patience_counter = 0
     report_fn = 'report_%s_%s_batch%d_%dep.txt' % (get_datetime_str(), args.model, args.batch_size, args.epoch_num)
-    report = Report(report_fn, args, score_name='micro-f1')
+    report = Report(report_fn, args, score_names=('train loss', 'f1-train', 'f1-dev', 'f1-test', 'acc. train', 'acc. dev',
+                                                  'acc. test'))
     print('\nStart training...\n')
-    for epoch in range(1, args.epoch_num + 1):
+    for epoch in range(0, args.epoch_num + 1):
         time_start = time.time()
+        loss_sum = 0
         if epoch > 0:
             tagger.train()
             if args.lr_decay > 0:
                 scheduler.step()
-            loss_sum = 0
             for i, (word_sequences_train_batch, tag_sequences_train_batch) in enumerate(datasets_bank.get_train_batches(args.batch_size)):
                 tagger.train()
                 tagger.zero_grad()
@@ -152,9 +148,10 @@ if __name__ == "__main__":
         f1_train, f1_dev, f1_test, acc_train, acc_dev, acc_test = Evaluator.get_evaluation_train_dev_test(tagger,
                                                                                                           datasets_bank,
                                                                                                           batch_size=100)
-        print('\n== eval epoch %d/%d train / dev / test | micro-f1: %1.2f / %1.2f / %1.2f, acc: %1.2f%% / %1.2f%% / %1.2f%%.' %
-              (epoch, args.epoch_num, loss_sum*100 / iterations_num, f1_dev, f1_test, acc_train, acc_dev, acc_test))
-        report.write_epoch_scores(epoch, f1_train, f1_dev, f1_test)
+        print('\n== eval epoch %d/%d train / dev / test | micro-f1: %1.2f / %1.2f / %1.2f, acc: %1.2f%% / %1.2f%% / %1.2f%%.'
+              %(epoch, args.epoch_num, f1_train, f1_dev, f1_test, acc_train, acc_dev, acc_test))
+        report.write_epoch_scores(epoch, (loss_sum*100 / iterations_num, f1_train, f1_dev, f1_test, acc_train, acc_dev,
+                                          acc_test))
         # Save curr tagger
         # tagger.save('tagger_NER_epoch_%03d.hdf5' % epoch)
 
@@ -162,7 +159,7 @@ if __name__ == "__main__":
         if f1_dev > best_f1_dev:
             best_f1_dev = f1_dev
             patience_counter = 0
-            if args.save_best:
+            if args.save_checkpoint_fn is not None and args.save_best:
                 tagger.save_tagger(args.save_checkpoint_fn)
             print('## [BEST epoch], %d seconds.\n' % (time.time() - time_start))
         else:
