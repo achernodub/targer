@@ -47,8 +47,8 @@ class TaggerBiRNN(TaggerBase):
         mask = self.get_mask(word_sequences)
         z_word_embed = self.word_embeddings_layer(word_sequences)
         z_d = self.dropout(z_word_embed)
-        rnn_output_h_d = self.dropout(self.apply_mask(self.birnn_layer(z_d, mask), mask))
-        y = self.log_softmax_layer(self.lin_layer(rnn_output_h_d)).permute(0, 2, 1)
+        rnn_output_h = self.apply_mask(self.birnn_layer(z_d, mask), mask)
+        y = self.log_softmax_layer(self.lin_layer(rnn_output_h)).permute(0, 2, 1)
         return y
 
     def get_loss(self, word_sequences_train_batch, tag_sequences_train_batch):
