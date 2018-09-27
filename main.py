@@ -40,7 +40,7 @@ if __name__ == "__main__":
     parser.add_argument('--check_for_lowercase', type=bool, default=True, help='Read characters caseless.')
     parser.add_argument('--epoch_num', type=int, default=200, help='Number of epochs.')
     parser.add_argument('--min_epoch_num', type=int, default=50, help='Minimum number of epochs.')
-    parser.add_argument('--rnn_hidden_dim', type=int, default=200, help='Number hidden units in the recurrent layer.')
+    parser.add_argument('--rnn_hidden_dim', type=int, default=100, help='Number hidden units in the recurrent layer.')
     parser.add_argument('--rnn_type', default='LSTM', help='RNN cell units type: "Vanilla", "LSTM", "GRU".')
     parser.add_argument('--char_embeddings_dim', type=int, default=25, help='Char embeddings dim, only for char CNNs.')
     parser.add_argument('--word_len', type=int, default=20, help='Max length of words in characters for char CNNs.')
@@ -66,8 +66,9 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     args.save_checkpoint_fn = '%s_%s_tagger.hdf5' % (get_datetime_str(), args.model)
-    #args.word_seq_indexer_path = 'wsi_NER.hdf5'
+    args.word_seq_indexer_path = 'wsi_NER.hdf5'
     #args.model = 'BiRNN'
+    args.rnn_hidden_dim = 200
     #args.emb_fn = 'embeddings/glove.6B.100d.txt'
     #args.emb_dim = 100
     #args.emb_fn = 'embeddings/wiki.en.vec'
