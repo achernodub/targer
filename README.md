@@ -119,12 +119,13 @@ usage: main.py [-h] [--model MODEL] [--fn_train FN_TRAIN] [--fn_dev FN_DEV]
                [--char_cnn_filter_num CHAR_CNN_FILTER_NUM]
                [--char_window_size CHAR_WINDOW_SIZE]
                [--dropout_ratio DROPOUT_RATIO] [--clip_grad CLIP_GRAD]
-               [--opt_method OPT_METHOD] [--lr LR] [--lr_decay LR_DECAY]
-               [--momentum MOMENTUM] [--batch_size BATCH_SIZE]
-               [--verbose VERBOSE] [--seed_num SEED_NUM]
-               [--checkpoint_fn CHECKPOINT_FN]
-               [--match_alpha_ratio MATCH_ALPHA_RATIO] [--patience PATIENCE]
+               [--opt_method OPT_METHOD] [--batch_size BATCH_SIZE] [--lr LR]
+               [--lr_decay LR_DECAY] [--momentum MOMENTUM] [--verbose VERBOSE]
+               [--seed_num SEED_NUM] [--load_checkpoint_fn LOAD_CHECKPOINT_FN]
+               [--save_checkpoint_fn SAVE_CHECKPOINT_FN]
                [--word_seq_indexer_path WORD_SEQ_INDEXER_PATH]
+               [--match_alpha_ratio MATCH_ALPHA_RATIO] [--patience PATIENCE]
+               [--save_best SAVE_BEST]
 
 Learning tagging problem using neural networks
 
@@ -168,35 +169,39 @@ optional arguments:
                         Clipping gradients maximum L2 norm.
   --opt_method OPT_METHOD
                         Optimization method: "sgd", "adam".
+  --batch_size BATCH_SIZE
+                        Batch size, samples.
   --lr LR               Learning rate.
   --lr_decay LR_DECAY   Learning decay rate.
   --momentum MOMENTUM   Learning momentum rate.
-  --batch_size BATCH_SIZE
-                        Batch size, samples.
   --verbose VERBOSE     Show additional information.
   --seed_num SEED_NUM   Random seed number, but 42 is the best forever!
-  --checkpoint_fn CHECKPOINT_FN
+  --load_checkpoint_fn LOAD_CHECKPOINT_FN
+                        Path to load from the trained model.
+  --save_checkpoint_fn SAVE_CHECKPOINT_FN
                         Path to save the trained model.
+  --word_seq_indexer_path WORD_SEQ_INDEXER_PATH
+                        Load word_seq_indexer object from hdf5 file.
   --match_alpha_ratio MATCH_ALPHA_RATIO
                         Alpha ratio from non-strict matching, options: 0.999
                         or 0.5
   --patience PATIENCE   Patience for early stopping.
-  --word_seq_indexer_path WORD_SEQ_INDEXER_PATH
-                        Load word_seq_indexer object from hdf5 file.```
+  --save_best SAVE_BEST
+                        Save best on dev model as a final.
 ```
 
 ### Run trained model
 
 ```
-usage: run_tagger.py [-h] [--fn FN] [--checkpoint_fn CHECKPOINT_FN]
-                             [--gpu GPU]
+usage: run_tagger.py [-h] [--fn FN] [--load_checkpoint_fn LOAD_CHECKPOINT_FN]
+                     [--gpu GPU]
 
 Run trained tagger from the checkpoint file
 
 optional arguments:
   -h, --help            show this help message and exit
   --fn FN               Train data in CoNNL-2003 format.
-  --checkpoint_fn CHECKPOINT_FN
+  --load_checkpoint_fn LOAD_CHECKPOINT_FN
                         Path to load the trained model.
   --gpu GPU             GPU device number, 0 by default, -1 means CPU.
 ```
