@@ -38,7 +38,7 @@ if __name__ == "__main__":
                         help='False to continue training the char embeddings.')
     parser.add_argument('--gpu', type=int, default=0, help='GPU device number, 0 by default, -1  means CPU.')
     parser.add_argument('--check_for_lowercase', type=bool, default=True, help='Read characters caseless.')
-    parser.add_argument('--epoch_num', type=int, default=100, help='Number of epochs.')
+    parser.add_argument('--epoch_num', type=int, default=200, help='Number of epochs.')
     parser.add_argument('--min_epoch_num', type=int, default=50, help='Minimum number of epochs.')
     parser.add_argument('--rnn_hidden_dim', type=int, default=100, help='Number hidden units in the recurrent layer.')
     parser.add_argument('--rnn_type', default='LSTM', help='RNN cell units type: "Vanilla", "LSTM", "GRU".')
@@ -61,7 +61,7 @@ if __name__ == "__main__":
                         help='Load word_seq_indexer object from hdf5 file.')
     parser.add_argument('--match_alpha_ratio', type=float, default='0.999',
                         help='Alpha ratio from non-strict matching, options: 0.999 or 0.5')
-    parser.add_argument('--patience', type=int, default=10, help='Patience for early stopping.')
+    parser.add_argument('--patience', type=int, default=20, help='Patience for early stopping.')
     parser.add_argument('--save_best', type=bool, default=True, help = 'Save best on dev model as a final.')
 
     args = parser.parse_args()
