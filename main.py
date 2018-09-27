@@ -176,14 +176,23 @@ if __name__ == "__main__":
         if patience_counter > args.patience and epoch > args.min_epoch_num:
             break
 
-    # Save final trained tagger to disk, if it is not already saved according to "save best"
+    # Save trained tagger to disk, if it is not already saved according to "save best"
     if args.save_checkpoint_fn is not None and not args.save_best:
         tagger.save_tagger(args.save_checkpoint_fn)
 
-    # Show and save the final scores
+    # Final evaluation
+    tagger = TaggerIO.load_tagger(args.save_checkpoint_fn, args.gpu)
+    outputs_tag_sequences_test = tagger.predict_tags_from_words(word_sequences=datasets_bank.word_sequences_test,
+                                                                batch_size=100)
+    f1_test_final, test_connl_str = Evaluator.get_f1_connl_script(tagger=tagger,
+                                                                  word_sequences=datasets_bank.word_sequences_test,
+                                                                  targets_tag_sequences=datasets_bank.tag_sequences_test,
+                                                                  outputs_tag_sequences=outputs_tag_sequences_test)
     if args.save_best:
-        report.write_final_score('Final eval on test, "save best", best epoch on dev 48, micro-f1 test = %d)' % best_epoch, best_f1_test)
-        print(best_test_connl_str)
+        report.write_final_score('Final eval on test, "save best", best epoch on dev %d), micro-f1 test = %1.2f' % (best_epoch,
+                                                                                                          f1_test_final))
     else:
-        report.write_final_score('Final eval on test,  micro-f1 test = %d)' % epoch, f1_test)
-        print(test_connl_str)
+        report.write_final_score('Final eval on test,  micro-f1 test = %1.2f)' % f1_test_final)
+
+    print(test_connl_str)
+
