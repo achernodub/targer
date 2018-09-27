@@ -65,6 +65,7 @@ if __name__ == "__main__":
     parser.add_argument('--save_best', type=bool, default=True, help = 'Save best on dev model as a final.')
 
     args = parser.parse_args()
+    args.word_seq_indexer_path = 'wsi_NER.hdf5'
     args.model = 'BiRNN'
     args.emb_fn = 'embeddings/glove.6B.100d.txt'
     args.emb_dim = 100
