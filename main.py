@@ -71,10 +71,10 @@ if __name__ == "__main__":
     #args.rnn_hidden_dim = 200
     #args.emb_fn = 'embeddings/glove.6B.100d.txt'
     #args.emb_dim = 100
-    args.emb_fn = 'embeddings/wiki.en.vec'
-    args.emb_dim = 300
-    #args.emb_fn = 'embeddings/GoogleNews-vectors-negative300.txt'
+    #args.emb_fn = 'embeddings/wiki.en.vec'
     #args.emb_dim = 300
+    args.emb_fn = 'embeddings/GoogleNews-vectors-negative300.txt'
+    args.emb_dim = 300
 
     np.random.seed(args.seed_num)
     torch.manual_seed(args.seed_num)
