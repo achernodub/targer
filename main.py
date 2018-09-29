@@ -65,16 +65,19 @@ if __name__ == "__main__":
     parser.add_argument('--save_best', type=bool, default=True, help = 'Save best on dev model as a final.')
 
     args = parser.parse_args()
-    args.save_checkpoint_fn = '%s_%s_tagger.hdf5' % (get_datetime_str(), args.model)
     #args.word_seq_indexer_path = 'wsi_NER.hdf5'
-    args.model = 'BiRNNCRF'
+    #args.model = 'BiRNNCRF'
     #args.rnn_hidden_dim = 200
     #args.emb_fn = 'embeddings/glove.6B.100d.txt'
     #args.emb_dim = 100
-    #args.emb_fn = 'embeddings/wiki.en.vec'
-    #args.emb_dim = 300
-    args.emb_fn = 'embeddings/GoogleNews-vectors-negative300.txt'
+    args.emb_fn = 'embeddings/wiki.en.vec'
     args.emb_dim = 300
+    args.rnn_hidden_dim = 300
+    #args.save_checkpoint_fn = '%s_%s_fasttext.hdf5' % (get_datetime_str(), args.model)
+    #args.emb_fn = 'embeddings/GoogleNews-vectors-negative300.txt'
+    #№args.emb_dim = 300
+    #args.rnn_hidden_dim = 300
+    #args.save_checkpoint_fn = '%s_%s_word2vec_tagger.hdf5' % (get_datetime_str(), args.model)
 
     np.random.seed(args.seed_num)
     torch.manual_seed(args.seed_num)
