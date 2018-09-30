@@ -47,7 +47,7 @@ if __name__ == "__main__":
     parser.add_argument('--char_cnn_filter_num', type=int, default=30, help='Number of filters in Char CNN.')
     parser.add_argument('--char_window_size', type=int, default=3, help='Convolution1D size.')
     parser.add_argument('--dropout_ratio', type=float, default=0.5, help='Dropout ratio.')
-    parser.add_argument('--clip_grad', type=float, default=5, help='Clipping gradients maximum L2 norm.')
+    parser.add_argument('--clip_grad', type=float, default=5.0, help='Clipping gradients maximum L2 norm.')
     parser.add_argument('--opt_method', default='sgd', help='Optimization method: "sgd", "adam".')
     parser.add_argument('--batch_size', type=int, default=10, help='Batch size, samples.')
     parser.add_argument('--lr', type=float, default=0.015, help='Learning rate.')
@@ -65,10 +65,10 @@ if __name__ == "__main__":
     parser.add_argument('--save_best', type=bool, default=True, help = 'Save best on dev model as a final.')
 
     args = parser.parse_args()
-    #args.word_seq_indexer_path = 'wsi_NER.hdf5'
     #args.model = 'BiRNNCRF'
 
-    #args.emb_fn = 'embeddings/glove.6B.100d.txt'
+    args.word_seq_indexer_path = 'wsi_glove_NER.hdf5'
+    args.emb_fn = 'embeddings/glove.6B.100d.txt'
     #args.emb_dim = 100
     #args.rnn_hidden_dim = 300
     #args.save_checkpoint_fn = '%s_%s_glove.hdf5' % (get_datetime_str(), args.model)
@@ -142,7 +142,7 @@ if __name__ == "__main__":
     best_test_connl_str = 'N\A'
     patience_counter = 0
     print('\nStart training...\n')
-    for epoch in range(0, args.epoch_num + 1):
+    for epoch in range(1, args.epoch_num + 1):
         time_start = time.time()
         loss_sum = 0
         if epoch > 0:

@@ -57,11 +57,10 @@ class TaggerBiRNNCNNCRF(TaggerBase):
         self.lin_layer = nn.Linear(in_features=self.birnn_layer.output_dim, out_features=class_num + 2)
         self.crf_layer = LayerCRF(gpu, states_num=class_num + 2, pad_idx=tag_seq_indexer.pad_idx, sos_idx=class_num + 1,
                                   tag_seq_indexer=tag_seq_indexer)
-        self.softmax = nn.Softmax(dim=2)
         if gpu >= 0:
             self.cuda(device=self.gpu)
 
-    def _forward_birnn(self, word_sequences):
+    def _forward_birnn1(self, word_sequences):
         mask = self.get_mask(word_sequences)
         z_word_embed = self.word_embeddings_layer(word_sequences)
         z_char_embed_d = self.dropout(self.char_embeddings_layer(word_sequences))
@@ -69,6 +68,18 @@ class TaggerBiRNNCNNCRF(TaggerBase):
         z_d = self.dropout(torch.cat((z_word_embed, z_char_cnn), dim=2))
         rnn_output_h_d = self.dropout(self.apply_mask(self.birnn_layer(z_d, mask), mask))
         features_rnn_compressed = self.lin_layer(rnn_output_h_d)
+        return self.apply_mask(features_rnn_compressed, mask)
+
+    def _forward_birnn(self, word_sequences):
+        mask = self.get_mask(word_sequences)
+        z_word_embed = self.word_embeddings_layer(word_sequences)
+        z_word_embed_d = self.dropout(z_word_embed)
+        z_char_embed = self.char_embeddings_layer(word_sequences)
+        z_char_embed_d = self.dropout(z_char_embed)
+        z_char_cnn = self.char_cnn_layer(z_char_embed_d)
+        z = torch.cat((z_word_embed_d, z_char_cnn), dim=2)
+        rnn_output_h = self.apply_mask(self.birnn_layer(z, mask), mask)
+        features_rnn_compressed = self.lin_layer(rnn_output_h)
         return self.apply_mask(features_rnn_compressed, mask)
 
     '''def _forward_birnn(self, word_sequences):
