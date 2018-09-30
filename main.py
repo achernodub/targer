@@ -39,7 +39,7 @@ if __name__ == "__main__":
     parser.add_argument('--gpu', type=int, default=0, help='GPU device number, 0 by default, -1  means CPU.')
     parser.add_argument('--check_for_lowercase', type=bool, default=True, help='Read characters caseless.')
     parser.add_argument('--epoch_num', type=int, default=200, help='Number of epochs.')
-    parser.add_argument('--min_epoch_num', type=int, default=50, help='Minimum number of epochs.')
+    parser.add_argument('--min_epoch_num', type=int, default=25, help='Minimum number of epochs.')
     parser.add_argument('--rnn_hidden_dim', type=int, default=100, help='Number hidden units in the recurrent layer.')
     parser.add_argument('--rnn_type', default='LSTM', help='RNN cell units type: "Vanilla", "LSTM", "GRU".')
     parser.add_argument('--char_embeddings_dim', type=int, default=25, help='Char embeddings dim, only for char CNNs.')
@@ -47,7 +47,7 @@ if __name__ == "__main__":
     parser.add_argument('--char_cnn_filter_num', type=int, default=30, help='Number of filters in Char CNN.')
     parser.add_argument('--char_window_size', type=int, default=3, help='Convolution1D size.')
     parser.add_argument('--dropout_ratio', type=float, default=0.5, help='Dropout ratio.')
-    parser.add_argument('--clip_grad', type=float, default=5, help='Clipping gradients maximum L2 norm.')
+    parser.add_argument('--clip_grad', type=float, default=5.0, help='Clipping gradients maximum L2 norm.')
     parser.add_argument('--opt_method', default='sgd', help='Optimization method: "sgd", "adam".')
     parser.add_argument('--batch_size', type=int, default=10, help='Batch size, samples.')
     parser.add_argument('--lr', type=float, default=0.015, help='Learning rate.')
@@ -56,7 +56,9 @@ if __name__ == "__main__":
     parser.add_argument('--verbose', type=bool, default=True, help='Show additional information.')
     parser.add_argument('--seed_num', type=int, default=42, help='Random seed number, but 42 is the best forever!')
     parser.add_argument('--load_checkpoint_fn', default=None, help='Path to load from the trained model.')
-    parser.add_argument('--save_checkpoint_fn', default=None, help='Path to save the trained model.')
+    parser.add_argument('--save_checkpoint_fn', default='%s_tagger.hdf5' % get_datetime_str(),
+                        help='Path to save the trained model.')
+    parser.add_argument('--report_fn', default='%s_report.txt' % get_datetime_str(), help='Report filename.')
     parser.add_argument('--word_seq_indexer_path', type=str, default=None,
                         help='Load word_seq_indexer object from hdf5 file.')
     parser.add_argument('--match_alpha_ratio', type=float, default='0.999',
@@ -65,6 +67,9 @@ if __name__ == "__main__":
     parser.add_argument('--save_best', type=bool, default=True, help = 'Save best on dev model as a final.')
 
     args = parser.parse_args()
+    # 111
+    #args.word_seq_indexer_path = 'wsi_glove_NER.hdf5'
+    #args.epoch_num = 3
 
     np.random.seed(args.seed_num)
     torch.manual_seed(args.seed_num)
@@ -115,9 +120,8 @@ if __name__ == "__main__":
     scheduler = LambdaLR(optimizer, lr_lambda=lambda epoch: 1/(1 + args.lr_decay*epoch))
 
     # Prepare report and temporary variables for "save best" strategy
-    report_fn = 'report_%s_%s_batch%d_%dep.txt' % (get_datetime_str(), args.model, args.batch_size, args.epoch_num)
-    report = Report(report_fn, args, score_names=('train loss', 'f1-train', 'f1-dev', 'f1-test', 'acc. train', 'acc. dev',
-                                                  'acc. test'))
+    report = Report(args.report_fn, args, score_names=('train loss', 'f1-train', 'f1-dev', 'f1-test', 'acc. train',
+                                                       'acc. dev', 'acc. test'))
     iterations_num = int(datasets_bank.train_data_num / args.batch_size)
     best_f1_dev = -1
     best_epoch = -1
@@ -137,7 +141,7 @@ if __name__ == "__main__":
                 tagger.zero_grad()
                 loss = tagger.get_loss(word_sequences_train_batch, tag_sequences_train_batch)
                 loss.backward()
-                nn.utils.clip_grad_norm_(tagger.parameters(), args.clip_grad)
+                nn.utils.clip_grad_value_(tagger.parameters(), args.clip_grad)
                 optimizer.step()
                 loss_sum += loss.item()
                 if i % 1 == 0:
@@ -189,8 +193,8 @@ if __name__ == "__main__":
                                                                   targets_tag_sequences=datasets_bank.tag_sequences_test,
                                                                   outputs_tag_sequences=outputs_tag_sequences_test)
     if args.save_best:
-        report.write_final_score('Final eval on test, "save best", best epoch on dev %d), micro-f1 test = %1.2f' % (best_epoch,
-                                                                                                          f1_test_final))
+        report.write_final_score('Final eval on test, "save best", best epoch on dev %d), micro-f1 test = %1.2f' %
+                                 (best_epoch, f1_test_final))
     else:
         report.write_final_score('Final eval on test,  micro-f1 test = %1.2f)' % f1_test_final)
 
