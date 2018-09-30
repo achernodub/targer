@@ -133,6 +133,6 @@ class TaggerBiRNNCNNCRF(TaggerBase):
                 curr_output_idx = self.predict_idx_from_words(word_sequences[i:j], -1)
             curr_output_tag_sequences = self.tag_seq_indexer.idx2items(curr_output_idx)
             output_tag_sequences.extend(curr_output_tag_sequences)
-            print('\r++ predicting, batch %d/%d (%1.2f%%).' % (n + 1, batch_num, math.ceil(n * 100.0 / batch_num)),
+            print('\r++ predicting, batch %d/%d (%1.2f%%).' % (n + 1, batch_num, math.ceil((n+1) * 100.0 / batch_num)),
                   end='', flush=True)
         return output_tag_sequences
