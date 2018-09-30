@@ -67,9 +67,9 @@ if __name__ == "__main__":
     parser.add_argument('--save_best', type=bool, default=True, help = 'Save best on dev model as a final.')
 
     args = parser.parse_args()
-    # 111
-    #args.word_seq_indexer_path = 'wsi_glove_NER.hdf5'
-    #args.epoch_num = 3
+    args.model = 'BiRNN'
+    args.word_seq_indexer_path = 'wsi_glove_NER.hdf5'
+    #args.epoch_num = 10
 
     np.random.seed(args.seed_num)
     torch.manual_seed(args.seed_num)
