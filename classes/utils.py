@@ -33,7 +33,7 @@ def get_words_num(word_sequences):
 
 def get_datetime_str():
     d = datetime.datetime.now()
-    return '%02d_%02d_%02d_%02d_%02d_%02d' % (d.year, d.month, d.day, d.hour, d.minute, d.second)
+    return '%02d_%02d_%02d_%02d-%02d_%02d' % (d.year, d.month, d.day, d.hour, d.minute, d.second)
 
 def get_sequences_by_indices(sequences, indices):
     return [sequences[i] for i in indices]
