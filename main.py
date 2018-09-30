@@ -68,7 +68,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     #args.model = 'BiRNN'
-    #args.word_seq_indexer_path = 'wsi_glove_NER.hdf5'
+    args.word_seq_indexer_path = 'wsi_glove_NER.hdf5'
     #args.epoch_num = 10
 
     np.random.seed(args.seed_num)
