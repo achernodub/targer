@@ -65,9 +65,6 @@ if __name__ == "__main__":
     parser.add_argument('--save_best', type=bool, default=True, help = 'Save best on dev model as a final.')
 
     args = parser.parse_args()
-    args.model = 'BiRNN'
-    args.emb_fn = 'embeddings/glove.6B.100d.txt'
-    args.emb_dim = 100
 
     np.random.seed(args.seed_num)
     torch.manual_seed(args.seed_num)
