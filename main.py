@@ -41,7 +41,7 @@ if __name__ == "__main__":
     parser.add_argument('--epoch_num', type=int, default=200, help='Number of epochs.')
     parser.add_argument('--min_epoch_num', type=int, default=50, help='Minimum number of epochs.')
     parser.add_argument('--rnn_hidden_dim', type=int, default=100, help='Number hidden units in the recurrent layer.')
-    parser.add_argument('--rnn_type', default='LSTM', help='RNN cell units type: "Vanilla", "LSTM", "GRU".')
+    parser.add_argument('--rnn_type', default='GRU', help='RNN cell units type: "Vanilla", "LSTM", "GRU".')
     parser.add_argument('--char_embeddings_dim', type=int, default=25, help='Char embeddings dim, only for char CNNs.')
     parser.add_argument('--word_len', type=int, default=20, help='Max length of words in characters for char CNNs.')
     parser.add_argument('--char_cnn_filter_num', type=int, default=30, help='Number of filters in Char CNN.')
@@ -70,7 +70,7 @@ if __name__ == "__main__":
 
     #args.emb_fn = 'embeddings/glove.6B.100d.txt'
     #args.emb_dim = 100
-    # args.rnn_hidden_dim = 100
+    #args.rnn_hidden_dim = 300
     #args.save_checkpoint_fn = '%s_%s_glove.hdf5' % (get_datetime_str(), args.model)
 
     #args.emb_fn = 'embeddings/wiki.en.vec'
@@ -78,10 +78,10 @@ if __name__ == "__main__":
     #args.rnn_hidden_dim = 300
     #args.save_checkpoint_fn = '%s_%s_fasttext.hdf5' % (get_datetime_str(), args.model)
 
-    args.emb_fn = 'embeddings/GoogleNews-vectors-negative300.txt'
-    args.emb_dim = 300
-    args.rnn_hidden_dim = 300
-    args.save_checkpoint_fn = '%s_%s_word2vec_tagger.hdf5' % (get_datetime_str(), args.model)
+    #args.emb_fn = 'embeddings/GoogleNews-vectors-negative300.txt'
+    #args.emb_dim = 300
+    #args.rnn_hidden_dim = 300
+    #args.save_checkpoint_fn = '%s_%s_word2vec_tagger.hdf5' % (get_datetime_str(), args.model)
 
     np.random.seed(args.seed_num)
     torch.manual_seed(args.seed_num)
@@ -154,7 +154,7 @@ if __name__ == "__main__":
                 tagger.zero_grad()
                 loss = tagger.get_loss(word_sequences_train_batch, tag_sequences_train_batch)
                 loss.backward()
-                nn.utils.clip_grad_norm_(tagger.parameters(), args.clip_grad)
+                nn.utils.clip_grad_value_(tagger.parameters(), args.clip_grad)
                 optimizer.step()
                 loss_sum += loss.item()
                 if i % 1 == 0:
