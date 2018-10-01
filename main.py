@@ -55,8 +55,8 @@ if __name__ == "__main__":
     parser.add_argument('--momentum', type=float, default=0.9, help='Learning momentum rate.')
     parser.add_argument('--verbose', type=bool, default=True, help='Show additional information.')
     parser.add_argument('--seed_num', type=int, default=42, help='Random seed number, but 42 is the best forever!')
-    parser.add_argument('--load_checkpoint_fn', default=None, help='Path to load from the trained model.')
-    parser.add_argument('--save_checkpoint_fn', default=None, help='Path to save the trained model.')
+    parser.add_argument('--load', default=None, help='Path to load from the trained model.')
+    parser.add_argument('--save', default=None, help='Path to save the trained model.')
     parser.add_argument('--wsi', type=str, default=None,
                         help='Load word_seq_indexer object from hdf5 file.')
     parser.add_argument('--match_alpha_ratio', type=float, default='0.999',
@@ -100,10 +100,10 @@ if __name__ == "__main__":
     tag_seq_indexer.load_items_from_tag_sequences(tag_sequences_train)
 
     # Create or load pre-trained tagger
-    if args.load_checkpoint_fn is None:
+    if args.load is None:
         tagger = TaggerIO.create_tagger(args, word_seq_indexer, tag_seq_indexer, tag_sequences_train)
     else:
-        tagger = TaggerIO.load_tagger(args.load_checkpoint_fn, args.gpu)
+        tagger = TaggerIO.load_tagger(args.load, args.gpu)
 
     # Create optimizer
     if args.opt_method == 'sgd':
@@ -164,8 +164,8 @@ if __name__ == "__main__":
             best_epoch = epoch
             best_test_connl_str = test_connl_str
             patience_counter = 0
-            if args.save_checkpoint_fn is not None and args.save_best:
-                tagger.save_tagger(args.save_checkpoint_fn)
+            if args.save is not None and args.save_best:
+                tagger.save_tagger(args.save)
             print('## [BEST epoch], %d seconds.\n' % (time.time() - time_start))
         else:
             patience_counter += 1
@@ -177,8 +177,8 @@ if __name__ == "__main__":
             break
 
     # Save final trained tagger to disk, if it is not already saved according to "save best"
-    if args.save_checkpoint_fn is not None and not args.save_best:
-        tagger.save_tagger(args.save_checkpoint_fn)
+    if args.save is not None and not args.save_best:
+        tagger.save_tagger(args.save)
 
     # Show and save the final scores
     if args.save_best:
