@@ -61,7 +61,7 @@ class TaggerBiRNNCNNCRF(TaggerBase):
         if gpu >= 0:
             self.cuda(device=self.gpu)
 
-    def _forward_birnn(self, word_sequences):
+    def _forward_birnn0(self, word_sequences):
         mask = self.get_mask(word_sequences)
         z_word_embed = self.word_embeddings_layer(word_sequences)
         z_char_embed_d = self.dropout(self.char_embeddings_layer(word_sequences))
@@ -71,7 +71,7 @@ class TaggerBiRNNCNNCRF(TaggerBase):
         features_rnn_compressed = self.lin_layer(rnn_output_h_d)
         return self.apply_mask(features_rnn_compressed, mask)
 
-    def _forward_birnn1(self, word_sequences):
+    def _forward_birnn(self, word_sequences):
         mask = self.get_mask(word_sequences)
         z_word_embed = self.word_embeddings_layer(word_sequences)
         z_char_embed_d = self.dropout(self.char_embeddings_layer(word_sequences))
