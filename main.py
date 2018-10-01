@@ -64,7 +64,7 @@ if __name__ == "__main__":
     parser.add_argument('--patience', type=int, default=10, help='Patience for early stopping.')
     parser.add_argument('--save_best', type=bool, default=True, help = 'Save best on dev model as a final.')
 
-    args = parser.parse_args()
+    args = parser.parse_args() #
 
     np.random.seed(args.seed_num)
     torch.manual_seed(args.seed_num)
