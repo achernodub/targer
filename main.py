@@ -59,7 +59,7 @@ if __name__ == "__main__":
     parser.add_argument('--save_checkpoint_fn', default='%s_tagger.hdf5' % get_datetime_str(),
                         help='Path to save the trained model.')
     parser.add_argument('--report_fn', default='%s_report.txt' % get_datetime_str(), help='Report filename.')
-    parser.add_argument('--word_seq_indexer_path', type=str, default=None,
+    parser.add_argument('--wsi', type=str, default=None,
                         help='Load word_seq_indexer object from hdf5 file.')
     parser.add_argument('--match_alpha_ratio', type=float, default='0.999',
                         help='Alpha ratio from non-strict matching, options: 0.999 or 0.5')
@@ -68,8 +68,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     #args.model = 'BiRNN'
-    args.word_seq_indexer_path = 'wsi_glove_NER.hdf5'
-    #args.epoch_num = 10
+    #args.wsi = 'wsi_glove_NER.hdf5'
 
     np.random.seed(args.seed_num)
     torch.manual_seed(args.seed_num)
@@ -89,16 +88,16 @@ if __name__ == "__main__":
     datasets_bank.add_test_sequences(word_sequences_test, tag_sequences_test)
 
     # Word_seq_indexer converts lists of lists of words to lists of lists of integer indices and back
-    if args.word_seq_indexer_path is not None and isfile(args.word_seq_indexer_path):
-        word_seq_indexer = torch.load(args.word_seq_indexer_path)
+    if args.wsi is not None and isfile(args.wsi):
+        word_seq_indexer = torch.load(args.wsi)
     else:
         word_seq_indexer = SeqIndexerWord(gpu=args.gpu, check_for_lowercase=args.check_for_lowercase,
                                           embeddings_dim=args.emb_dim, verbose=True)
         word_seq_indexer.load_items_from_embeddings_file_and_unique_words_list(emb_fn=args.emb_fn,
                                                                       emb_delimiter=args.emb_delimiter,
                                                                       unique_words_list=datasets_bank.unique_words_list)
-    if args.word_seq_indexer_path is not None and not isfile(args.word_seq_indexer_path):
-        torch.save(word_seq_indexer, args.word_seq_indexer_path)
+    if args.wsi is not None and not isfile(args.wsi):
+        torch.save(word_seq_indexer, args.wsi)
 
     # Tag_seq_indexer converts lists of lists of tags to lists of lists of integer indices and back
     tag_seq_indexer = SeqIndexerTag(gpu=args.gpu)
@@ -129,7 +128,7 @@ if __name__ == "__main__":
     best_test_connl_str = 'N\A'
     patience_counter = 0
     print('\nStart training...\n')
-    for epoch in range(0, args.epoch_num + 1):
+    for epoch in range(1, args.epoch_num + 1): ##################
         time_start = time.time()
         loss_sum = 0
         if epoch > 0:
@@ -150,6 +149,8 @@ if __name__ == "__main__":
                                                                                             ceil(i*100.0/iterations_num),
                                                                                             loss_sum*100 / iterations_num),
                                                                                             end='', flush=True)
+        print('batch_size = %d, %1.2f seconds' % (args.batch_size, time.time() - time_start))
+        exit()
         # Evaluate tagger
         f1_train, f1_dev, f1_test, acc_train, acc_dev, acc_test, test_connl_str = Evaluator.get_evaluation_train_dev_test(tagger,
                                                                                                           datasets_bank,

@@ -35,6 +35,8 @@ class LayerCRF(LayerBase):
             tag_seq_indexer = self.tag_seq_indexer
         empirical_transition_matrix = torch.zeros(self.states_num, self.states_num, dtype=torch.long)
         for tag_seq in tag_sequences_train:
+            s = tag_seq_indexer.item2idx_dict[tag_seq[0]]
+            empirical_transition_matrix[s, self.sos_idx] += 1
             for n, tag in enumerate(tag_seq):
                 if n + 1 >= len(tag_seq):
                     break
@@ -54,7 +56,7 @@ class LayerCRF(LayerBase):
                     self.transition_matrix.data[i, j] = -9999.0
                 #self.transition_matrix.data[i, j] = torch.log(empirical_transition_matrix[i, j].float() + 10**-32)
         if self.verbose:
-            print('Empirical transition matrix from the train dataset:')
+            print('\nEmpirical transition matrix from the train dataset:')
             self.pretty_print_transition_matrix(empirical_transition_matrix)
             print('\nInitialized transition matrix:')
             self.pretty_print_transition_matrix(self.transition_matrix.data)
@@ -69,7 +71,7 @@ class LayerCRF(LayerBase):
         for i in range(tag_seq_indexer.get_items_count()):
             str += '\n%10s' % tag_seq_indexer.idx2item_dict[i]
             for j in range(tag_seq_indexer.get_items_count()):
-                str += '%10s' % ('%1.1f' % transition_matrix[i, j])
+                str += '%10s' % ('%d' % transition_matrix[i, j])
         print(str)
 
     def is_cuda(self):

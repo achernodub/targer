@@ -79,7 +79,7 @@ class TaggerIO():
                                        word_len=args.word_len,
                                        char_cnn_filter_num=args.char_cnn_filter_num,
                                        char_window_size=args.char_window_size)
-            #tagger.crf_layer.init_transition_matrix_empirical(tag_sequences_train)
+            tagger.crf_layer.init_transition_matrix_empirical(tag_sequences_train)
         else:
             raise ValueError('Unknown tagger model, must be one of "BiRNN"/"BiRNNCNN"/"BiRNNCRF"/"BiRNNCNNCRF".')
         return tagger
