@@ -57,14 +57,14 @@ if __name__ == "__main__":
     parser.add_argument('--seed_num', type=int, default=42, help='Random seed number, but 42 is the best forever!')
     parser.add_argument('--load_checkpoint_fn', default=None, help='Path to load from the trained model.')
     parser.add_argument('--save_checkpoint_fn', default=None, help='Path to save the trained model.')
-    parser.add_argument('--word_seq_indexer_path', type=str, default=None,
+    parser.add_argument('--wsi', type=str, default=None,
                         help='Load word_seq_indexer object from hdf5 file.')
     parser.add_argument('--match_alpha_ratio', type=float, default='0.999',
                         help='Alpha ratio from non-strict matching, options: 0.999 or 0.5')
     parser.add_argument('--patience', type=int, default=10, help='Patience for early stopping.')
     parser.add_argument('--save_best', type=bool, default=True, help = 'Save best on dev model as a final.')
 
-    args = parser.parse_args() #
+    args = parser.parse_args()
 
     np.random.seed(args.seed_num)
     torch.manual_seed(args.seed_num)
@@ -84,16 +84,16 @@ if __name__ == "__main__":
     datasets_bank.add_test_sequences(word_sequences_test, tag_sequences_test)
 
     # Word_seq_indexer converts lists of lists of words to lists of lists of integer indices and back
-    if args.word_seq_indexer_path is not None and isfile(args.word_seq_indexer_path):
-        word_seq_indexer = torch.load(args.word_seq_indexer_path)
+    if args.wsi is not None and isfile(args.wsi):
+        word_seq_indexer = torch.load(args.wsi)
     else:
         word_seq_indexer = SeqIndexerWord(gpu=args.gpu, check_for_lowercase=args.check_for_lowercase,
                                           embeddings_dim=args.emb_dim, verbose=True)
         word_seq_indexer.load_items_from_embeddings_file_and_unique_words_list(emb_fn=args.emb_fn,
                                                                       emb_delimiter=args.emb_delimiter,
                                                                       unique_words_list=datasets_bank.unique_words_list)
-    if args.word_seq_indexer_path is not None and not isfile(args.word_seq_indexer_path):
-        torch.save(word_seq_indexer, args.word_seq_indexer_path)
+    if args.wsi is not None and not isfile(args.wsi):
+        torch.save(word_seq_indexer, args.wsi)
 
     # Tag_seq_indexer converts lists of lists of tags to lists of lists of integer indices and back
     tag_seq_indexer = SeqIndexerTag(gpu=args.gpu)
