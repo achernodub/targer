@@ -35,6 +35,8 @@ class LayerCRF(LayerBase):
             tag_seq_indexer = self.tag_seq_indexer
         empirical_transition_matrix = torch.zeros(self.states_num, self.states_num, dtype=torch.long)
         for tag_seq in tag_sequences_train:
+            s = tag_seq_indexer.item2idx_dict[tag_seq[0]]
+            empirical_transition_matrix[s, self.sos_idx] += 1
             for n, tag in enumerate(tag_seq):
                 if n + 1 >= len(tag_seq):
                     break
