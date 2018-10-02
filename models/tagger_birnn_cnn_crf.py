@@ -12,6 +12,7 @@ import torch.nn as nn
 
 from models.tagger_base import TaggerBase
 from layers.layer_word_embeddings import LayerWordEmbeddings
+from layers.layer_bivanilla import LayerBiVanilla
 from layers.layer_bilstm import LayerBiLSTM
 from layers.layer_bigru import LayerBiGRU
 from layers.layer_char_embeddings import LayerCharEmbeddings
@@ -50,6 +51,10 @@ class TaggerBiRNNCNNCRF(TaggerBase):
                                           gpu=gpu)
         elif rnn_type == 'LSTM':
             self.birnn_layer = LayerBiLSTM(input_dim=self.word_embeddings_layer.output_dim+self.char_cnn_layer.output_dim,
+                                           hidden_dim=rnn_hidden_dim,
+                                           gpu=gpu)
+        elif rnn_type == 'Vanilla':
+            self.birnn_layer = LayerBiVanilla(input_dim=self.word_embeddings_layer.output_dim+self.char_cnn_layer.output_dim,
                                            hidden_dim=rnn_hidden_dim,
                                            gpu=gpu)
         else:
