@@ -27,9 +27,9 @@ class Report():
             if n < len(scores) - 1: self.text += '|'
         self.__save()
 
-    def write_final_score(self, final_score_str):
+    def write_final_score(self, final_score_name, final_score):
         self.text += self.blank_line
-        self.text += '\n%s' % final_score_str
+        self.text += '\n%s = %1.2f' % (final_score_name, final_score)
         self.__save()
 
     def __save(self):

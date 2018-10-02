@@ -84,8 +84,8 @@ Results of training the models with the default settings:
 | BiLSTM + CNN + CRF [Ma et al., 2016](https://arxiv.org/pdf/1603.01354.pdf)      | NER-2003 shared task (English)  | 91.21 |
 | BiLSTM + CNN + CRF  (our)   | NER-2003 shared task (English)                     | 90.88  |          |
 ||||           
-| STag_BLCC [Eger et. al., 2017](https://arxiv.org/pdf/1704.06104.pdf)   | AM Persuasive Essays, Paragraph Level                     | 66.69  |          |
-| LSTM-ER [Eger et. al., 2017](https://arxiv.org/pdf/1704.06104.pdf)   | AM Persuasive Essays, Paragraph Level                     | 70.83  |          |
+| STag_BLCC, [Eger et. al., 2017](https://arxiv.org/pdf/1704.06104.pdf)   | AM Persuasive Essays, Paragraph Level                     | 66.69  |          |
+| LSTM-ER, [Eger et. al., 2017](https://arxiv.org/pdf/1704.06104.pdf)   | AM Persuasive Essays, Paragraph Level                     | 70.83  |          |
 | BiGRU + CNN + CRF  (our)   | AM Persuasive Essays, Paragraph Level                     | 64.23  |          |
 
 In order to ensure the consistency of the experiments, for evaluation purposes we use "official" Perl script from NER 2003 shared task, author: Erik Tjong Kim Sang, version: 2004-01-26, example of it's output:
@@ -121,11 +121,9 @@ usage: main.py [-h] [--model MODEL] [--fn_train FN_TRAIN] [--fn_dev FN_DEV]
                [--dropout_ratio DROPOUT_RATIO] [--clip_grad CLIP_GRAD]
                [--opt_method OPT_METHOD] [--batch_size BATCH_SIZE] [--lr LR]
                [--lr_decay LR_DECAY] [--momentum MOMENTUM] [--verbose VERBOSE]
-               [--seed_num SEED_NUM] [--load_checkpoint_fn LOAD_CHECKPOINT_FN]
-               [--save_checkpoint_fn SAVE_CHECKPOINT_FN]
-               [--word_seq_indexer_path WORD_SEQ_INDEXER_PATH]
+               [--seed_num SEED_NUM] [--load LOAD] [--save SAVE] [--wsi WSI]
                [--match_alpha_ratio MATCH_ALPHA_RATIO] [--patience PATIENCE]
-               [--save_best SAVE_BEST]
+               [--save_best SAVE_BEST] [--report_fn REPORT_FN]
 
 Learning tagging problem using neural networks
 
@@ -176,32 +174,31 @@ optional arguments:
   --momentum MOMENTUM   Learning momentum rate.
   --verbose VERBOSE     Show additional information.
   --seed_num SEED_NUM   Random seed number, but 42 is the best forever!
-  --load_checkpoint_fn LOAD_CHECKPOINT_FN
-                        Path to load from the trained model.
-  --save_checkpoint_fn SAVE_CHECKPOINT_FN
-                        Path to save the trained model.
-  --word_seq_indexer_path WORD_SEQ_INDEXER_PATH
-                        Load word_seq_indexer object from hdf5 file.
+  --load LOAD           Path to load from the trained model.
+  --save SAVE           Path to save the trained model.
+  --wsi WSI             Load word_seq_indexer object from hdf5 file.
   --match_alpha_ratio MATCH_ALPHA_RATIO
                         Alpha ratio from non-strict matching, options: 0.999
                         or 0.5
   --patience PATIENCE   Patience for early stopping.
   --save_best SAVE_BEST
                         Save best on dev model as a final.
+  --report_fn REPORT_FN
+                        Report filename.
 ```
 
 ### Run trained model
 
 ```
-usage: run_tagger.py [-h] [--fn FN] [--load_checkpoint_fn LOAD_CHECKPOINT_FN]
-                     [--gpu GPU]
+usage: run_tagger.py [-h] [--fn FN] [--checkpoint_fn CHECKPOINT_FN]
+                             [--gpu GPU]
 
 Run trained tagger from the checkpoint file
 
 optional arguments:
   -h, --help            show this help message and exit
   --fn FN               Train data in CoNNL-2003 format.
-  --load_checkpoint_fn LOAD_CHECKPOINT_FN
+  --checkpoint_fn CHECKPOINT_FN
                         Path to load the trained model.
   --gpu GPU             GPU device number, 0 by default, -1 means CPU.
 ```

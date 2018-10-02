@@ -38,7 +38,7 @@ if __name__ == "__main__":
                         help='False to continue training the char embeddings.')
     parser.add_argument('--gpu', type=int, default=0, help='GPU device number, 0 by default, -1  means CPU.')
     parser.add_argument('--check_for_lowercase', type=bool, default=True, help='Read characters caseless.')
-    parser.add_argument('--epoch_num', type=int, default=200, help='Number of epochs.')
+    parser.add_argument('--epoch_num', type=int, default=100, help='Number of epochs.')
     parser.add_argument('--min_epoch_num', type=int, default=50, help='Minimum number of epochs.')
     parser.add_argument('--rnn_hidden_dim', type=int, default=100, help='Number hidden units in the recurrent layer.')
     parser.add_argument('--rnn_type', default='LSTM', help='RNN cell units type: "Vanilla", "LSTM", "GRU".')
@@ -55,14 +55,15 @@ if __name__ == "__main__":
     parser.add_argument('--momentum', type=float, default=0.9, help='Learning momentum rate.')
     parser.add_argument('--verbose', type=bool, default=True, help='Show additional information.')
     parser.add_argument('--seed_num', type=int, default=42, help='Random seed number, but 42 is the best forever!')
-    parser.add_argument('--load_checkpoint_fn', default=None, help='Path to load from the trained model.')
-    parser.add_argument('--save_checkpoint_fn', default=None, help='Path to save the trained model.')
-    parser.add_argument('--word_seq_indexer_path', type=str, default=None,
+    parser.add_argument('--load', default=None, help='Path to load from the trained model.')
+    parser.add_argument('--save', default='%s_tagger.hdf5' % get_datetime_str(), help='Path to save the trained model.')
+    parser.add_argument('--wsi', type=str, default=None,
                         help='Load word_seq_indexer object from hdf5 file.')
     parser.add_argument('--match_alpha_ratio', type=float, default='0.999',
                         help='Alpha ratio from non-strict matching, options: 0.999 or 0.5')
-    parser.add_argument('--patience', type=int, default=20, help='Patience for early stopping.')
+    parser.add_argument('--patience', type=int, default=10, help='Patience for early stopping.')
     parser.add_argument('--save_best', type=bool, default=True, help = 'Save best on dev model as a final.')
+    parser.add_argument('--report_fn', type=str, default='%s_report.txt' % get_datetime_str(), help='Report filename.')
 
     args = parser.parse_args()
 
@@ -84,26 +85,26 @@ if __name__ == "__main__":
     datasets_bank.add_test_sequences(word_sequences_test, tag_sequences_test)
 
     # Word_seq_indexer converts lists of lists of words to lists of lists of integer indices and back
-    if args.word_seq_indexer_path is not None and isfile(args.word_seq_indexer_path):
-        word_seq_indexer = torch.load(args.word_seq_indexer_path)
+    if args.wsi is not None and isfile(args.wsi):
+        word_seq_indexer = torch.load(args.wsi)
     else:
         word_seq_indexer = SeqIndexerWord(gpu=args.gpu, check_for_lowercase=args.check_for_lowercase,
                                           embeddings_dim=args.emb_dim, verbose=True)
         word_seq_indexer.load_items_from_embeddings_file_and_unique_words_list(emb_fn=args.emb_fn,
                                                                       emb_delimiter=args.emb_delimiter,
                                                                       unique_words_list=datasets_bank.unique_words_list)
-    if args.word_seq_indexer_path is not None and not isfile(args.word_seq_indexer_path):
-        torch.save(word_seq_indexer, args.word_seq_indexer_path)
+    if args.wsi is not None and not isfile(args.wsi):
+        torch.save(word_seq_indexer, args.wsi)
 
     # Tag_seq_indexer converts lists of lists of tags to lists of lists of integer indices and back
     tag_seq_indexer = SeqIndexerTag(gpu=args.gpu)
     tag_seq_indexer.load_items_from_tag_sequences(tag_sequences_train)
 
     # Create or load pre-trained tagger
-    if args.load_checkpoint_fn is None:
+    if args.load is None:
         tagger = TaggerIO.create_tagger(args, word_seq_indexer, tag_seq_indexer, tag_sequences_train)
     else:
-        tagger = TaggerIO.load_tagger(args.load_checkpoint_fn, args.gpu)
+        tagger = TaggerIO.load_tagger(args.load, args.gpu)
 
     # Create optimizer
     if args.opt_method == 'sgd':
@@ -115,9 +116,8 @@ if __name__ == "__main__":
     scheduler = LambdaLR(optimizer, lr_lambda=lambda epoch: 1/(1 + args.lr_decay*epoch))
 
     # Prepare report and temporary variables for "save best" strategy
-    report_fn = 'report_%s_%s_batch%d_%dep.txt' % (get_datetime_str(), args.model, args.batch_size, args.epoch_num)
-    report = Report(report_fn, args, score_names=('train loss', 'f1-train', 'f1-dev', 'f1-test', 'acc. train', 'acc. dev',
-                                                  'acc. test'))
+    report = Report(args.report_fn, args, score_names=('train loss', 'f1-train', 'f1-dev', 'f1-test', 'acc. train',
+                                                       'acc. dev', 'acc. test'))
     iterations_num = int(datasets_bank.train_data_num / args.batch_size)
     best_f1_dev = -1
     best_epoch = -1
@@ -164,8 +164,8 @@ if __name__ == "__main__":
             best_epoch = epoch
             best_test_connl_str = test_connl_str
             patience_counter = 0
-            if args.save_checkpoint_fn is not None and args.save_best:
-                tagger.save_tagger(args.save_checkpoint_fn)
+            if args.save is not None and args.save_best:
+                tagger.save_tagger(args.save)
             print('## [BEST epoch], %d seconds.\n' % (time.time() - time_start))
         else:
             patience_counter += 1
@@ -176,23 +176,14 @@ if __name__ == "__main__":
         if patience_counter > args.patience and epoch > args.min_epoch_num:
             break
 
-    # Save trained tagger to disk, if it is not already saved according to "save best"
-    if args.save_checkpoint_fn is not None and not args.save_best:
-        tagger.save_tagger(args.save_checkpoint_fn)
+    # Save final trained tagger to disk, if it is not already saved according to "save best"
+    if args.save is not None and not args.save_best:
+        tagger.save_tagger(args.save)
 
-    # Final evaluation
-    tagger = TaggerIO.load_tagger(args.save_checkpoint_fn, args.gpu)
-    outputs_tag_sequences_test = tagger.predict_tags_from_words(word_sequences=datasets_bank.word_sequences_test,
-                                                                batch_size=100)
-    f1_test_final, test_connl_str = Evaluator.get_f1_connl_script(tagger=tagger,
-                                                                  word_sequences=datasets_bank.word_sequences_test,
-                                                                  targets_tag_sequences=datasets_bank.tag_sequences_test,
-                                                                  outputs_tag_sequences=outputs_tag_sequences_test)
+    # Show and save the final scores
     if args.save_best:
-        report.write_final_score('Final eval on test, "save best", best epoch on dev %d), micro-f1 test = %1.2f' % (best_epoch,
-                                                                                                          f1_test_final))
+        report.write_final_score('Final eval on test, "save best", best epoch on dev 48, micro-f1 test = %d)' % best_epoch, best_f1_test)
+        print(best_test_connl_str)
     else:
-        report.write_final_score('Final eval on test,  micro-f1 test = %1.2f)' % f1_test_final)
-
-    print(test_connl_str)
-
+        report.write_final_score('Final eval on test,  micro-f1 test = %d)' % epoch, f1_test)
+        print(test_connl_str)

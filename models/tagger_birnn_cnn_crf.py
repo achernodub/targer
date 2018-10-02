@@ -12,6 +12,7 @@ import torch.nn as nn
 
 from models.tagger_base import TaggerBase
 from layers.layer_word_embeddings import LayerWordEmbeddings
+from layers.layer_bivanilla import LayerBiVanilla
 from layers.layer_bilstm import LayerBiLSTM
 from layers.layer_bigru import LayerBiGRU
 from layers.layer_char_embeddings import LayerCharEmbeddings
@@ -52,6 +53,10 @@ class TaggerBiRNNCNNCRF(TaggerBase):
             self.birnn_layer = LayerBiLSTM(input_dim=self.word_embeddings_layer.output_dim+self.char_cnn_layer.output_dim,
                                            hidden_dim=rnn_hidden_dim,
                                            gpu=gpu)
+        elif rnn_type == 'Vanilla':
+            self.birnn_layer = LayerBiVanilla(input_dim=self.word_embeddings_layer.output_dim+self.char_cnn_layer.output_dim,
+                                           hidden_dim=rnn_hidden_dim,
+                                           gpu=gpu)
         else:
             raise ValueError('Unknown rnn_type = %s, must be either "LSTM" or "GRU"')
         self.lin_layer = nn.Linear(in_features=self.birnn_layer.output_dim, out_features=class_num + 2)
@@ -64,16 +69,6 @@ class TaggerBiRNNCNNCRF(TaggerBase):
     def _forward_birnn(self, word_sequences):
         mask = self.get_mask(word_sequences)
         z_word_embed = self.word_embeddings_layer(word_sequences)
-        z_char_embed_d = self.dropout(self.char_embeddings_layer(word_sequences))
-        z_char_cnn = self.char_cnn_layer(z_char_embed_d)
-        z_d = self.dropout(torch.cat((z_word_embed, z_char_cnn), dim=2))
-        rnn_output_h_d = self.dropout(self.apply_mask(self.birnn_layer(z_d, mask), mask))
-        features_rnn_compressed = self.lin_layer(rnn_output_h_d)
-        return self.apply_mask(features_rnn_compressed, mask)
-
-    '''def _forward_birnn(self, word_sequences):
-        mask = self.get_mask(word_sequences)
-        z_word_embed = self.word_embeddings_layer(word_sequences)
         z_word_embed_d = self.dropout(z_word_embed)
         z_char_embed = self.char_embeddings_layer(word_sequences)
         z_char_embed_d = self.dropout(z_char_embed)
@@ -81,7 +76,7 @@ class TaggerBiRNNCNNCRF(TaggerBase):
         z = torch.cat((z_word_embed_d, z_char_cnn), dim=2)
         rnn_output_h = self.apply_mask(self.birnn_layer(z, mask), mask)
         features_rnn_compressed = self.lin_layer(rnn_output_h)
-        return self.apply_mask(features_rnn_compressed, mask)'''
+        return self.apply_mask(features_rnn_compressed, mask)
 
     def get_loss(self, word_sequences_train_batch, tag_sequences_train_batch):
         targets_tensor_train_batch = self.tag_seq_indexer.items2tensor(tag_sequences_train_batch)
