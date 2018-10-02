@@ -119,12 +119,11 @@ usage: main.py [-h] [--model MODEL] [--fn_train FN_TRAIN] [--fn_dev FN_DEV]
                [--char_cnn_filter_num CHAR_CNN_FILTER_NUM]
                [--char_window_size CHAR_WINDOW_SIZE]
                [--dropout_ratio DROPOUT_RATIO] [--clip_grad CLIP_GRAD]
-               [--opt_method OPT_METHOD] [--lr LR] [--lr_decay LR_DECAY]
-               [--momentum MOMENTUM] [--batch_size BATCH_SIZE]
-               [--verbose VERBOSE] [--seed_num SEED_NUM]
-               [--checkpoint_fn CHECKPOINT_FN]
+               [--opt_method OPT_METHOD] [--batch_size BATCH_SIZE] [--lr LR]
+               [--lr_decay LR_DECAY] [--momentum MOMENTUM] [--verbose VERBOSE]
+               [--seed_num SEED_NUM] [--load LOAD] [--save SAVE] [--wsi WSI]
                [--match_alpha_ratio MATCH_ALPHA_RATIO] [--patience PATIENCE]
-               [--word_seq_indexer_path WORD_SEQ_INDEXER_PATH]
+               [--save_best SAVE_BEST] [--report_fn REPORT_FN]
 
 Learning tagging problem using neural networks
 
@@ -168,21 +167,24 @@ optional arguments:
                         Clipping gradients maximum L2 norm.
   --opt_method OPT_METHOD
                         Optimization method: "sgd", "adam".
+  --batch_size BATCH_SIZE
+                        Batch size, samples.
   --lr LR               Learning rate.
   --lr_decay LR_DECAY   Learning decay rate.
   --momentum MOMENTUM   Learning momentum rate.
-  --batch_size BATCH_SIZE
-                        Batch size, samples.
   --verbose VERBOSE     Show additional information.
   --seed_num SEED_NUM   Random seed number, but 42 is the best forever!
-  --checkpoint_fn CHECKPOINT_FN
-                        Path to save the trained model.
+  --load LOAD           Path to load from the trained model.
+  --save SAVE           Path to save the trained model.
+  --wsi WSI             Load word_seq_indexer object from hdf5 file.
   --match_alpha_ratio MATCH_ALPHA_RATIO
                         Alpha ratio from non-strict matching, options: 0.999
                         or 0.5
   --patience PATIENCE   Patience for early stopping.
-  --word_seq_indexer_path WORD_SEQ_INDEXER_PATH
-                        Load word_seq_indexer object from hdf5 file.```
+  --save_best SAVE_BEST
+                        Save best on dev model as a final.
+  --report_fn REPORT_FN
+                        Report filename.
 ```
 
 ### Run trained model
