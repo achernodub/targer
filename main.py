@@ -47,6 +47,7 @@ if __name__ == "__main__":
     parser.add_argument('--char_cnn_filter_num', type=int, default=30, help='Number of filters in Char CNN.')
     parser.add_argument('--char_window_size', type=int, default=3, help='Convolution1D size.')
     parser.add_argument('--dropout_ratio', type=float, default=0.5, help='Dropout ratio.')
+    parser.add_argument('--dataset_sort', type=bool, default=True, help='Sort sequences by length for training.')
     parser.add_argument('--clip_grad', type=float, default=5, help='Clipping gradients maximum L2 norm.')
     parser.add_argument('--opt_method', default='sgd', help='Optimization method: "sgd", "adam".')
     parser.add_argument('--batch_size', type=int, default=10, help='Batch size, samples.')
@@ -72,6 +73,7 @@ if __name__ == "__main__":
     #args.seed_num = 42
     #args.batch_size = 10
     #args.rnn_type = 'GRU'
+    #args.dataset_sort = False
 
     np.random.seed(args.seed_num)
     torch.manual_seed(args.seed_num)
@@ -85,8 +87,10 @@ if __name__ == "__main__":
     word_sequences_test, tag_sequences_test = DataIO.read_CoNNL_universal(args.fn_test, verbose=True)
 
     # DatasetsBank provides storing the different dataset subsets (train/dev/test) and sampling batches from them
-    datasets_bank = DatasetsBankSorted(verbose=True)
-    #datasets_bank = DatasetsBank(verbose=True) #############################
+    if args.dataset_sort:
+        datasets_bank = DatasetsBankSorted(verbose=True)
+    else:
+        datasets_bank = DatasetsBank(verbose=True)
     datasets_bank.add_train_sequences(word_sequences_train, tag_sequences_train)
     datasets_bank.add_dev_sequences(word_sequences_dev, tag_sequences_dev)
     datasets_bank.add_test_sequences(word_sequences_test, tag_sequences_test)
