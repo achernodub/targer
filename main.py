@@ -67,7 +67,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     # Non-standard settings
-    args.model = 'RNN'
+    args.model = 'BiRNN'
     args.wsi = 'wsi_glove_NER.hdf5'
 
     np.random.seed(args.seed_num)
