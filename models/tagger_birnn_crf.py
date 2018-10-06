@@ -51,7 +51,7 @@ class TaggerBiRNNCRF(TaggerBase):
             self.cuda(device=self.gpu)
 
     def _forward_birnn(self, word_sequences):
-        mask = self.get_mask(word_sequences)
+        mask = self.get_mask_from_word_sequences(word_sequences)
         z_word_embed = self.word_embeddings_layer(word_sequences)
         z_word_embed_d = self.dropout(z_word_embed)
         rnn_output_h = self.birnn_layer(z_word_embed_d, mask)
@@ -63,7 +63,7 @@ class TaggerBiRNNCRF(TaggerBase):
     def get_loss(self, word_sequences_train_batch, tag_sequences_train_batch):
         targets_tensor_train_batch = self.tag_seq_indexer.items2tensor(tag_sequences_train_batch)
         features_rnn = self._forward_birnn(word_sequences_train_batch) # batch_num x max_seq_len x class_num
-        mask = self.get_mask(word_sequences_train_batch)  # batch_num x max_seq_len
+        mask = self.get_mask_from_word_sequences(word_sequences_train_batch)  # batch_num x max_seq_len
         numerator = self.crf_layer.numerator(features_rnn, targets_tensor_train_batch, mask)
         denominator = self.crf_layer.denominator(features_rnn, mask)
         nll_loss = -torch.mean(numerator - denominator)
@@ -72,7 +72,7 @@ class TaggerBiRNNCRF(TaggerBase):
     def predict_idx_from_words(self, word_sequences):
         self.eval()
         features_rnn_compressed  = self._forward_birnn(word_sequences)
-        mask = self.get_mask(word_sequences)
+        mask = self.get_mask_from_word_sequences(word_sequences)
         idx_sequences = self.crf_layer.decode_viterbi(features_rnn_compressed, mask)
         return idx_sequences
 

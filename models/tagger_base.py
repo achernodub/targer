@@ -74,7 +74,7 @@ class TaggerBase(nn.Module):
                   end='', flush=True)
         return output_tag_sequences
 
-    def get_mask(self, word_sequences):
+    def get_mask_from_word_sequences(self, word_sequences):
         batch_num = len(word_sequences)
         max_seq_len = max([len(word_seq) for word_seq in word_sequences])
         mask_tensor = self.tensor_ensure_gpu(torch.zeros(batch_num, max_seq_len, dtype=torch.float))

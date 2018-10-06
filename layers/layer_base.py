@@ -22,3 +22,7 @@ class LayerBase(nn.Module):
         input_tensor = self.tensor_ensure_gpu(input_tensor)
         mask_tensor = self.tensor_ensure_gpu(mask_tensor)
         return input_tensor*mask_tensor.unsqueeze(-1).expand_as(input_tensor)
+
+    def get_seq_len_list_from_mask_tensor(self, mask_tensor):
+        batch_size = mask_tensor.shape[0]
+        return [int(mask_tensor[k].sum().item()) for k in range(batch_size)]

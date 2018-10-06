@@ -62,7 +62,7 @@ class TaggerBiRNNCNN(TaggerBase):
         self.nll_loss = nn.NLLLoss(ignore_index=0)  # "0" target values actually are zero-padded parts of sequences
 
     def forward(self, word_sequences):
-        mask = self.get_mask(word_sequences)
+        mask = self.get_mask_from_word_sequences(word_sequences)
         z_word_embed = self.word_embeddings_layer(word_sequences)
         z_char_embed = self.char_embeddings_layer(word_sequences)
         z_char_embed_d = self.dropout(z_char_embed)
@@ -75,7 +75,7 @@ class TaggerBiRNNCNN(TaggerBase):
         return y
 
     def forward_1b(self, word_sequences):
-        mask = self.get_mask(word_sequences)
+        mask = self.get_mask_from_word_sequences(word_sequences)
         z_word_embed = self.word_embeddings_layer(word_sequences)
         z_word_embed_d = self.dropout(z_word_embed)
         z_char_embed = self.char_embeddings_layer(word_sequences)

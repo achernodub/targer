@@ -12,7 +12,7 @@ import torch.optim as optim
 from torch.optim.lr_scheduler import LambdaLR
 
 from classes.data_io import DataIO
-from classes.datasets_bank import DatasetsBankSorted
+from classes.datasets_bank import DatasetsBank, DatasetsBankSorted
 from classes.evaluator import Evaluator
 from classes.report import Report
 from classes.utils import *
@@ -67,8 +67,11 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     # Non-standard settings
-    args.model = 'BiRNN'
     args.wsi = 'wsi_glove_NER.hdf5'
+    #args.model = 'BiRNN'
+    #args.seed_num = 42
+    #args.batch_size = 10
+    #args.rnn_type = 'GRU'
 
     np.random.seed(args.seed_num)
     torch.manual_seed(args.seed_num)
@@ -82,7 +85,8 @@ if __name__ == "__main__":
     word_sequences_test, tag_sequences_test = DataIO.read_CoNNL_universal(args.fn_test, verbose=True)
 
     # DatasetsBank provides storing the different dataset subsets (train/dev/test) and sampling batches from them
-    datasets_bank = DatasetsBankSorted(verbose=True)
+    #datasets_bank = DatasetsBankSorted(verbose=True) #############################
+    datasets_bank = DatasetsBank(verbose=True)
     datasets_bank.add_train_sequences(word_sequences_train, tag_sequences_train)
     datasets_bank.add_dev_sequences(word_sequences_dev, tag_sequences_dev)
     datasets_bank.add_test_sequences(word_sequences_test, tag_sequences_test)
@@ -128,7 +132,7 @@ if __name__ == "__main__":
     best_test_connl_str = 'N\A'
     patience_counter = 0
     print('\nStart training...\n')
-    for epoch in range(0, args.epoch_num + 1):
+    for epoch in range(1, args.epoch_num + 1): ########
         time_start = time.time()
         loss_sum = 0
         if epoch > 0:
