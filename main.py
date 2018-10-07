@@ -88,10 +88,11 @@ if __name__ == "__main__":
     word_sequences_test, tag_sequences_test = DataIO.read_CoNNL_universal(args.fn_test, verbose=True)
 
     # DatasetsBank provides storing the different dataset subsets (train/dev/test) and sampling batches from them
-    if args.dataset_sort:
-        datasets_bank = DatasetsBankSorted(verbose=True)
-    else:
-        datasets_bank = DatasetsBank(verbose=True)
+    datasets_bank = DatasetsBankSorted(verbose=True)
+    #if args.dataset_sort:
+    #    datasets_bank = DatasetsBankSorted(verbose=True)
+    #else:
+    #    datasets_bank = DatasetsBank(verbose=True)
     datasets_bank.add_train_sequences(word_sequences_train, tag_sequences_train)
     datasets_bank.add_dev_sequences(word_sequences_dev, tag_sequences_dev)
     datasets_bank.add_test_sequences(word_sequences_test, tag_sequences_test)
