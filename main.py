@@ -74,7 +74,7 @@ if __name__ == "__main__":
     #args.batch_size = 10
     #args.rnn_hidden_dim = 300
     #args.rnn_type = 'GRU'
-    #args.dataset_sort = False
+    args.dataset_sort = False
 
     np.random.seed(args.seed_num)
     torch.manual_seed(args.seed_num)
