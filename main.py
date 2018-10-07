@@ -74,7 +74,7 @@ if __name__ == "__main__":
     #args.batch_size = 10
     #args.rnn_hidden_dim = 300
     #args.rnn_type = 'GRU'
-    args.dataset_sort = False
+    #args.dataset_sort = False
 
     np.random.seed(args.seed_num)
     torch.manual_seed(args.seed_num)
@@ -155,7 +155,7 @@ if __name__ == "__main__":
                 if i % 1 == 0:
                     print('\r-- train epoch %d/%d, batch %d/%d (%1.2f%%), loss = %1.2f.' % (epoch, args.epoch_num, i + 1,
                                                                                             iterations_num,
-                                                                                            ceil(i*100.0/iterations_num),
+                                                                                            ceil(i*100.0/iterations_num) + 1,
                                                                                             loss_sum*100 / iterations_num),
                                                                                             end='', flush=True)
         # Evaluate tagger
