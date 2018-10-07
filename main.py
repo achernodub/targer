@@ -22,6 +22,7 @@ from models.tagger_io import TaggerIO
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Learning tagging problem using neural networks')
+    parser.add_argument('--seed_num', type=int, default=42, help='Random seed number, you may use any but 42 is the answer.')
     parser.add_argument('--model', default='BiRNNCNNCRF', help='Tagger model: "BiRNN", "BiRNNCNN", "BiRNNCRF", '
                                                                '"BiRNNCNNCRF".')
     parser.add_argument('--fn_train', default='data/NER/CoNNL_2003_shared_task/train.txt',
@@ -38,8 +39,9 @@ if __name__ == "__main__":
                         help='False to continue training the char embeddings.')
     parser.add_argument('--gpu', type=int, default=0, help='GPU device number, 0 by default, -1  means CPU.')
     parser.add_argument('--check_for_lowercase', type=bool, default=True, help='Read characters caseless.')
-    parser.add_argument('--epoch_num', type=int, default=100, help='Number of epochs.')
-    parser.add_argument('--min_epoch_num', type=int, default=50, help='Minimum number of epochs.')
+    parser.add_argument('--epoch_num', type=int, default=150, help='Number of epochs.')
+    parser.add_argument('--min_epoch_num', type=int, default=75, help='Minimum number of epochs.')
+    parser.add_argument('--patience', type=int, default=10, help='Patience for early stopping.')
     parser.add_argument('--rnn_hidden_dim', type=int, default=100, help='Number hidden units in the recurrent layer.')
     parser.add_argument('--rnn_type', default='LSTM', help='RNN cell units type: "Vanilla", "LSTM", "GRU".')
     parser.add_argument('--char_embeddings_dim', type=int, default=25, help='Char embeddings dim, only for char CNNs.')
@@ -55,20 +57,18 @@ if __name__ == "__main__":
     parser.add_argument('--lr_decay', type=float, default=0.05, help='Learning decay rate.') # 0.05
     parser.add_argument('--momentum', type=float, default=0.9, help='Learning momentum rate.')
     parser.add_argument('--verbose', type=bool, default=True, help='Show additional information.')
-    parser.add_argument('--seed_num', type=int, default=42, help='Random seed number, but 42 is the best forever!')
     parser.add_argument('--load', default=None, help='Path to load from the trained model.')
     parser.add_argument('--save', default='%s_tagger.hdf5' % get_datetime_str(), help='Path to save the trained model.')
     parser.add_argument('--wsi', type=str, default=None,
                         help='Load word_seq_indexer object from hdf5 file.')
     parser.add_argument('--match_alpha_ratio', type=float, default='0.999',
                         help='Alpha ratio from non-strict matching, options: 0.999 or 0.5')
-    parser.add_argument('--patience', type=int, default=10, help='Patience for early stopping.')
-    parser.add_argument('--save_best', type=bool, default=True, help = 'Save best on dev model as a final.')
+    parser.add_argument('--save_best', type=bool, default=False, help = 'Save best on dev model as a final.')
     parser.add_argument('--report_fn', type=str, default='%s_report.txt' % get_datetime_str(), help='Report filename.')
 
     args = parser.parse_args()
     # Non-standard settings
-    args.wsi = 'wsi_glove_NER.hdf5'
+    #args.wsi = 'wsi_glove_NER.hdf5'
     #args.model = 'BiRNN'
     #args.seed_num = 42
     #args.batch_size = 10
