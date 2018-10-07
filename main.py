@@ -31,6 +31,10 @@ if __name__ == "__main__":
                         help='Dev data in CoNNL-2003 format, it is used to find best model during the training.')
     parser.add_argument('--fn_test', default='data/NER/CoNNL_2003_shared_task/test.txt',
                         help='Test data in CoNNL-2003 format, it is used to obtain the final accuracy/F1 score.')
+    parser.add_argument('--load', default=None, help='Path to load from the trained model.')
+    parser.add_argument('--save', default='%s_tagger.hdf5' % get_datetime_str(), help='Path to save the trained model.')
+    parser.add_argument('--wsi', type=str, default=None,
+                        help='Load word_seq_indexer object from hdf5 file.')
     parser.add_argument('--emb_fn', default='embeddings/glove.6B.100d.txt', help='Path to word embeddings file.')
     parser.add_argument('--emb_dim', type=int, default=100, help='Dimension of word embeddings file.')
     parser.add_argument('--emb_delimiter', default=' ', help='Delimiter for word embeddings file.')
@@ -42,8 +46,8 @@ if __name__ == "__main__":
     parser.add_argument('--epoch_num', type=int, default=150, help='Number of epochs.')
     parser.add_argument('--min_epoch_num', type=int, default=75, help='Minimum number of epochs.')
     parser.add_argument('--patience', type=int, default=10, help='Patience for early stopping.')
-    parser.add_argument('--rnn_hidden_dim', type=int, default=100, help='Number hidden units in the recurrent layer.')
     parser.add_argument('--rnn_type', default='LSTM', help='RNN cell units type: "Vanilla", "LSTM", "GRU".')
+    parser.add_argument('--rnn_hidden_dim', type=int, default=200, help='Number hidden units in the recurrent layer.')
     parser.add_argument('--char_embeddings_dim', type=int, default=25, help='Char embeddings dim, only for char CNNs.')
     parser.add_argument('--word_len', type=int, default=20, help='Max length of words in characters for char CNNs.')
     parser.add_argument('--char_cnn_filter_num', type=int, default=30, help='Number of filters in Char CNN.')
@@ -57,10 +61,6 @@ if __name__ == "__main__":
     parser.add_argument('--lr_decay', type=float, default=0.05, help='Learning decay rate.') # 0.05
     parser.add_argument('--momentum', type=float, default=0.9, help='Learning momentum rate.')
     parser.add_argument('--verbose', type=bool, default=True, help='Show additional information.')
-    parser.add_argument('--load', default=None, help='Path to load from the trained model.')
-    parser.add_argument('--save', default='%s_tagger.hdf5' % get_datetime_str(), help='Path to save the trained model.')
-    parser.add_argument('--wsi', type=str, default=None,
-                        help='Load word_seq_indexer object from hdf5 file.')
     parser.add_argument('--match_alpha_ratio', type=float, default='0.999',
                         help='Alpha ratio from non-strict matching, options: 0.999 or 0.5')
     parser.add_argument('--save_best', type=bool, default=False, help = 'Save best on dev model as a final.')
@@ -165,7 +165,7 @@ if __name__ == "__main__":
               %(epoch, args.epoch_num, f1_train, f1_dev, f1_test, acc_train, acc_dev, acc_test))
         report.write_epoch_scores(epoch, (loss_sum*100 / iterations_num, f1_train, f1_dev, f1_test, acc_train, acc_dev,
                                           acc_test))
-        # Save curr tagger
+        # Save curr tagger if required
         # tagger.save('tagger_NER_epoch_%03d.hdf5' % epoch)
 
         # Early stopping
