@@ -72,7 +72,7 @@ if __name__ == "__main__":
     #args.model = 'BiRNN'
     #args.seed_num = 42
     #args.batch_size = 10
-    args.rnn_hidden_dim = 300
+    #args.rnn_hidden_dim = 300
     #args.rnn_type = 'GRU'
     #args.dataset_sort = False
 
