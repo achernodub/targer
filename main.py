@@ -45,7 +45,7 @@ if __name__ == "__main__":
     parser.add_argument('--check_for_lowercase', type=bool, default=True, help='Read characters caseless.')
     parser.add_argument('--epoch_num', type=int, default=100, help='Number of epochs.')
     parser.add_argument('--min_epoch_num', type=int, default=50, help='Minimum number of epochs.')
-    parser.add_argument('--patience', type=int, default=10, help='Patience for early stopping.')
+    parser.add_argument('--patience', type=int, default=20, help='Patience for early stopping.')
     parser.add_argument('--rnn_type', default='LSTM', help='RNN cell units type: "Vanilla", "LSTM", "GRU".')
     parser.add_argument('--rnn_hidden_dim', type=int, default=100, help='Number hidden units in the recurrent layer.')
     parser.add_argument('--char_embeddings_dim', type=int, default=25, help='Char embeddings dim, only for char CNNs.')
