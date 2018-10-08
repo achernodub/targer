@@ -1,7 +1,7 @@
 from __future__ import print_function
 
 import argparse
-from math import ceil
+from math import ceil, floor
 from os.path import isfile
 import time
 
@@ -123,7 +123,7 @@ if __name__ == "__main__":
     # Prepare report and temporary variables for "save best" strategy
     report = Report(args.report_fn, args, score_names=('train loss', 'f1-train', 'f1-dev', 'f1-test', 'acc. train',
                                                        'acc. dev', 'acc. test'))
-    iterations_num = int(datasets_bank.train_data_num / args.batch_size)
+    iterations_num = floor(datasets_bank.train_data_num / args.batch_size)
     best_f1_dev = -1
     best_epoch = -1
     best_f1_test = -1
@@ -146,7 +146,7 @@ if __name__ == "__main__":
                 optimizer.step()
                 loss_sum += loss.item()
                 if i % 1 == 0:
-                    print('\r-- train epoch %d/%d, batch %d/%d (%1.2f%%), loss = %1.2f.' % (epoch, args.epoch_num, i,
+                    print('\r-- train epoch %d/%d, batch %d/%d (%1.2f%%), loss = %1.2f.' % (epoch, args.epoch_num, i + 1,
                                                                                             iterations_num,
                                                                                             ceil(i*100.0/iterations_num),
                                                                                             loss_sum*100 / iterations_num),
