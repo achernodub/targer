@@ -155,8 +155,8 @@ if __name__ == "__main__":
                 loss_sum += loss.item()
                 if i % 1 == 0:
                     print('\r-- train epoch %d/%d, batch %d/%d (%1.2f%%), loss = %1.2f.' % (epoch, args.epoch_num, i + 1,
-                                                                                            iterations_num,
-                                                                                            ceil(i*100.0/iterations_num) + 1,
+                                                                                            iterations_num + 1,
+                                                                                            ceil(i*100.0/iterations_num),
                                                                                             loss_sum*100 / iterations_num),
                                                                                             end='', flush=True)
         # Evaluate tagger
