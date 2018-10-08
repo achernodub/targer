@@ -47,7 +47,7 @@ if __name__ == "__main__":
     parser.add_argument('--min_epoch_num', type=int, default=50, help='Minimum number of epochs.')
     parser.add_argument('--patience', type=int, default=10, help='Patience for early stopping.')
     parser.add_argument('--rnn_type', default='LSTM', help='RNN cell units type: "Vanilla", "LSTM", "GRU".')
-    parser.add_argument('--rnn_hidden_dim', type=int, default=200, help='Number hidden units in the recurrent layer.')
+    parser.add_argument('--rnn_hidden_dim', type=int, default=100, help='Number hidden units in the recurrent layer.')
     parser.add_argument('--char_embeddings_dim', type=int, default=25, help='Char embeddings dim, only for char CNNs.')
     parser.add_argument('--word_len', type=int, default=20, help='Max length of words in characters for char CNNs.')
     parser.add_argument('--char_cnn_filter_num', type=int, default=30, help='Number of filters in Char CNN.')
@@ -63,18 +63,10 @@ if __name__ == "__main__":
     parser.add_argument('--verbose', type=bool, default=True, help='Show additional information.')
     parser.add_argument('--match_alpha_ratio', type=float, default='0.999',
                         help='Alpha ratio from non-strict matching, options: 0.999 or 0.5')
-    parser.add_argument('--save_best', type=bool, default=True, help = 'Save best on dev model as a final.')
+    parser.add_argument('--save_best', type=bool, default=False, help = 'Save best on dev model as a final.')
     parser.add_argument('--report_fn', type=str, default='%s_report.txt' % get_datetime_str(), help='Report filename.')
 
     args = parser.parse_args()
-    # Non-standard settings
-    #args.wsi = 'wsi_glove_NER.hdf5'
-    #args.model = 'BiRNN'
-    #args.seed_num = 42
-    #args.batch_size = 10
-    #args.rnn_hidden_dim = 300
-    #args.rnn_type = 'GRU'
-    #args.dataset_sort = False
 
     np.random.seed(args.seed_num)
     torch.manual_seed(args.seed_num)
@@ -154,8 +146,8 @@ if __name__ == "__main__":
                 optimizer.step()
                 loss_sum += loss.item()
                 if i % 1 == 0:
-                    print('\r-- train epoch %d/%d, batch %d/%d (%1.2f%%), loss = %1.2f.' % (epoch, args.epoch_num, i + 1,
-                                                                                            iterations_num + 1,
+                    print('\r-- train epoch %d/%d, batch %d/%d (%1.2f%%), loss = %1.2f.' % (epoch, args.epoch_num, i,
+                                                                                            iterations_num,
                                                                                             ceil(i*100.0/iterations_num),
                                                                                             loss_sum*100 / iterations_num),
                                                                                             end='', flush=True)
