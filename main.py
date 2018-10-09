@@ -63,7 +63,7 @@ if __name__ == "__main__":
     parser.add_argument('--verbose', type=bool, default=True, help='Show additional information.')
     parser.add_argument('--match_alpha_ratio', type=float, default='0.999',
                         help='Alpha ratio from non-strict matching, options: 0.999 or 0.5')
-    parser.add_argument('--save_best', type=bool, default=False, help = 'Save best on dev model as a final.')
+    parser.add_argument('--save_best', type=bool, default=False, help = 'Save best on dev model as a final model.')
     parser.add_argument('--report_fn', type=str, default='%s_report.txt' % get_datetime_str(), help='Report filename.')
 
     args = parser.parse_args()

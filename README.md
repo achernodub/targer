@@ -82,21 +82,22 @@ Results of training the models with the default settings:
 | ------------------- | --------------------- | ----------------------- |
 | BiLSTM + CNN + CRF [Lample et. al., 2016](https://arxiv.org/pdf/1603.01360.pdf) | NER-2003 shared task (English)  | 90.94 |
 | BiLSTM + CNN + CRF [Ma et al., 2016](https://arxiv.org/pdf/1603.01354.pdf)      | NER-2003 shared task (English)  | 91.21 |
-| BiLSTM + CNN + CRF  (our)   | NER-2003 shared task (English)                     | 90.88  |          |
+| BiLSTM + CNN + CRF  (our)   | NER-2003 shared task (English)                     | 90.86  |          |
 ||||           
 | STag_BLCC, [Eger et. al., 2017](https://arxiv.org/pdf/1704.06104.pdf)   | AM Persuasive Essays, Paragraph Level                     | 66.69  |          |
 | LSTM-ER, [Eger et. al., 2017](https://arxiv.org/pdf/1704.06104.pdf)   | AM Persuasive Essays, Paragraph Level                     | 70.83  |          |
-| BiGRU + CNN + CRF  (our)   | AM Persuasive Essays, Paragraph Level                     | 64.23  |          |
+| BiGRU + CNN + CRF  (our)   | AM Persuasive Essays, Paragraph Level                     | 64.31  |          |
 
 In order to ensure the consistency of the experiments, for evaluation purposes we use "official" Perl script from NER 2003 shared task, author: Erik Tjong Kim Sang, version: 2004-01-26, example of it's output:
 
 ```
-processed 46435 tokens with 5648 phrases; found: 5620 phrases; correct: 5112.
-accuracy:  98.02%; precision:  90.96%; recall:  90.51%; FB1:  90.73
-              LOC: precision:  90.61%; recall:  93.76%; FB1:  92.16  1726
-             MISC: precision:  82.94%; recall:  81.05%; FB1:  81.99  686
-              ORG: precision:  89.56%; recall:  87.24%; FB1:  88.38  1618
-              PER: precision:  96.23%; recall:  94.62%; FB1:  95.42  1590
+Standard CoNNL perl script (author: Erik Tjong Kim Sang <erikt@uia.ua.ac.be>, version: 2004-01-26):
+processed 46435 tokens with 5648 phrases; found: 5679 phrases; correct: 5146.
+accuracy:  97.92%; precision:  90.61%; recall:  91.11%; FB1:  90.86
+              LOC: precision:  91.35%; recall:  93.65%; FB1:  92.48  1710
+             MISC: precision:  78.20%; recall:  82.76%; FB1:  80.42  743
+              ORG: precision:  90.25%; recall:  88.02%; FB1:  89.12  1620
+              PER: precision:  95.95%; recall:  95.30%; FB1:  95.63  1606
 ``` 
 
 ## Usage
@@ -106,29 +107,33 @@ accuracy:  98.02%; precision:  90.96%; recall:  90.51%; FB1:  90.73
 To train/evaluate/save trained tagger model, please run the `main.py` script.
 
 ```
-usage: main.py [-h] [--model MODEL] [--fn_train FN_TRAIN] [--fn_dev FN_DEV]
-               [--fn_test FN_TEST] [--emb_fn EMB_FN] [--emb_dim EMB_DIM]
-               [--emb_delimiter EMB_DELIMITER]
+usage: main.py [-h] [--seed_num SEED_NUM] [--model MODEL]
+               [--fn_train FN_TRAIN] [--fn_dev FN_DEV] [--fn_test FN_TEST]
+               [--load LOAD] [--save SAVE] [--wsi WSI] [--emb_fn EMB_FN]
+               [--emb_dim EMB_DIM] [--emb_delimiter EMB_DELIMITER]
                [--freeze_word_embeddings FREEZE_WORD_EMBEDDINGS]
                [--freeze_char_embeddings FREEZE_CHAR_EMBEDDINGS] [--gpu GPU]
                [--check_for_lowercase CHECK_FOR_LOWERCASE]
                [--epoch_num EPOCH_NUM] [--min_epoch_num MIN_EPOCH_NUM]
-               [--rnn_hidden_dim RNN_HIDDEN_DIM] [--rnn_type RNN_TYPE]
+               [--patience PATIENCE] [--rnn_type RNN_TYPE]
+               [--rnn_hidden_dim RNN_HIDDEN_DIM]
                [--char_embeddings_dim CHAR_EMBEDDINGS_DIM]
                [--word_len WORD_LEN]
                [--char_cnn_filter_num CHAR_CNN_FILTER_NUM]
                [--char_window_size CHAR_WINDOW_SIZE]
-               [--dropout_ratio DROPOUT_RATIO] [--clip_grad CLIP_GRAD]
-               [--opt_method OPT_METHOD] [--batch_size BATCH_SIZE] [--lr LR]
-               [--lr_decay LR_DECAY] [--momentum MOMENTUM] [--verbose VERBOSE]
-               [--seed_num SEED_NUM] [--load LOAD] [--save SAVE] [--wsi WSI]
-               [--match_alpha_ratio MATCH_ALPHA_RATIO] [--patience PATIENCE]
-               [--save_best SAVE_BEST] [--report_fn REPORT_FN]
+               [--dropout_ratio DROPOUT_RATIO] [--dataset_sort DATASET_SORT]
+               [--clip_grad CLIP_GRAD] [--opt_method OPT_METHOD]
+               [--batch_size BATCH_SIZE] [--lr LR] [--lr_decay LR_DECAY]
+               [--momentum MOMENTUM] [--verbose VERBOSE]
+               [--match_alpha_ratio MATCH_ALPHA_RATIO] [--save_best SAVE_BEST]
+               [--report_fn REPORT_FN]
 
 Learning tagging problem using neural networks
 
 optional arguments:
   -h, --help            show this help message and exit
+  --seed_num SEED_NUM   Random seed number, you may use any but 42 is the
+                        answer.
   --model MODEL         Tagger model: "BiRNN", "BiRNNCNN", "BiRNNCRF",
                         "BiRNNCNNCRF".
   --fn_train FN_TRAIN   Train data in CoNNL-2003 format.
@@ -136,6 +141,9 @@ optional arguments:
                         model during the training.
   --fn_test FN_TEST     Test data in CoNNL-2003 format, it is used to obtain
                         the final accuracy/F1 score.
+  --load LOAD           Path to load from the trained model.
+  --save SAVE           Path to save the trained model.
+  --wsi WSI             Load word_seq_indexer object from hdf5 file.
   --emb_fn EMB_FN       Path to word embeddings file.
   --emb_dim EMB_DIM     Dimension of word embeddings file.
   --emb_delimiter EMB_DELIMITER
@@ -151,9 +159,10 @@ optional arguments:
                         Number of epochs.
   --min_epoch_num MIN_EPOCH_NUM
                         Minimum number of epochs.
+  --patience PATIENCE   Patience for early stopping.
+  --rnn_type RNN_TYPE   RNN cell units type: "Vanilla", "LSTM", "GRU".
   --rnn_hidden_dim RNN_HIDDEN_DIM
                         Number hidden units in the recurrent layer.
-  --rnn_type RNN_TYPE   RNN cell units type: "Vanilla", "LSTM", "GRU".
   --char_embeddings_dim CHAR_EMBEDDINGS_DIM
                         Char embeddings dim, only for char CNNs.
   --word_len WORD_LEN   Max length of words in characters for char CNNs.
@@ -163,6 +172,8 @@ optional arguments:
                         Convolution1D size.
   --dropout_ratio DROPOUT_RATIO
                         Dropout ratio.
+  --dataset_sort DATASET_SORT
+                        Sort sequences by length for training.
   --clip_grad CLIP_GRAD
                         Clipping gradients maximum L2 norm.
   --opt_method OPT_METHOD
@@ -173,16 +184,11 @@ optional arguments:
   --lr_decay LR_DECAY   Learning decay rate.
   --momentum MOMENTUM   Learning momentum rate.
   --verbose VERBOSE     Show additional information.
-  --seed_num SEED_NUM   Random seed number, but 42 is the best forever!
-  --load LOAD           Path to load from the trained model.
-  --save SAVE           Path to save the trained model.
-  --wsi WSI             Load word_seq_indexer object from hdf5 file.
   --match_alpha_ratio MATCH_ALPHA_RATIO
                         Alpha ratio from non-strict matching, options: 0.999
                         or 0.5
-  --patience PATIENCE   Patience for early stopping.
   --save_best SAVE_BEST
-                        Save best on dev model as a final.
+                        Save best on dev model as a final model.
   --report_fn REPORT_FN
                         Report filename.
 ```
