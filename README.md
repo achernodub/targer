@@ -91,7 +91,6 @@ Results of training the models with the default settings:
 In order to ensure the consistency of the experiments, for evaluation purposes we use "official" Perl script from NER 2003 shared task, author: Erik Tjong Kim Sang, version: 2004-01-26, example of it's output:
 
 ```
-Standard CoNNL perl script (author: Erik Tjong Kim Sang <erikt@uia.ua.ac.be>, version: 2004-01-26):
 processed 46435 tokens with 5648 phrases; found: 5679 phrases; correct: 5146.
 accuracy:  97.92%; precision:  90.61%; recall:  91.11%; FB1:  90.86
               LOC: precision:  91.35%; recall:  93.65%; FB1:  92.48  1710
@@ -297,3 +296,14 @@ optional arguments:
 ---------------------------------------------------------------------------------------------------------
 Final eval on test, "save best", best epoch on dev 48, micro-f1 test = 90.88
 ```
+
+### Alternative neural taggers
+
+- NeuroNER (Tensorflow) [https://github.com/Franck-Dernoncourt/NeuroNER](https://github.com/Franck-Dernoncourt/NeuroNER)
+- LM-LSTM-CRF (Pytorch) [https://github.com/LiyuanLucasLiu/LM-LSTM-CRF](https://github.com/LiyuanLucasLiu/LM-LSTM-CRF)
+- LD-Net (Pytorch) [https://github.com/LiyuanLucasLiu/LD-Net](https://github.com/LiyuanLucasLiu/LD-Net)
+- Reimers & Gurevych, 2017 (Tensorflow & Keras)
+[https://github.com/UKPLab/emnlp2017-bilstm-cnn-crf](https://github.com/UKPLab/emnlp2017-bilstm-cnn-crf)
+- Reimers & Gurevych + ELMO, 2017 (Tensorflow & Keras)
+[https://github.com/UKPLab/elmo-bilstm-cnn-crf](https://github.com/UKPLab/elmo-bilstm-cnn-crf)
+- Eger at. al., 2017 (different) [https://github.com/UKPLab/acl2017-neural_end2end_am](https://github.com/UKPLab/acl2017-neural_end2end_am)
