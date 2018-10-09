@@ -306,4 +306,3 @@ Final eval on test, "save best", best epoch on dev 48, micro-f1 test = 90.88
 [https://github.com/UKPLab/emnlp2017-bilstm-cnn-crf](https://github.com/UKPLab/emnlp2017-bilstm-cnn-crf)
 - UKPLab/elmo-bilstm-cnn-crf (Tensorflow & Keras)
 [https://github.com/UKPLab/elmo-bilstm-cnn-crf](https://github.com/UKPLab/elmo-bilstm-cnn-crf)
-- Eger at. al., 2017 (different) [https://github.com/UKPLab/acl2017-neural_end2end_am](https://github.com/UKPLab/acl2017-neural_end2end_am)
