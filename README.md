@@ -11,6 +11,10 @@ et. al., 2016](https://arxiv.org/pdf/1603.01360.pdf) and [Ma et. al., 2016](http
 - scipy 1.1.0
 - scikit-learn 0.19.2
 
+## Benefits
+
+- Vectorized code for training on batches
+- Trustworthy evaluation of f1-score
  
 ## Project structure
 
