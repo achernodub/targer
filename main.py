@@ -18,7 +18,7 @@ from classes.report import Report
 from classes.utils import *
 from seq_indexers.seq_indexer_word import SeqIndexerWord
 from seq_indexers.seq_indexer_tag import SeqIndexerTag
-from models.tagger_io import TaggerIO
+from models.tagger_io import TaggerIO 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Learning tagging problem using neural networks')
@@ -181,7 +181,7 @@ if __name__ == "__main__":
         if patience_counter > args.patience and epoch > args.min_epoch_num:
             break
 
-    # Save final trained tagger to disk, if it is not already saved according to "save best"
+    # Save final trained tagger to disk, if it is not already saved according to "save best" 
     if args.save is not None and not args.save_best:
         tagger.save_tagger(args.save)
 
