@@ -67,6 +67,8 @@ if __name__ == "__main__":
     parser.add_argument('--report_fn', type=str, default='%s_report.txt' % get_datetime_str(), help='Report filename.')
 
     args = parser.parse_args()
+    # Non-standard settings
+    args.wsi = 'wsi_glove_NER.hdf5'
 
     np.random.seed(args.seed_num)
     torch.manual_seed(args.seed_num)
