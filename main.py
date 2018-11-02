@@ -53,7 +53,7 @@ if __name__ == "__main__":
     parser.add_argument('--char_cnn_filter_num', type=int, default=30, help='Number of filters in Char CNN.')
     parser.add_argument('--char_window_size', type=int, default=3, help='Convolution1D size.')
     parser.add_argument('--dropout_ratio', type=float, default=0.5, help='Dropout ratio.')
-    parser.add_argument('--dataset_sort', type=bool, default=True, help='Sort sequences by length for training.')
+    parser.add_argument('--dataset_sort', type=bool, default=False, help='Sort sequences by length for training.')
     parser.add_argument('--clip_grad', type=float, default=5, help='Clipping gradients maximum L2 norm.')
     parser.add_argument('--opt_method', default='sgd', help='Optimization method: "sgd", "adam".')
     parser.add_argument('--batch_size', type=int, default=10, help='Batch size, samples.')
