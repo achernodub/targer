@@ -2,9 +2,9 @@ from __future__ import print_function
 
 import argparse
 
-from classes.data_io import DataIO
-from classes.evaluator import Evaluator
-from models.tagger_io import TaggerIO
+from src.classes.data_io import DataIO
+from src.classes.evaluator import Evaluator
+from src.models.tagger_factory import TaggerFactory
 
 print('Start run_tagger.py.')
 
@@ -20,7 +20,7 @@ if __name__ == "__main__":
     word_sequences_test, targets_tag_sequences_test = DataIO.read_CoNNL_universal(args.fn)
 
     # Load tagger model
-    tagger = TaggerIO.load_tagger(args.checkpoint_fn, args.gpu)
+    tagger = TaggerFactory.load_tagger(args.checkpoint_fn, args.gpu)
 
     # Get tags as sequences of strings
     output_tag_sequences_test = tagger.predict_tags_from_words(word_sequences_test, batch_size=100)

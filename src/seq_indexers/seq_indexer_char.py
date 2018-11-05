@@ -5,7 +5,7 @@
 .. moduleauthor:: Artem Chernodub
 """
 
-from seq_indexers.seq_indexer_base_embeddings import SeqIndexerBaseEmbeddings
+from src.seq_indexers.seq_indexer_base_embeddings import SeqIndexerBaseEmbeddings
 
 class SeqIndexerBaseChar(SeqIndexerBaseEmbeddings):
     def __init__(self, gpu):

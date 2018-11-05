@@ -5,7 +5,7 @@
 .. moduleauthor:: Artem Chernodub
 """
 
-from seq_indexers.seq_indexer_base import SeqIndexerBase
+from src.seq_indexers.seq_indexer_base import SeqIndexerBase
 
 class SeqIndexerTag(SeqIndexerBase):
     def __init__(self, gpu):

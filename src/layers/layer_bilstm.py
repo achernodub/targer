@@ -7,9 +7,8 @@
 
 import torch
 import torch.nn as nn
-from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 
-from layers.layer_birnn_base import LayerBiRNNBase
+from src.layers.layer_birnn_base import LayerBiRNNBase
 
 class LayerBiLSTM(LayerBiRNNBase):
     def __init__(self, input_dim, hidden_dim, gpu):

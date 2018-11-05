@@ -6,7 +6,7 @@
 """
 
 import codecs
-from classes.utils import is_number, get_words_num
+from src.classes.utils import is_number, get_words_num
 
 class DataIO():
     @staticmethod

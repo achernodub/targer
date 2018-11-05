@@ -10,8 +10,8 @@ import string
 import torch
 import torch.nn as nn
 
-from layers.layer_base import LayerBase
-from seq_indexers.seq_indexer_char import SeqIndexerBaseChar
+from src.layers.layer_base import LayerBase
+from src.seq_indexers.seq_indexer_char import SeqIndexerBaseChar
 
 
 class LayerCharEmbeddings(LayerBase):

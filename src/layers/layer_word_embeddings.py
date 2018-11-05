@@ -6,7 +6,7 @@
 """
 
 import torch.nn as nn
-from layers.layer_base import LayerBase
+from src.layers.layer_base import LayerBase
 
 class LayerWordEmbeddings(LayerBase):
     def __init__(self, word_seq_indexer, gpu, freeze_word_embeddings=False, pad_idx=0):

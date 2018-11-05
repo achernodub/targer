@@ -8,7 +8,7 @@
 import numpy as np
 import torch
 
-from seq_indexers.seq_indexer_base import SeqIndexerBase
+from src.seq_indexers.seq_indexer_base import SeqIndexerBase
 
 class SeqIndexerBaseEmbeddings(SeqIndexerBase):
     def __init__(self, gpu, check_for_lowercase, zero_digits, pad, unk, load_embeddings, embeddings_dim, verbose):

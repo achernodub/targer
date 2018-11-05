@@ -1,6 +1,6 @@
 """
-.. module:: TaggerIO
-    :synopsis: TaggerIO contains wrappers to create and load tagger models
+.. module:: TaggerFactory
+    :synopsis: TaggerFactory contains wrappers to create and load tagger models
 
 .. moduleauthor:: Artem Chernodub
 """
@@ -9,12 +9,12 @@ import os.path
 
 import torch
 
-from models.tagger_birnn import TaggerBiRNN
-from models.tagger_birnn_cnn import TaggerBiRNNCNN
-from models.tagger_birnn_crf import TaggerBiRNNCRF
-from models.tagger_birnn_cnn_crf import TaggerBiRNNCNNCRF
+from src.models.tagger_birnn import TaggerBiRNN
+from src.models.tagger_birnn_cnn import TaggerBiRNNCNN
+from src.models.tagger_birnn_crf import TaggerBiRNNCRF
+from src.models.tagger_birnn_cnn_crf import TaggerBiRNNCNNCRF
 
-class TaggerIO():
+class TaggerFactory():
     @staticmethod
     def load_tagger(checkpoint_fn, gpu=-1):
         if not os.path.isfile(checkpoint_fn):

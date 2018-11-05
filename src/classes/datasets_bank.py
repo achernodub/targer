@@ -7,7 +7,7 @@
 
 from random import randint
 import numpy as np
-from classes.utils import argsort_sequences_by_lens, get_sequences_by_indices
+from src.classes.utils import argsort_sequences_by_lens, get_sequences_by_indices
 
 class DatasetsBank():
     """

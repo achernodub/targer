@@ -10,12 +10,12 @@ import math
 import torch
 import torch.nn as nn
 
-from models.tagger_base import TaggerBase
-from layers.layer_word_embeddings import LayerWordEmbeddings
-from layers.layer_bivanilla import LayerBiVanilla
-from layers.layer_bilstm import LayerBiLSTM
-from layers.layer_bigru import LayerBiGRU
-from layers.layer_crf import LayerCRF
+from src.models.tagger_base import TaggerBase
+from src.layers.layer_word_embeddings import LayerWordEmbeddings
+from src.layers.layer_bivanilla import LayerBiVanilla
+from src.layers.layer_bilstm import LayerBiLSTM
+from src.layers.layer_bigru import LayerBiGRU
+from src.layers.layer_crf import LayerCRF
 
 class TaggerBiRNNCRF(TaggerBase):
     def __init__(self, word_seq_indexer, tag_seq_indexer, class_num, batch_size=1, rnn_hidden_dim=100,

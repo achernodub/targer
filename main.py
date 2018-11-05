@@ -11,14 +11,14 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.optim.lr_scheduler import LambdaLR
 
-from classes.data_io import DataIO
-from classes.datasets_bank import DatasetsBank, DatasetsBankSorted
-from classes.evaluator import Evaluator
-from classes.report import Report
-from classes.utils import *
-from seq_indexers.seq_indexer_word import SeqIndexerWord
-from seq_indexers.seq_indexer_tag import SeqIndexerTag
-from models.tagger_io import TaggerIO
+from src.classes.data_io import DataIO
+from src.classes.datasets_bank import DatasetsBank, DatasetsBankSorted
+from src.classes.evaluator import Evaluator
+from src.classes.report import Report
+from src.classes.utils import *
+from src.seq_indexers.seq_indexer_word import SeqIndexerWord
+from src.seq_indexers.seq_indexer_tag import SeqIndexerTag
+from src.models.tagger_factory import TaggerFactory
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Learning tagging problem using neural networks')
@@ -108,9 +108,9 @@ if __name__ == "__main__":
 
     # Create or load pre-trained tagger
     if args.load is None:
-        tagger = TaggerIO.create_tagger(args, word_seq_indexer, tag_seq_indexer, tag_sequences_train)
+        tagger = TaggerFactory.create_tagger(args, word_seq_indexer, tag_seq_indexer, tag_sequences_train)
     else:
-        tagger = TaggerIO.load_tagger(args.load, args.gpu)
+        tagger = TaggerFactory.load_tagger(args.load, args.gpu)
 
     # Create optimizer
     if args.opt_method == 'sgd':

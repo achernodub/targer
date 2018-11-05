@@ -5,12 +5,10 @@
 .. moduleauthor:: Artem Chernodub
 """
 
-from math import log
-
 import torch
 import torch.nn as nn
 
-from layers.layer_base import LayerBase
+from src.layers.layer_base import LayerBase
 
 class LayerCRF(LayerBase):
     def __init__(self, gpu, states_num, pad_idx, sos_idx, tag_seq_indexer, verbose=True):

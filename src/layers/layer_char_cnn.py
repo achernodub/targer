@@ -8,7 +8,7 @@
 import torch
 import torch.nn as nn
 
-from layers.layer_base import LayerBase
+from src.layers.layer_base import LayerBase
 
 class LayerCharCNN(LayerBase):
     def __init__(self, gpu, char_embeddings_dim, filter_num, char_window_size, word_len):

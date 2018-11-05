@@ -10,8 +10,8 @@ import os.path
 import random
 import time
 from sklearn.metrics import accuracy_score # f1_score, precision_score, recall_score
-from classes.data_io import DataIO
-from classes.tag_component import TagComponent
+from src.classes.data_io import DataIO
+from src.classes.tag_component import TagComponent
 
 class Evaluator():
     @staticmethod
