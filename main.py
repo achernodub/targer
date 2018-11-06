@@ -71,6 +71,7 @@ if __name__ == "__main__":
     #args.wsi = 'wsi_glove_NER.hdf5'
     args.emb_fn = 'embeddings/fasttext_ner2003_v01.txt'
     args.emb_dim = 300
+    args.rnn_hidden_dim = 300
     args.wsi = 'wsi_fasttext_NER.hdf5'
 
     np.random.seed(args.seed_num)
