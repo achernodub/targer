@@ -55,9 +55,9 @@ class TaggerBiRNNCRF(TaggerBase):
         z_word_embed = self.word_embeddings_layer(word_sequences)
         z_word_embed_d = self.dropout(z_word_embed)
         rnn_output_h = self.birnn_layer(z_word_embed_d, mask)
-        #rnn_output_h_d = self.dropout(rnn_output_h) # shape: batch_size x max_seq_len x rnn_hidden_dim*2
-        #features_rnn_compressed = self.lin_layer(rnn_output_h_d) # shape: batch_size x max_seq_len x class_num
-        features_rnn_compressed = self.lin_layer(rnn_output_h) # shape: batch_size x max_seq_len x class_num
+        rnn_output_h_d = self.dropout(rnn_output_h) # shape: batch_size x max_seq_len x rnn_hidden_dim*2
+        features_rnn_compressed = self.lin_layer(rnn_output_h_d) # shape: batch_size x max_seq_len x class_num
+        #features_rnn_compressed = self.lin_layer(rnn_output_h) # shape: batch_size x max_seq_len x class_num
         return self.apply_mask(features_rnn_compressed, mask)
 
     def get_loss(self, word_sequences_train_batch, tag_sequences_train_batch):
