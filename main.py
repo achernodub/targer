@@ -41,7 +41,7 @@ if __name__ == "__main__":
     parser.add_argument('--freeze_word_embeddings', type=bool, default=False, help='False to continue training the \                                                                                    word embeddings.')
     parser.add_argument('--freeze_char_embeddings', type=bool, default=False,
                         help='False to continue training the char embeddings.')
-    parser.add_argument('--gpu', type=int, default=0, help='GPU device number, 0 by default, -1  means CPU.')
+    parser.add_argument('--gpu', type=int, default=-1, help='GPU device number, -1  means CPU.')
     parser.add_argument('--check_for_lowercase', type=bool, default=True, help='Read characters caseless.')
     parser.add_argument('--epoch_num', type=int, default=100, help='Number of epochs.')
     parser.add_argument('--min_epoch_num', type=int, default=50, help='Minimum number of epochs.')
