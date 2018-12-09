@@ -68,7 +68,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     # Non-standard settings
-    #args.wsi = 'wsi_glove_NER.hdf5'
+    args.wsi = 'wsi_glove_NER.hdf5'
     # args.wsi = 'wsi_fasttext_NER.hdf5'
     args.emb_fn = 'embeddings/fasttext_ner2003_v01.txt'
     args.emb_dim = 300
