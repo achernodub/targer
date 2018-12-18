@@ -33,15 +33,16 @@ if __name__ == "__main__":
                         help='Test data in CoNNL-2003 format, it is used to obtain the final accuracy/F1 score.')
     parser.add_argument('--load', default=None, help='Path to load from the trained model.')
     parser.add_argument('--save', default='%s_tagger.hdf5' % get_datetime_str(), help='Path to save the trained model.')
-    parser.add_argument('--wsi', type=str, default=None,
+    parser.add_argument('--wsi', type=str, default='wsi_default.hdf5',
                         help='Load word_seq_indexer object from hdf5 file.')
     parser.add_argument('--emb_fn', default='embeddings/glove.6B.100d.txt', help='Path to word embeddings file.')
     parser.add_argument('--emb_dim', type=int, default=100, help='Dimension of word embeddings file.')
     parser.add_argument('--emb_delimiter', default=' ', help='Delimiter for word embeddings file.')
+    parser.add_argument('--emb_load_all', type=bool, default=True, help='Load all embeddings to model.')
     parser.add_argument('--freeze_word_embeddings', type=bool, default=False, help='False to continue training the \                                                                                    word embeddings.')
     parser.add_argument('--freeze_char_embeddings', type=bool, default=False,
                         help='False to continue training the char embeddings.')
-    parser.add_argument('--gpu', type=int, default=-1, help='GPU device number, -1  means CPU.')
+    parser.add_argument('--gpu', type=int, default=0, help='GPU device number, -1  means CPU.')
     parser.add_argument('--check_for_lowercase', type=bool, default=True, help='Read characters caseless.')
     parser.add_argument('--epoch_num', type=int, default=100, help='Number of epochs.')
     parser.add_argument('--min_epoch_num', type=int, default=50, help='Minimum number of epochs.')
@@ -68,13 +69,14 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     # Non-standard settings
-    args.wsi = 'wsi_glove_NER.hdf5'
+    #args.wsi = 'wsi_glove_NER.hdf5'
+    #args.wsi = 'wsi_glove_NER_all_emb.hdf5'
     # args.wsi = 'wsi_fasttext_NER.hdf5'
-    args.emb_fn = 'embeddings/fasttext_ner2003_v01.txt'
-    args.emb_dim = 300
-    args.rnn_hidden_dim = 300
-    args.epoch_num = 200
-    args.model = 'BiRNNCRF'
+    #args.emb_fn = 'embeddings/fasttext_ner2003_v01.txt'
+    #args.emb_dim = 300
+    #args.rnn_hidden_dim = 300
+    #args.epoch_num = 200
+    #args.model = 'BiRNNCRF'
 
     np.random.seed(args.seed_num)
     torch.manual_seed(args.seed_num)
@@ -104,6 +106,7 @@ if __name__ == "__main__":
                                           embeddings_dim=args.emb_dim, verbose=True)
         word_seq_indexer.load_items_from_embeddings_file_and_unique_words_list(emb_fn=args.emb_fn,
                                                                       emb_delimiter=args.emb_delimiter,
+                                                                      emb_load_all=args.emb_load_all,
                                                                       unique_words_list=datasets_bank.unique_words_list)
     if args.wsi is not None and not isfile(args.wsi):
         torch.save(word_seq_indexer, args.wsi)

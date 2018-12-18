@@ -36,7 +36,7 @@ class SeqIndexerWord(SeqIndexerBaseEmbeddings):
             return re.sub('\d', '0', word.lower())
         return None
 
-    def load_items_from_embeddings_file_and_unique_words_list(self, emb_fn, emb_delimiter, unique_words_list):
+    def load_items_from_embeddings_file_and_unique_words_list(self, emb_fn, emb_delimiter, emb_load_all, unique_words_list):
         # Get the full list of available case-sensitive words from text file with pretrained embeddings
         embeddings_words_list = [emb_word for emb_word, _ in SeqIndexerBaseEmbeddings.load_embeddings_from_file(emb_fn,
                                                                                                           emb_delimiter,
@@ -71,6 +71,26 @@ class SeqIndexerWord(SeqIndexerBaseEmbeddings):
             print(' -- lowercase_words_num = %d' % self.lowercase_words_num)
             print(' -- zero_digits_replaced_num = %d' % self.zero_digits_replaced_num)
             print(' -- zero_digits_replaced_lowercase_num = %d' % self.zero_digits_replaced_lowercase_num)
+
+        # Load all embeddings
+        if emb_load_all:
+            loaded_words_list = self.get_items_list()
+            load_all_words_num_before = len(loaded_words_list)
+            load_all_words_lower_num = 0
+            for emb_word, emb_vec in SeqIndexerBaseEmbeddings.load_embeddings_from_file(emb_fn, emb_delimiter,                                                                                        verbose=True):
+                if emb_word in loaded_words_list:
+                    continue
+                if emb_word.lower() not in loaded_words_list and emb_word.lower() not in embeddings_words_list:
+                    self.add_item(emb_word.lower())
+                    self.add_emb_vector(emb_vec)
+                    load_all_words_lower_num += 1
+                self.add_item(emb_word)
+                self.add_emb_vector(emb_vec)
+            load_all_words_num_after = len(self.get_items_list())
+            if self.verbose:
+                print(' ++ load_all_words_num_before = %d ' % load_all_words_num_before)
+                print(' ++ load_all_words_lower_num = %d ' % load_all_words_lower_num)
+                print(' ++ load_all_words_num_after = %d ' % load_all_words_num_after)
 
     def get_unique_characters_list(self, verbose=False, init_by_printable_characters=True):
         if init_by_printable_characters:
