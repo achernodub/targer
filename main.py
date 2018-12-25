@@ -68,16 +68,6 @@ if __name__ == "__main__":
     parser.add_argument('--report_fn', type=str, default='%s_report.txt' % get_datetime_str(), help='Report filename.')
 
     args = parser.parse_args()
-    # Non-standard settings
-    #args.wsi = 'wsi_glove_NER.hdf5'
-    #args.wsi = 'wsi_glove_NER_all_emb.hdf5'
-    # args.wsi = 'wsi_fasttext_NER.hdf5'
-    #args.emb_fn = 'embeddings/fasttext_ner2003_v01.txt'
-    #args.emb_dim = 300
-    #args.rnn_hidden_dim = 300
-    #args.epoch_num = 200
-    #args.model = 'BiRNNCRF'
-
     np.random.seed(args.seed_num)
     torch.manual_seed(args.seed_num)
     if args.gpu >= 0:
@@ -140,7 +130,7 @@ if __name__ == "__main__":
     best_test_connl_str = 'N\A'
     patience_counter = 0
     print('\nStart training...\n')
-    for epoch in range(1, args.epoch_num + 1): ########
+    for epoch in range(0, args.epoch_num + 1):
         time_start = time.time()
         loss_sum = 0
         if epoch > 0:
