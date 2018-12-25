@@ -7,7 +7,6 @@
 
 import torch
 import torch.nn as nn
-
 from src.layers.layer_birnn_base import LayerBiRNNBase
 
 class LayerBiVanilla(LayerBiRNNBase):

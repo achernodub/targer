@@ -6,19 +6,11 @@
 .. moduleauthor:: Artem Chernodub
 """
 
-import string
-import re
-
 import numpy as np
 import torch
-#from jellyfish import soundex
-#from autocorrect import spell
+
 
 class SeqIndexerBase():
-    """
-
-    """
-
     def __init__(self, gpu=-1, check_for_lowercase=True, zero_digits=False, pad='<pad>', unk='<unk>',
                  load_embeddings=False, embeddings_dim=0, verbose=False):
         self.gpu = gpu

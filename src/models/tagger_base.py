@@ -9,10 +9,9 @@
 """
 
 import math
-import os.path
-
 import torch
 import torch.nn as nn
+
 
 class TaggerBase(nn.Module):
     def __init__(self,  word_seq_indexer, tag_seq_indexer, gpu, batch_size):

@@ -7,8 +7,9 @@
 
 import torch
 import torch.nn as nn
-
 from src.layers.layer_base import LayerBase
+from src.classes.utils import log_sum_exp
+
 
 class LayerCRF(LayerBase):
     def __init__(self, gpu, states_num, pad_idx, sos_idx, tag_seq_indexer, verbose=True):
@@ -143,8 +144,3 @@ class LayerCRF(LayerBase):
                 curr_best_state = backpointers[k, n, curr_best_state].item()
                 best_path_batch[k].insert(0, curr_best_state)
         return best_path_batch
-
-def log_sum_exp(x):
-    max_score, _ = torch.max(x, -1)
-    max_score_broadcast = max_score.unsqueeze(-1).expand_as(x)
-    return max_score + torch.log(torch.sum(torch.exp(x - max_score_broadcast), -1))

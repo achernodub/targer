@@ -6,13 +6,12 @@
 """
 
 import os.path
-
 import torch
-
 from src.models.tagger_birnn import TaggerBiRNN
 from src.models.tagger_birnn_cnn import TaggerBiRNNCNN
 from src.models.tagger_birnn_crf import TaggerBiRNNCRF
 from src.models.tagger_birnn_cnn_crf import TaggerBiRNNCNNCRF
+
 
 class TaggerFactory():
     @staticmethod

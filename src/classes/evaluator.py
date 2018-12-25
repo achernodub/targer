@@ -13,6 +13,7 @@ from sklearn.metrics import accuracy_score # f1_score, precision_score, recall_s
 from src.classes.data_io import DataIO
 from src.classes.tag_component import TagComponent
 
+
 class Evaluator():
     @staticmethod
     def get_accuracy_from_sequences_token_level(targets_tag_sequences, outputs_tag_sequences, tag_seq_indexer):
@@ -116,7 +117,7 @@ class Evaluator():
                         break
                 if not found:
                     FP += 1
-        Precision = (TP / max(TP + FP, 1))*100
-        Recall = (TP / max(TP + FN, 1))*100
-        F1 = (2 * TP / max(2 * TP + FP + FN, 1))*100
-        return F1, Precision, Recall, (TP, FP, FN)
+        precision = (TP / max(TP + FP, 1))*100
+        recall = (TP / max(TP + FN, 1))*100
+        f1 = (2 * TP / max(2 * TP + FP + FN, 1))*100
+        return f1, precision, recall, (TP, FP, FN)

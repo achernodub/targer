@@ -7,9 +7,8 @@
 
 import string
 import re
-#from jellyfish import soundex
-
 from src.seq_indexers.seq_indexer_base_embeddings import SeqIndexerBaseEmbeddings
+
 
 class SeqIndexerWord(SeqIndexerBaseEmbeddings):
     def __init__(self, gpu=-1, check_for_lowercase=True, embeddings_dim=0, verbose=True):

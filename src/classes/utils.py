@@ -7,6 +7,7 @@
 
 import datetime
 import itertools
+import torch
 
 def info(t, name=''):
     print(name, '|', t.type(), '|', t.shape)
@@ -48,3 +49,8 @@ def argsort_sequences_by_lens(list_in):
     for i in range(data_num):
         reverse_sort_indices[sort_indices[i]] = i
     return sort_indices, reverse_sort_indices
+
+def log_sum_exp(x):
+    max_score, _ = torch.max(x, -1)
+    max_score_broadcast = max_score.unsqueeze(-1).expand_as(x)
+    return max_score + torch.log(torch.sum(torch.exp(x - max_score_broadcast), -1))

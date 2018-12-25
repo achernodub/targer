@@ -7,6 +7,7 @@
 
 from src.seq_indexers.seq_indexer_base_embeddings import SeqIndexerBaseEmbeddings
 
+
 class SeqIndexerBaseChar(SeqIndexerBaseEmbeddings):
     def __init__(self, gpu):
         SeqIndexerBaseEmbeddings.__init__(self, gpu=gpu, check_for_lowercase=False, zero_digits=False, pad='<pad>',

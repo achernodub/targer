@@ -9,7 +9,6 @@ import math
 
 import torch
 import torch.nn as nn
-
 from src.models.tagger_base import TaggerBase
 from src.layers.layer_word_embeddings import LayerWordEmbeddings
 from src.layers.layer_bivanilla import LayerBiVanilla
@@ -18,6 +17,7 @@ from src.layers.layer_bigru import LayerBiGRU
 from src.layers.layer_char_embeddings import LayerCharEmbeddings
 from src.layers.layer_char_cnn import LayerCharCNN
 from src.layers.layer_crf import LayerCRF
+
 
 class TaggerBiRNNCNNCRF(TaggerBase):
     def __init__(self, word_seq_indexer, tag_seq_indexer, class_num, batch_size=1, rnn_hidden_dim=100,

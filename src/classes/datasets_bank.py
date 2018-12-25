@@ -5,14 +5,12 @@
 .. moduleauthor:: Artem Chernodub
 """
 
-from random import randint
 import numpy as np
+from random import randint
 from src.classes.utils import argsort_sequences_by_lens, get_sequences_by_indices
 
-class DatasetsBank():
-    """
-    """
 
+class DatasetsBank():
     def __init__(self, verbose=True):
         self.verbose = verbose
         self.unique_words_list = list()
@@ -52,6 +50,7 @@ class DatasetsBank():
             batch_indices = random_indices[k:k + batch_size].tolist()
             word_sequences_train_batch, tag_sequences_train_batch = self.__get_train_batch(batch_indices)
             yield word_sequences_train_batch, tag_sequences_train_batch
+
 
 class DatasetsBankSorted():
     def __init__(self, verbose=True):

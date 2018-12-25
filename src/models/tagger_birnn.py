@@ -7,12 +7,12 @@
 
 import torch
 import torch.nn as nn
-
 from src.models.tagger_base import TaggerBase
 from src.layers.layer_word_embeddings import LayerWordEmbeddings
 from src.layers.layer_bivanilla import LayerBiVanilla
 from src.layers.layer_bilstm import LayerBiLSTM
 from src.layers.layer_bigru import LayerBiGRU
+
 
 class TaggerBiRNN(TaggerBase):
     def __init__(self, word_seq_indexer, tag_seq_indexer, class_num, batch_size=1, rnn_hidden_dim=100,
@@ -53,8 +53,6 @@ class TaggerBiRNN(TaggerBase):
         z_word_embed = self.word_embeddings_layer(word_sequences)
         z_word_embed_d = self.dropout(z_word_embed)
         rnn_output_h = self.birnn_layer(z_word_embed_d, mask)
-        #rnn_output_h_d = self.dropout(rnn_output_h) # shape: batch_size x max_seq_len x rnn_hidden_dim*2
-        #z_rnn_out = self.lin_layer(rnn_output_h_d).permute(0, 2, 1) # shape: batch_size x class_num + 1 x max_seq_len
         z_rnn_out = self.apply_mask(self.lin_layer(rnn_output_h), mask) # shape: batch_size x class_num + 1 x max_seq_len
         y = self.log_softmax_layer(z_rnn_out.permute(0, 2, 1))
         return y
