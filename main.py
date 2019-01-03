@@ -38,7 +38,7 @@ if __name__ == "__main__":
     parser.add_argument('--emb_fn', default='embeddings/glove.6B.100d.txt', help='Path to word embeddings file.')
     parser.add_argument('--emb_dim', type=int, default=100, help='Dimension of word embeddings file.')
     parser.add_argument('--emb_delimiter', default=' ', help='Delimiter for word embeddings file.')
-    parser.add_argument('--emb_load_all', type=bool, default=True, help='Load all embeddings to model.')
+    parser.add_argument('--emb_load_all', type=bool, default=False, help='Load all embeddings to model.')
     parser.add_argument('--freeze_word_embeddings', type=bool, default=False, help='False to continue training the \                                                                                    word embeddings.')
     parser.add_argument('--freeze_char_embeddings', type=bool, default=False,
                         help='False to continue training the char embeddings.')
