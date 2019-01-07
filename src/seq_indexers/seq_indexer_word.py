@@ -35,7 +35,24 @@ class SeqIndexerWord(SeqIndexerBaseEmbeddings):
             return re.sub('\d', '0', word.lower())
         return None
 
-    def load_items_from_embeddings_file_and_unique_words_list(self, emb_fn, emb_delimiter, emb_load_all, unique_words_list):
+    def load_items_from_embeddings_file_all(self, emb_fn, emb_delimiter):
+        # Get the full list of available case-sensitive words from text file with pretrained embeddings
+        embeddings_words_list = [emb_word for emb_word, _ in SeqIndexerBaseEmbeddings.load_embeddings_from_file(emb_fn,
+                                                                                                          emb_delimiter,
+                                                                                                          verbose=True)]
+        for cnt, (emb_word, emb_vec) in enumerate(SeqIndexerBaseEmbeddings.load_embeddings_from_file(emb_fn,
+                                                                                                     emb_delimiter,
+                                                                                                     verbose=True)):
+            self.add_item(emb_word)
+            self.add_emb_vector(emb_vec)
+            if emb_word.lower() not in embeddings_words_list:
+                self.add_item(emb_word.lower())
+                self.add_emb_vector(emb_vec)
+            if cnt % 1000 == 0:
+                print(' ++ load all embeddings %d' % cnt)
+
+    def load_items_from_embeddings_file_and_unique_words_list(self, emb_fn, emb_delimiter, emb_load_all,
+                                                              unique_words_list):
         # Get the full list of available case-sensitive words from text file with pretrained embeddings
         embeddings_words_list = [emb_word for emb_word, _ in SeqIndexerBaseEmbeddings.load_embeddings_from_file(emb_fn,
                                                                                                           emb_delimiter,
