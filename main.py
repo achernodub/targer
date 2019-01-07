@@ -1,16 +1,11 @@
 from __future__ import print_function
-
-import argparse
 from math import ceil, floor
 from os.path import isfile
 import time
-
 import numpy as np
-import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.optim.lr_scheduler import LambdaLR
-
 from src.classes.data_io import DataIO
 from src.classes.datasets_bank import DatasetsBank, DatasetsBankSorted
 from src.classes.evaluator import Evaluator
@@ -19,10 +14,12 @@ from src.classes.utils import *
 from src.seq_indexers.seq_indexer_word import SeqIndexerWord
 from src.seq_indexers.seq_indexer_tag import SeqIndexerTag
 from src.models.tagger_factory import TaggerFactory
+from src.classes.utils import str2bool
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Learning tagging problem using neural networks')
-    parser.add_argument('--seed_num', type=int, default=42, help='Random seed number, you may use any but 42 is the answer.')
+    parser.add_argument('--seed_num', type=int, default=42, help='Random seed number, not that 42 is the answer.')
     parser.add_argument('--model', default='BiRNNCNNCRF', help='Tagger model: "BiRNN", "BiRNNCNN", "BiRNNCRF", '
                                                                '"BiRNNCNNCRF".')
     parser.add_argument('--fn_train', default='data/NER/CoNNL_2003_shared_task/train.txt',
@@ -38,12 +35,14 @@ if __name__ == "__main__":
     parser.add_argument('--emb_fn', default='embeddings/glove.6B.100d.txt', help='Path to word embeddings file.')
     parser.add_argument('--emb_dim', type=int, default=100, help='Dimension of word embeddings file.')
     parser.add_argument('--emb_delimiter', default=' ', help='Delimiter for word embeddings file.')
-    parser.add_argument('--emb_load_all', type=bool, default=False, help='Load all embeddings to model.')
-    parser.add_argument('--freeze_word_embeddings', type=bool, default=False, help='False to continue training the \                                                                                    word embeddings.')
-    parser.add_argument('--freeze_char_embeddings', type=bool, default=False,
-                        help='False to continue training the char embeddings.')
+    parser.add_argument('--emb_load_all', type=str2bool, default=False, help='Load all embeddings to model.', nargs='?')
+    parser.add_argument('--freeze_word_embeddings', type=str2bool, default=False,
+                        help='False to continue training the word embeddings.', nargs='?')
+    parser.add_argument('--freeze_char_embeddings', type=str2bool, default=False,
+                        help='False to continue training the char embeddings.', nargs='?')
     parser.add_argument('--gpu', type=int, default=0, help='GPU device number, -1  means CPU.')
-    parser.add_argument('--check_for_lowercase', type=bool, default=True, help='Read characters caseless.')
+    parser.add_argument('--check_for_lowercase', type=str2bool, default=True, help='Read characters caseless.',
+                        nargs='?')
     parser.add_argument('--epoch_num', type=int, default=100, help='Number of epochs.')
     parser.add_argument('--min_epoch_num', type=int, default=50, help='Minimum number of epochs.')
     parser.add_argument('--patience', type=int, default=20, help='Patience for early stopping.')
@@ -54,31 +53,30 @@ if __name__ == "__main__":
     parser.add_argument('--char_cnn_filter_num', type=int, default=30, help='Number of filters in Char CNN.')
     parser.add_argument('--char_window_size', type=int, default=3, help='Convolution1D size.')
     parser.add_argument('--dropout_ratio', type=float, default=0.5, help='Dropout ratio.')
-    parser.add_argument('--dataset_sort', type=bool, default=False, help='Sort sequences by length for training.')
+    parser.add_argument('--dataset_sort', type=str2bool, default=False, help='Sort sequences by length for training.',
+                        nargs='?')
     parser.add_argument('--clip_grad', type=float, default=5, help='Clipping gradients maximum L2 norm.')
     parser.add_argument('--opt_method', default='sgd', help='Optimization method: "sgd", "adam".')
     parser.add_argument('--batch_size', type=int, default=10, help='Batch size, samples.')
     parser.add_argument('--lr', type=float, default=0.01, help='Learning rate.')
     parser.add_argument('--lr_decay', type=float, default=0.05, help='Learning decay rate.') # 0.05
     parser.add_argument('--momentum', type=float, default=0.9, help='Learning momentum rate.')
-    parser.add_argument('--verbose', type=bool, default=True, help='Show additional information.')
+    parser.add_argument('--verbose', type=str2bool, default=True, help='Show additional information.', nargs='?')
     parser.add_argument('--match_alpha_ratio', type=float, default='0.999',
                         help='Alpha ratio from non-strict matching, options: 0.999 or 0.5')
-    parser.add_argument('--save_best', type=bool, default=False, help = 'Save best on dev model as a final model.')
+    parser.add_argument('--save_best', type=str2bool, default=False, help = 'Save best on dev model as a final model.',
+                        nargs='?')
     parser.add_argument('--report_fn', type=str, default='%s_report.txt' % get_datetime_str(), help='Report filename.')
-
     args = parser.parse_args()
     np.random.seed(args.seed_num)
     torch.manual_seed(args.seed_num)
     if args.gpu >= 0:
         torch.cuda.set_device(args.gpu)
         torch.cuda.manual_seed(args.seed_num)
-
     # Load CoNNL data as sequences of strings of words and corresponding tags
     word_sequences_train, tag_sequences_train = DataIO.read_CoNNL_universal(args.fn_train, verbose=True)
     word_sequences_dev, tag_sequences_dev = DataIO.read_CoNNL_universal(args.fn_dev, verbose=True)
     word_sequences_test, tag_sequences_test = DataIO.read_CoNNL_universal(args.fn_test, verbose=True)
-
     # DatasetsBank provides storing the different dataset subsets (train/dev/test) and sampling batches from them
     if args.dataset_sort:
         datasets_bank = DatasetsBankSorted(verbose=True)
@@ -87,7 +85,6 @@ if __name__ == "__main__":
     datasets_bank.add_train_sequences(word_sequences_train, tag_sequences_train)
     datasets_bank.add_dev_sequences(word_sequences_dev, tag_sequences_dev)
     datasets_bank.add_test_sequences(word_sequences_test, tag_sequences_test)
-
     # Word_seq_indexer converts lists of lists of words to lists of lists of integer indices and back
     if args.wsi is not None and isfile(args.wsi):
         word_seq_indexer = torch.load(args.wsi)
@@ -100,17 +97,14 @@ if __name__ == "__main__":
                                                                       unique_words_list=datasets_bank.unique_words_list)
     if args.wsi is not None and not isfile(args.wsi):
         torch.save(word_seq_indexer, args.wsi)
-
     # Tag_seq_indexer converts lists of lists of tags to lists of lists of integer indices and back
     tag_seq_indexer = SeqIndexerTag(gpu=args.gpu)
     tag_seq_indexer.load_items_from_tag_sequences(tag_sequences_train)
-
     # Create or load pre-trained tagger
     if args.load is None:
         tagger = TaggerFactory.create_tagger(args, word_seq_indexer, tag_seq_indexer, tag_sequences_train)
     else:
         tagger = TaggerFactory.load_tagger(args.load, args.gpu)
-
     # Create optimizer
     if args.opt_method == 'sgd':
         optimizer = optim.SGD(list(tagger.parameters()), lr=args.lr, momentum=args.momentum)
@@ -119,7 +113,6 @@ if __name__ == "__main__":
     else:
         raise ValueError('Unknown optimizer, must be one of "sgd"/"adam".')
     scheduler = LambdaLR(optimizer, lr_lambda=lambda epoch: 1/(1 + args.lr_decay*epoch))
-
     # Prepare report and temporary variables for "save best" strategy
     report = Report(args.report_fn, args, score_names=('train loss', 'f1-train', 'f1-dev', 'f1-test', 'acc. train',
                                                        'acc. dev', 'acc. test'))
@@ -137,7 +130,8 @@ if __name__ == "__main__":
             tagger.train()
             if args.lr_decay > 0:
                 scheduler.step()
-            for i, (word_sequences_train_batch, tag_sequences_train_batch) in enumerate(datasets_bank.get_train_batches(args.batch_size)):
+            for i, (word_sequences_train_batch, tag_sequences_train_batch) in \
+                    enumerate(datasets_bank.get_train_batches(args.batch_size)):
                 tagger.train()
                 tagger.zero_grad()
                 loss = tagger.get_loss(word_sequences_train_batch, tag_sequences_train_batch)
@@ -146,22 +140,20 @@ if __name__ == "__main__":
                 optimizer.step()
                 loss_sum += loss.item()
                 if i % 1 == 0:
-                    print('\r-- train epoch %d/%d, batch %d/%d (%1.2f%%), loss = %1.2f.' % (epoch, args.epoch_num, i + 1,
-                                                                                            iterations_num,
-                                                                                            ceil(i*100.0/iterations_num),
-                                                                                            loss_sum*100 / iterations_num),
-                                                                                            end='', flush=True)
+                    print('\r-- train epoch %d/%d, batch %d/%d (%1.2f%%), loss = %1.2f.' % (epoch, args.epoch_num,
+                                                                                         i + 1, iterations_num,
+                                                                                         ceil(i*100.0/iterations_num),
+                                                                                         loss_sum*100 / iterations_num),
+                                                                                         end='', flush=True)
         # Evaluate tagger
-        f1_train, f1_dev, f1_test, acc_train, acc_dev, acc_test, test_connl_str = Evaluator.get_evaluation_train_dev_test(tagger,
-                                                                                                          datasets_bank,
-                                                                                                          batch_size=100)
+        f1_train, f1_dev, f1_test, acc_train, acc_dev, acc_test, test_connl_str = \
+            Evaluator.get_evaluation_train_dev_test(tagger, datasets_bank, batch_size=100)
         print('\n== eval epoch %d/%d train / dev / test | micro-f1: %1.2f / %1.2f / %1.2f, acc: %1.2f%% / %1.2f%% / %1.2f%%.'
               %(epoch, args.epoch_num, f1_train, f1_dev, f1_test, acc_train, acc_dev, acc_test))
         report.write_epoch_scores(epoch, (loss_sum*100 / iterations_num, f1_train, f1_dev, f1_test, acc_train, acc_dev,
                                           acc_test))
         # Save curr tagger if required
         # tagger.save('tagger_NER_epoch_%03d.hdf5' % epoch)
-
         # Early stopping
         if f1_dev > best_f1_dev:
             best_f1_dev = f1_dev
@@ -175,19 +167,18 @@ if __name__ == "__main__":
         else:
             patience_counter += 1
             print('## [no improvement micro-f1 on DEV during the last %d epochs (best_f1_dev=%1.2f), %d seconds].\n' %
-                                                                                                 (patience_counter,
-                                                                                                 best_f1_dev,
-                                                                                                 (time.time()-time_start)))
+                                                                                            (patience_counter,
+                                                                                            best_f1_dev,
+                                                                                            (time.time()-time_start)))
         if patience_counter > args.patience and epoch > args.min_epoch_num:
             break
-
     # Save final trained tagger to disk, if it is not already saved according to "save best"
     if args.save is not None and not args.save_best:
         tagger.save_tagger(args.save)
-
     # Show and save the final scores
     if args.save_best:
-        report.write_final_score('Final eval on test, "save best", best epoch on dev 48, micro-f1 test = %d)' % best_epoch, best_f1_test)
+        report.write_final_score('Final eval on test, "save best", best epoch on dev 48, micro-f1 test = %d)' %
+                                 best_epoch, best_f1_test)
         print(best_test_connl_str)
     else:
         report.write_final_score('Final eval on test,  micro-f1 test = %d)' % epoch, f1_test)
