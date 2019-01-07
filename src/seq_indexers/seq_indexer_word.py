@@ -48,8 +48,8 @@ class SeqIndexerWord(SeqIndexerBaseEmbeddings):
             if emb_word.lower() not in embeddings_words_list:
                 self.add_item(emb_word.lower())
                 self.add_emb_vector(emb_vec)
-            if cnt % 1000 == 0:
-                print(' ++ load all embeddings %d' % cnt)
+            if cnt % 5000 == 0 and self.verbose:
+                print(' ++ load all embeddings %d/%d' % (cnt, len(embeddings_words_list)))
 
     def load_items_from_embeddings_file_and_unique_words_list(self, emb_fn, emb_delimiter, emb_load_all,
                                                               unique_words_list):
