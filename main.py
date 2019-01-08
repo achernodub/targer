@@ -26,8 +26,8 @@ if __name__ == "__main__":
     parser.add_argument('--test', default='data/NER/CoNNL_2003_shared_task/test.txt',
                         help='Test data in CoNNL-2003 format, it is used to obtain the final accuracy/F1 score.')
     parser.add_argument('--gpu', type=int, default=0, help='GPU device number, -1  means CPU.')
-    parser.add_argument('--model', default='BiRNNCNNCRF', help='Tagger model: "BiRNN", "BiRNNCNN", "BiRNNCRF", '
-                                                               '"BiRNNCNNCRF".')
+    parser.add_argument('--model', help='Tagger model.', choices=['BiRNN', 'BiRNNCNN', 'BiRNNCRF', 'BiRNNCNNCRF'],
+                        default='BiRNNCNNCRF')
     parser.add_argument('--load', default=None, help='Path to load from the trained model.')
     parser.add_argument('--save', default='%s_tagger.hdf5' % get_datetime_str(), help='Path to save the trained model.')
     parser.add_argument('-w', '--word_seq_indexer', type=str, default=None,
@@ -39,12 +39,12 @@ if __name__ == "__main__":
                         nargs='?')
     parser.add_argument('-b', '--batch_size', type=int, default=10, help='Batch size, samples.')
     parser.add_argument('-d', '--dropout_ratio', type=float, default=0.5, help='Dropout ratio.')
-    parser.add_argument('-o', '--opt_method', default='sgd', help='Optimization method: "sgd", "adam".')
+    parser.add_argument('-o', '--opt_method', help='Optimization method.', choices=['sgd', 'adam'], default='sgd')
     parser.add_argument('-l', '--lr', type=float, default=0.01, help='Learning rate.')
-    parser.add_argument('-c', '--lr_decay', type=float, default=0.05, help='Learning decay rate.') # 0.05
+    parser.add_argument('-c', '--lr_decay', type=float, default=0.05, help='Learning decay rate.')
     parser.add_argument('-m', '--momentum', type=float, default=0.9, help='Learning momentum rate.')
     parser.add_argument('--clip_grad', type=float, default=5, help='Clipping gradients maximum L2 norm.')
-    parser.add_argument('--rnn_type', default='LSTM', help='RNN cell units type: "Vanilla", "LSTM", "GRU".')
+    parser.add_argument('--rnn_type', help='RNN cell units type.', choices=['Vanilla', 'LSTM', 'GRU'], default='LSTM')
     parser.add_argument('--rnn_hidden_dim', type=int, default=100, help='Number hidden units in the recurrent layer.')
     parser.add_argument('--emb_fn', default='embeddings/glove.6B.100d.txt', help='Path to word embeddings file.')
     parser.add_argument('--emb_dim', type=int, default=100, help='Dimension of word embeddings file.')
