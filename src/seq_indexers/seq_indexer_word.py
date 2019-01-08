@@ -40,37 +40,16 @@ class SeqIndexerWord(SeqIndexerBaseEmbeddings):
         embeddings_words_list = [emb_word for emb_word, _ in SeqIndexerBaseEmbeddings.load_embeddings_from_file(emb_fn,
                                                                                                           emb_delimiter,
                                                                                                           verbose=True)]
-        unique_words_list = embeddings_words_list ###############
-        # Create reverse mapping word from the embeddings file -> list of unique words from the dataset
-        emb_word_dict2unique_word_list = dict()
-        out_of_vocabulary_words_list = list()
-        for unique_word in unique_words_list:
-            emb_word = self.get_embeddings_word(unique_word, embeddings_words_list)
-            if emb_word is None:
-                out_of_vocabulary_words_list.append(unique_word)
-            else:
-                if emb_word not in emb_word_dict2unique_word_list:
-                    emb_word_dict2unique_word_list[emb_word] = [unique_word]
-                else:
-                    emb_word_dict2unique_word_list[emb_word].append(unique_word)
-        # Add pretrained embeddings for unique_words
         for emb_word, emb_vec in SeqIndexerBaseEmbeddings.load_embeddings_from_file(emb_fn, emb_delimiter,verbose=True):
-            if emb_word in emb_word_dict2unique_word_list:
-                for unique_word in emb_word_dict2unique_word_list[emb_word]:
-                    self.add_item(unique_word)
-                    self.add_emb_vector(emb_vec)
-        if self.verbose:
-            print('\nload_vocabulary_from_embeddings_file_and_unique_words_list:')
-            print('    First 50 OOV words:')
-            for i, oov_word in enumerate(out_of_vocabulary_words_list):
-                print('        out_of_vocabulary_words_list[%d] = %s' % (i, oov_word))
-                if i > 49:
-                    break
-            print(' ++ len(out_of_vocabulary_words_list) = %d' % len(out_of_vocabulary_words_list))
-            print(' ++ original_words_num = %d' % self.original_words_num)
-            print(' ++ lowercase_words_num = %d' % self.lowercase_words_num)
-            print(' ++ zero_digits_replaced_num = %d' % self.zero_digits_replaced_num)
-            print(' ++ zero_digits_replaced_lowercase_num = %d' % self.zero_digits_replaced_lowercase_num)
+            self.add_item(emb_word)
+            self.add_emb_vector(emb_vec)
+            self.original_words_num += 1
+            if emb_word.lower() not in embeddings_words_list:
+                self.add_item(emb_word.lower())
+                self.add_emb_vector(emb_vec)
+                self.lowercase_words_num += 1
+        print(' ++ original_words_num = %d' % self.original_words_num)
+        print(' ++ lowercase_words_num = %d' % self.lowercase_words_num)
 
     def load_items_from_embeddings_file_and_unique_words_list(self, emb_fn, emb_delimiter, emb_load_all,
                                                               unique_words_list):
