@@ -45,7 +45,7 @@ class SeqIndexerWord(SeqIndexerBaseEmbeddings):
                                                                                                      verbose=True)):
             self.add_item(emb_word)
             self.add_emb_vector(emb_vec)
-            if emb_word.lower() not in embeddings_words_list:
+            if emb_word != emb_word.lower() and emb_word.lower() not in embeddings_words_list:
                 self.add_item(emb_word.lower())
                 self.add_emb_vector(emb_vec)
             if cnt % 5000 == 0 and self.verbose:
