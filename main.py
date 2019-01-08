@@ -36,7 +36,7 @@ if __name__ == "__main__":
     parser.add_argument('-n', '--min_epoch_num', type=int, default=50, help='Minimum number of epochs.')
     parser.add_argument('-p', '--patience', type=int, default=20, help='Patience for early stopping.')
     parser.add_argument('--save_best', type=str2bool, default=False, help = 'Save best on dev model as a final model.',
-                        nargs='?', choices=['yes', 'no (default)'])
+                        nargs='?', choices=['yes', True, 'no (default)', False])
     parser.add_argument('-b', '--batch_size', type=int, default=10, help='Batch size, samples.')
     parser.add_argument('-d', '--dropout_ratio', type=float, default=0.5, help='Dropout ratio.')
     parser.add_argument('-o', '--opt_method', help='Optimization method.', choices=['sgd', 'adam'], default='sgd')
@@ -50,26 +50,27 @@ if __name__ == "__main__":
     parser.add_argument('--emb_dim', type=int, default=100, help='Dimension of word embeddings file.')
     parser.add_argument('--emb_delimiter', default=' ', help='Delimiter for word embeddings file.')
     parser.add_argument('--emb_load_all', type=str2bool, default=False, help='Load all embeddings to model.', nargs='?',
-                        choices = ['yes', 'no (default)'])
+                        choices = ['yes', True, 'no (default)', False])
     parser.add_argument('--freeze_word_embeddings', type=str2bool, default=False,
                         help='False to continue training the word embeddings.', nargs='?',
-                        choices=['yes', 'no (default)'])
+                        choices=['yes', True, 'no (default)', False])
     parser.add_argument('--check_for_lowercase', type=str2bool, default=True, help='Read characters caseless.',
-                        nargs='?', choices=['yes (default)', 'no '])
+                        nargs='?', choices=['yes (default)', True, 'no', False])
     parser.add_argument('--char_embeddings_dim', type=int, default=25, help='Char embeddings dim, only for char CNNs.')
     parser.add_argument('--char_cnn_filter_num', type=int, default=30, help='Number of filters in Char CNN.')
     parser.add_argument('--char_window_size', type=int, default=3, help='Convolution1D size.')
-    parser.add_argument('--freeze_char_embeddings', type=str2bool, default=False, choices=['yes', 'no (default)'],
-                        help='False to continue training the char embeddings.', nargs='?')
+    parser.add_argument('--freeze_char_embeddings', type=str2bool, default=False,
+                        choices=['yes', True, 'no (default)', False], nargs='?',
+                        help='False to continue training the char embeddings.')
     parser.add_argument('--word_len', type=int, default=20, help='Max length of words in characters for char CNNs.')
     parser.add_argument('--dataset_sort', type=str2bool, default=False, help='Sort sequences by length for training.',
-                        nargs='?', choices=['yes', 'no (default)'])
+                        nargs='?', choices=['yes', True, 'no (default)', False])
     parser.add_argument('--match_alpha_ratio', type=float, default='0.999',
                         help='Alpha ratio from non-strict matching, options: 0.999 or 0.5')
     parser.add_argument('--seed_num', type=int, default=42, help='Random seed number, not that 42 is the answer.')
     parser.add_argument('--report_fn', type=str, default='%s_report.txt' % get_datetime_str(), help='Report filename.')
     parser.add_argument('-v', '--verbose', type=str2bool, default=True, help='Show additional information.', nargs='?',
-                        choices=['yes (default)', 'no'])
+                        choices=['yes (default)', True, 'no', False])
     args = parser.parse_args()
     np.random.seed(args.seed_num)
     torch.manual_seed(args.seed_num)
