@@ -30,7 +30,7 @@ if __name__ == "__main__":
                                                                '"BiRNNCNNCRF".')
     parser.add_argument('--load', default=None, help='Path to load from the trained model.')
     parser.add_argument('--save', default='%s_tagger.hdf5' % get_datetime_str(), help='Path to save the trained model.')
-    parser.add_argument('-w', '--word_seq_indexer', type=str, default='wsi_default.hdf5',
+    parser.add_argument('-w', '--word_seq_indexer', type=str, default=None,
                         help='Load word_seq_indexer object from hdf5 file.')
     parser.add_argument('-e', '--epoch_num', type=int, default=100, help='Number of epochs.')
     parser.add_argument('-n', '--min_epoch_num', type=int, default=50, help='Minimum number of epochs.')
