@@ -18,55 +18,55 @@ from src.classes.utils import str2bool
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Learning tagging problem using neural networks')
-    parser.add_argument('--seed_num', type=int, default=42, help='Random seed number, not that 42 is the answer.')
+    parser = argparse.ArgumentParser(description='Learning tagger using neural networks')
+    parser.add_argument('--train', default='data/NER/CoNNL_2003_shared_task/train.txt',
+                        help='Train data in CoNNL-2003 format.')
+    parser.add_argument('--dev', default='data/NER/CoNNL_2003_shared_task/dev.txt',
+                        help='Dev data in CoNNL-2003 format, it is used to find best model during the training.')
+    parser.add_argument('--test', default='data/NER/CoNNL_2003_shared_task/test.txt',
+                        help='Test data in CoNNL-2003 format, it is used to obtain the final accuracy/F1 score.')
+    parser.add_argument('--gpu', type=int, default=0, help='GPU device number, -1  means CPU.')
     parser.add_argument('--model', default='BiRNNCNNCRF', help='Tagger model: "BiRNN", "BiRNNCNN", "BiRNNCRF", '
                                                                '"BiRNNCNNCRF".')
-    parser.add_argument('--fn_train', default='data/NER/CoNNL_2003_shared_task/train.txt',
-                        help='Train data in CoNNL-2003 format.')
-    parser.add_argument('--fn_dev', default='data/NER/CoNNL_2003_shared_task/dev.txt',
-                        help='Dev data in CoNNL-2003 format, it is used to find best model during the training.')
-    parser.add_argument('--fn_test', default='data/NER/CoNNL_2003_shared_task/test.txt',
-                        help='Test data in CoNNL-2003 format, it is used to obtain the final accuracy/F1 score.')
     parser.add_argument('--load', default=None, help='Path to load from the trained model.')
     parser.add_argument('--save', default='%s_tagger.hdf5' % get_datetime_str(), help='Path to save the trained model.')
-    parser.add_argument('--wsi', type=str, default='wsi_default.hdf5',
+    parser.add_argument('-w', '--word_seq_indexer', type=str, default='wsi_default.hdf5',
                         help='Load word_seq_indexer object from hdf5 file.')
+    parser.add_argument('-e', '--epoch_num', type=int, default=100, help='Number of epochs.')
+    parser.add_argument('-n', '--min_epoch_num', type=int, default=50, help='Minimum number of epochs.')
+    parser.add_argument('-p', '--patience', type=int, default=20, help='Patience for early stopping.')
+    parser.add_argument('--save_best', type=str2bool, default=False, help = 'Save best on dev model as a final model.',
+                        nargs='?')
+    parser.add_argument('-b', '--batch_size', type=int, default=10, help='Batch size, samples.')
+    parser.add_argument('-d', '--dropout_ratio', type=float, default=0.5, help='Dropout ratio.')
+    parser.add_argument('-o', '--opt_method', default='sgd', help='Optimization method: "sgd", "adam".')
+    parser.add_argument('-l', '--lr', type=float, default=0.01, help='Learning rate.')
+    parser.add_argument('-c', '--lr_decay', type=float, default=0.05, help='Learning decay rate.') # 0.05
+    parser.add_argument('-m', '--momentum', type=float, default=0.9, help='Learning momentum rate.')
+    parser.add_argument('--clip_grad', type=float, default=5, help='Clipping gradients maximum L2 norm.')
+    parser.add_argument('--rnn_type', default='LSTM', help='RNN cell units type: "Vanilla", "LSTM", "GRU".')
+    parser.add_argument('--rnn_hidden_dim', type=int, default=100, help='Number hidden units in the recurrent layer.')
     parser.add_argument('--emb_fn', default='embeddings/glove.6B.100d.txt', help='Path to word embeddings file.')
     parser.add_argument('--emb_dim', type=int, default=100, help='Dimension of word embeddings file.')
     parser.add_argument('--emb_delimiter', default=' ', help='Delimiter for word embeddings file.')
     parser.add_argument('--emb_load_all', type=str2bool, default=False, help='Load all embeddings to model.', nargs='?')
     parser.add_argument('--freeze_word_embeddings', type=str2bool, default=False,
                         help='False to continue training the word embeddings.', nargs='?')
-    parser.add_argument('--freeze_char_embeddings', type=str2bool, default=False,
-                        help='False to continue training the char embeddings.', nargs='?')
-    parser.add_argument('--gpu', type=int, default=0, help='GPU device number, -1  means CPU.')
     parser.add_argument('--check_for_lowercase', type=str2bool, default=True, help='Read characters caseless.',
                         nargs='?')
-    parser.add_argument('--epoch_num', type=int, default=100, help='Number of epochs.')
-    parser.add_argument('--min_epoch_num', type=int, default=50, help='Minimum number of epochs.')
-    parser.add_argument('--patience', type=int, default=20, help='Patience for early stopping.')
-    parser.add_argument('--rnn_type', default='LSTM', help='RNN cell units type: "Vanilla", "LSTM", "GRU".')
-    parser.add_argument('--rnn_hidden_dim', type=int, default=100, help='Number hidden units in the recurrent layer.')
     parser.add_argument('--char_embeddings_dim', type=int, default=25, help='Char embeddings dim, only for char CNNs.')
-    parser.add_argument('--word_len', type=int, default=20, help='Max length of words in characters for char CNNs.')
     parser.add_argument('--char_cnn_filter_num', type=int, default=30, help='Number of filters in Char CNN.')
     parser.add_argument('--char_window_size', type=int, default=3, help='Convolution1D size.')
-    parser.add_argument('--dropout_ratio', type=float, default=0.5, help='Dropout ratio.')
+    parser.add_argument('--freeze_char_embeddings', type=str2bool, default=False,
+                        help='False to continue training the char embeddings.', nargs='?')
+    parser.add_argument('--word_len', type=int, default=20, help='Max length of words in characters for char CNNs.')
     parser.add_argument('--dataset_sort', type=str2bool, default=False, help='Sort sequences by length for training.',
                         nargs='?')
-    parser.add_argument('--clip_grad', type=float, default=5, help='Clipping gradients maximum L2 norm.')
-    parser.add_argument('--opt_method', default='sgd', help='Optimization method: "sgd", "adam".')
-    parser.add_argument('--batch_size', type=int, default=10, help='Batch size, samples.')
-    parser.add_argument('--lr', type=float, default=0.01, help='Learning rate.')
-    parser.add_argument('--lr_decay', type=float, default=0.05, help='Learning decay rate.') # 0.05
-    parser.add_argument('--momentum', type=float, default=0.9, help='Learning momentum rate.')
-    parser.add_argument('--verbose', type=str2bool, default=True, help='Show additional information.', nargs='?')
     parser.add_argument('--match_alpha_ratio', type=float, default='0.999',
                         help='Alpha ratio from non-strict matching, options: 0.999 or 0.5')
-    parser.add_argument('--save_best', type=str2bool, default=False, help = 'Save best on dev model as a final model.',
-                        nargs='?')
+    parser.add_argument('--seed_num', type=int, default=42, help='Random seed number, not that 42 is the answer.')
     parser.add_argument('--report_fn', type=str, default='%s_report.txt' % get_datetime_str(), help='Report filename.')
+    parser.add_argument('-v', '--verbose', type=str2bool, default=True, help='Show additional information.', nargs='?')
     args = parser.parse_args()
     np.random.seed(args.seed_num)
     torch.manual_seed(args.seed_num)
@@ -74,9 +74,9 @@ if __name__ == "__main__":
         torch.cuda.set_device(args.gpu)
         torch.cuda.manual_seed(args.seed_num)
     # Load CoNNL data as sequences of strings of words and corresponding tags
-    word_sequences_train, tag_sequences_train = DataIO.read_CoNNL_universal(args.fn_train, verbose=True)
-    word_sequences_dev, tag_sequences_dev = DataIO.read_CoNNL_universal(args.fn_dev, verbose=True)
-    word_sequences_test, tag_sequences_test = DataIO.read_CoNNL_universal(args.fn_test, verbose=True)
+    word_sequences_train, tag_sequences_train = DataIO.read_CoNNL_universal(args.train, verbose=True)
+    word_sequences_dev, tag_sequences_dev = DataIO.read_CoNNL_universal(args.dev, verbose=True)
+    word_sequences_test, tag_sequences_test = DataIO.read_CoNNL_universal(args.test, verbose=True)
     # DatasetsBank provides storing the different dataset subsets (train/dev/test) and sampling batches from them
     if args.dataset_sort:
         datasets_bank = DatasetsBankSorted(verbose=True)
@@ -86,8 +86,8 @@ if __name__ == "__main__":
     datasets_bank.add_dev_sequences(word_sequences_dev, tag_sequences_dev)
     datasets_bank.add_test_sequences(word_sequences_test, tag_sequences_test)
     # Word_seq_indexer converts lists of lists of words to lists of lists of integer indices and back
-    if args.wsi is not None and isfile(args.wsi):
-        word_seq_indexer = torch.load(args.wsi)
+    if args.word_seq_indexer is not None and isfile(args.word_seq_indexer):
+        word_seq_indexer = torch.load(args.word_seq_indexer)
     else:
         word_seq_indexer = SeqIndexerWord(gpu=args.gpu, check_for_lowercase=args.check_for_lowercase,
                                           embeddings_dim=args.emb_dim, verbose=True)
@@ -99,8 +99,8 @@ if __name__ == "__main__":
                                                                                    emb_load_all=args.emb_load_all,
                                                                                    unique_words_list=
                                                                                    datasets_bank.unique_words_list)
-    if args.wsi is not None and not isfile(args.wsi):
-        torch.save(word_seq_indexer, args.wsi)
+    if args.word_seq_indexer is not None and not isfile(args.word_seq_indexer):
+        torch.save(word_seq_indexer, args.word_seq_indexer)
     # Tag_seq_indexer converts lists of lists of tags to lists of lists of integer indices and back
     tag_seq_indexer = SeqIndexerTag(gpu=args.gpu)
     tag_seq_indexer.load_items_from_tag_sequences(tag_sequences_train)
