@@ -4,7 +4,6 @@
 
 .. moduleauthor:: Artem Chernodub
 """
-
 from src.classes.datasets_bank import DatasetsBank, DatasetsBankSorted
 
 

@@ -4,10 +4,10 @@
 
 .. moduleauthor:: Artem Chernodub
 """
-
 import torch
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 from src.layers.layer_base import LayerBase
+
 
 class LayerBiRNNBase(LayerBase):
     def __init__(self, input_dim, hidden_dim, gpu):

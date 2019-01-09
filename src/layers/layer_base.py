@@ -4,7 +4,6 @@
 
 .. moduleauthor:: Artem Chernodub
 """
-
 import torch.nn as nn
 
 class LayerBase(nn.Module):

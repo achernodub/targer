@@ -4,7 +4,6 @@
 
 .. moduleauthor:: Artem Chernodub
 """
-
 import string
 import re
 from src.seq_indexers.seq_indexer_base_embeddings import SeqIndexerBaseEmbeddings

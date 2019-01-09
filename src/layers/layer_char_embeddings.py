@@ -4,7 +4,6 @@
 
 .. moduleauthor:: Artem Chernodub
 """
-
 import string
 import torch
 import torch.nn as nn

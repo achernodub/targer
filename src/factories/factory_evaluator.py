@@ -4,7 +4,6 @@
 
 .. moduleauthor:: Artem Chernodub
 """
-
 from src.evaluators.evaluator_f1_connl import EvaluatorF1Connl
 
 

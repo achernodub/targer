@@ -4,7 +4,6 @@
 
 .. moduleauthor:: Artem Chernodub
 """
-
 import os.path
 import torch
 from src.models.tagger_birnn import TaggerBiRNN

@@ -4,7 +4,6 @@
 
 .. moduleauthor:: Artem Chernodub
 """
-
 import numpy as np
 import torch
 from src.seq_indexers.seq_indexer_base import SeqIndexerBase

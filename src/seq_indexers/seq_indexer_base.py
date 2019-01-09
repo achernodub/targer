@@ -5,7 +5,6 @@
 
 .. moduleauthor:: Artem Chernodub
 """
-
 import numpy as np
 import torch
 

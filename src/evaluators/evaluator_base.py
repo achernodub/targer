@@ -5,14 +5,6 @@
 .. moduleauthor:: Artem Chernodub
 """
 
-import os
-import os.path
-import random
-import time
-from sklearn.metrics import accuracy_score # f1_score, precision_score, recall_score
-from src.classes.data_io import DataIO
-from src.evaluators.tag_component import TagComponent
-
 
 class EvaluatorBase():
     def get_evaluation_score_train_dev_test(self, tagger, datasets_bank, batch_size=-1):

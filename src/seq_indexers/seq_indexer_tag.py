@@ -4,7 +4,6 @@
 
 .. moduleauthor:: Artem Chernodub
 """
-
 from src.seq_indexers.seq_indexer_base import SeqIndexerBase
 
 
