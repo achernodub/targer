@@ -3,7 +3,7 @@ from __future__ import print_function
 import argparse
 
 from src.classes.data_io import DataIO
-from src.classes.evaluator import Evaluator
+from src.evaluators.evaluator_old import EvaluatorOld
 from src.models.tagger_factory import TaggerFactory
 
 print('Start run_tagger.py.')
@@ -24,10 +24,10 @@ if __name__ == "__main__":
 
     # Get tags as sequences of strings
     output_tag_sequences_test = tagger.predict_tags_from_words(word_sequences_test, batch_size=100)
-    f1_test_final, test_connl_str = Evaluator.get_f1_connl_script(tagger=tagger,
-                                                                  word_sequences=word_sequences_test,
-                                                                  targets_tag_sequences=targets_tag_sequences_test,
-                                                                  outputs_tag_sequences=output_tag_sequences_test)
+    f1_test_final, test_connl_str = EvaluatorOld.get_f1_connl_script(tagger=tagger,
+                                                                     word_sequences=word_sequences_test,
+                                                                     targets_tag_sequences=targets_tag_sequences_test,
+                                                                     outputs_tag_sequences=output_tag_sequences_test)
     # Show the evaluation results
     print('\nMicro f1 score = %1.2f' % f1_test_final)
     print(test_connl_str)

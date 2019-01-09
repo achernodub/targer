@@ -8,13 +8,15 @@ import torch.optim as optim
 from torch.optim.lr_scheduler import LambdaLR
 from src.classes.data_io import DataIO
 from src.classes.datasets_bank import DatasetsBank, DatasetsBankSorted
-from src.classes.evaluator import Evaluator
+from src.evaluators.evaluator_old import EvaluatorOld
 from src.classes.report import Report
 from src.classes.utils import *
 from src.seq_indexers.seq_indexer_word import SeqIndexerWord
 from src.seq_indexers.seq_indexer_tag import SeqIndexerTag
 from src.models.tagger_factory import TaggerFactory
 from src.classes.utils import str2bool
+
+from src.evaluators.evaluator_f1_connl import EvaluatorF1Connl
 
 
 if __name__ == "__main__":
@@ -155,11 +157,18 @@ if __name__ == "__main__":
                                                                                          end='', flush=True)
         # Evaluate tagger
         f1_train, f1_dev, f1_test, acc_train, acc_dev, acc_test, test_connl_str = \
-            Evaluator.get_evaluation_train_dev_test(tagger, datasets_bank, batch_size=100)
+            EvaluatorOld.get_evaluation_train_dev_test(tagger, datasets_bank, batch_size=100)
         print('\n== eval epoch %d/%d train / dev / test | micro-f1: %1.2f / %1.2f / %1.2f, acc: %1.2f%% / %1.2f%% / %1.2f%%.'
               %(epoch, args.epoch_num, f1_train, f1_dev, f1_test, acc_train, acc_dev, acc_test))
         report.write_epoch_scores(epoch, (loss_sum*100 / iterations_num, f1_train, f1_dev, f1_test, acc_train, acc_dev,
                                           acc_test))
+
+        f1_train_new, f1_dev_new, f1_test_new = EvaluatorF1Connl.get_evaluation_score_train_dev_test(tagger,
+                                                                                                     datasets_bank,
+                                                                                                     batch_size=100)
+
+        print('f1_train_new, f1_dev_new, f1_test_new ', f1_train_new, f1_dev_new, f1_test_new)
+
         # Save curr tagger if required
         # tagger.save('tagger_NER_epoch_%03d.hdf5' % epoch)
         # Early stopping
