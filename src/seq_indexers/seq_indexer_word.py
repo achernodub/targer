@@ -19,6 +19,8 @@ class SeqIndexerWord(SeqIndexerBaseEmbeddings):
         self.lowercase_words_num = 0
         self.zero_digits_replaced_num = 0
         self.zero_digits_replaced_lowercase_num = 0
+        self.capitalize_word_num = 0
+        self.uppercase_word_num = 0
 
     def get_embeddings_word(self, word, embeddings_word_list):
         if word in embeddings_word_list:
@@ -26,6 +28,7 @@ class SeqIndexerWord(SeqIndexerBaseEmbeddings):
             return word
         elif self.check_for_lowercase and word.lower() in embeddings_word_list:
             self.lowercase_words_num += 1
+            #print('word=', word, ' word.lower()=', word.lower())
             return word.lower()
         elif self.zero_digits and re.sub('\d', '0', word) in embeddings_word_list:
             self.zero_digits_replaced_num += 1
@@ -44,12 +47,13 @@ class SeqIndexerWord(SeqIndexerBaseEmbeddings):
             self.add_item(emb_word)
             self.add_emb_vector(emb_vec)
             self.original_words_num += 1
-            if emb_word.lower() not in embeddings_words_list:
-                self.add_item(emb_word.lower())
+            if emb_word.capitalize() not in embeddings_words_list:
+                self.add_item(emb_word.capitalize())
                 self.add_emb_vector(emb_vec)
-                self.lowercase_words_num += 1
+                self.capitalize_word_num += 1
+                print(' ++ capitalize_word_num = %d' % self.capitalize_word_num)
         print(' ++ original_words_num = %d' % self.original_words_num)
-        print(' ++ lowercase_words_num = %d' % self.lowercase_words_num)
+        print(' ++ capitalize_word_num = %d' % self.capitalize_word_num)
 
     def load_items_from_embeddings_file_and_unique_words_list(self, emb_fn, emb_delimiter, emb_load_all,
                                                               unique_words_list):
