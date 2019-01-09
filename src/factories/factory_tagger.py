@@ -15,7 +15,7 @@ from src.models.tagger_birnn_cnn_crf import TaggerBiRNNCNNCRF
 
 class TaggerFactory():
     @staticmethod
-    def load_tagger(checkpoint_fn, gpu=-1):
+    def load(checkpoint_fn, gpu=-1):
         if not os.path.isfile(checkpoint_fn):
             raise ValueError('Can''t find tagger in file "%s". Please, run the main script with non-empty \
                              "--save_best_path" param to create it.' % checkpoint_fn)
@@ -26,7 +26,7 @@ class TaggerFactory():
 
 
     @staticmethod
-    def create_tagger(args, word_seq_indexer, tag_seq_indexer, tag_sequences_train):
+    def create(args, word_seq_indexer, tag_seq_indexer, tag_sequences_train):
         if args.model == 'BiRNN':
             tagger = TaggerBiRNN(word_seq_indexer=word_seq_indexer,
                                  tag_seq_indexer=tag_seq_indexer,

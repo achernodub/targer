@@ -4,19 +4,17 @@ from os.path import isfile
 import time
 import numpy as np
 import torch.nn as nn
-import torch.optim as optim
-from torch.optim.lr_scheduler import LambdaLR
 from src.classes.data_io import DataIO
 from src.classes.datasets_bank import DatasetsBank, DatasetsBankSorted
-from src.evaluators.evaluator_old import EvaluatorOld
 from src.classes.report import Report
 from src.classes.utils import *
 from src.seq_indexers.seq_indexer_word import SeqIndexerWord
 from src.seq_indexers.seq_indexer_tag import SeqIndexerTag
-from src.models.tagger_factory import TaggerFactory
+from src.factories.factory_datasets_bank import DatasetsBankFactory
+from src.factories.factory_evaluator import EvaluatorFactory
+from src.factories.factory_optimizer import OptimizerFactory
+from src.factories.factory_tagger import TaggerFactory
 from src.classes.utils import str2bool
-
-from src.evaluators.evaluator_f1_connl import EvaluatorF1Connl
 
 
 if __name__ == "__main__":
@@ -37,10 +35,12 @@ if __name__ == "__main__":
     parser.add_argument('-e', '--epoch_num', type=int, default=100, help='Number of epochs.')
     parser.add_argument('-n', '--min_epoch_num', type=int, default=50, help='Minimum number of epochs.')
     parser.add_argument('-p', '--patience', type=int, default=20, help='Patience for early stopping.')
+    parser.add_argument('-v', '--evaluator', help='Evaluation method.', choices=['f1_connl', 'token_acc'],
+                        default='f1_connl')
     parser.add_argument('--save_best', type=str2bool, default=False, help = 'Save best on dev model as a final model.',
                         nargs='?', choices=['yes', True, 'no (default)', False])
-    parser.add_argument('-b', '--batch_size', type=int, default=10, help='Batch size, samples.')
     parser.add_argument('-d', '--dropout_ratio', type=float, default=0.5, help='Dropout ratio.')
+    parser.add_argument('-b', '--batch_size', type=int, default=10, help='Batch size, samples.')
     parser.add_argument('-o', '--opt_method', help='Optimization method.', choices=['sgd', 'adam'], default='sgd')
     parser.add_argument('-l', '--lr', type=float, default=0.01, help='Learning rate.')
     parser.add_argument('-c', '--lr_decay', type=float, default=0.05, help='Learning decay rate.')
@@ -71,7 +71,7 @@ if __name__ == "__main__":
                         help='Alpha ratio from non-strict matching, options: 0.999 or 0.5')
     parser.add_argument('--seed_num', type=int, default=42, help='Random seed number, not that 42 is the answer.')
     parser.add_argument('--report_fn', type=str, default='%s_report.txt' % get_datetime_str(), help='Report filename.')
-    parser.add_argument('-v', '--verbose', type=str2bool, default=True, help='Show additional information.', nargs='?',
+    parser.add_argument('--verbose', type=str2bool, default=True, help='Show additional information.', nargs='?',
                         choices=['yes (default)', True, 'no', False])
     args = parser.parse_args()
     np.random.seed(args.seed_num)
@@ -79,15 +79,12 @@ if __name__ == "__main__":
     if args.gpu >= 0:
         torch.cuda.set_device(args.gpu)
         torch.cuda.manual_seed(args.seed_num)
-    # Load CoNNL data as sequences of strings of words and corresponding tags
+    # Load text data as lists of lists of words (sequences) and corresponding list of lists of tags
     word_sequences_train, tag_sequences_train = DataIO.read_CoNNL_universal(args.train, verbose=True)
     word_sequences_dev, tag_sequences_dev = DataIO.read_CoNNL_universal(args.dev, verbose=True)
     word_sequences_test, tag_sequences_test = DataIO.read_CoNNL_universal(args.test, verbose=True)
     # DatasetsBank provides storing the different dataset subsets (train/dev/test) and sampling batches from them
-    if args.dataset_sort:
-        datasets_bank = DatasetsBankSorted(verbose=True)
-    else:
-        datasets_bank = DatasetsBank(verbose=True)
+    datasets_bank = DatasetsBankFactory.create(args)
     datasets_bank.add_train_sequences(word_sequences_train, tag_sequences_train)
     datasets_bank.add_dev_sequences(word_sequences_dev, tag_sequences_dev)
     datasets_bank.add_test_sequences(word_sequences_test, tag_sequences_test)
@@ -112,25 +109,22 @@ if __name__ == "__main__":
     tag_seq_indexer.load_items_from_tag_sequences(tag_sequences_train)
     # Create or load pre-trained tagger
     if args.load is None:
-        tagger = TaggerFactory.create_tagger(args, word_seq_indexer, tag_seq_indexer, tag_sequences_train)
+        tagger = TaggerFactory.create(args, word_seq_indexer, tag_seq_indexer, tag_sequences_train)
     else:
-        tagger = TaggerFactory.load_tagger(args.load, args.gpu)
+        tagger = TaggerFactory.load(args.load, args.gpu)
+    # Create evaluator
+    evaluator = EvaluatorFactory.create(args)
     # Create optimizer
-    if args.opt_method == 'sgd':
-        optimizer = optim.SGD(list(tagger.parameters()), lr=args.lr, momentum=args.momentum)
-    elif args.opt_method == 'adam':
-        optimizer = optim.Adam(list(tagger.parameters()), lr=args.lr, betas=(0.9, 0.999))
-    else:
-        raise ValueError('Unknown optimizer, must be one of "sgd"/"adam".')
-    scheduler = LambdaLR(optimizer, lr_lambda=lambda epoch: 1/(1 + args.lr_decay*epoch))
+    optimizer, scheduler = OptimizerFactory.create(args, tagger)
     # Prepare report and temporary variables for "save best" strategy
-    report = Report(args.report_fn, args, score_names=('train loss', 'f1-train', 'f1-dev', 'f1-test', 'acc. train',
-                                                       'acc. dev', 'acc. test'))
+    report = Report(args.report_fn, args, score_names=('train loss', '%s-train' % args.evaluator,
+                                                       '%s-dev' % args.evaluator, '%s-test' % args.evaluator))
+    # Initialize training variables
     iterations_num = floor(datasets_bank.train_data_num / args.batch_size)
-    best_f1_dev = -1
+    best_dev_score = -1
     best_epoch = -1
-    best_f1_test = -1
-    best_test_connl_str = 'N\A'
+    best_test_score = -1
+    best_test_msg = 'N\A'
     patience_counter = 0
     print('\nStart training...\n')
     for epoch in range(0, args.epoch_num + 1):
@@ -156,27 +150,21 @@ if __name__ == "__main__":
                                                                                          loss_sum*100 / iterations_num),
                                                                                          end='', flush=True)
         # Evaluate tagger
-        f1_train, f1_dev, f1_test, acc_train, acc_dev, acc_test, test_connl_str = \
-            EvaluatorOld.get_evaluation_train_dev_test(tagger, datasets_bank, batch_size=100)
-        print('\n== eval epoch %d/%d train / dev / test | micro-f1: %1.2f / %1.2f / %1.2f, acc: %1.2f%% / %1.2f%% / %1.2f%%.'
-              %(epoch, args.epoch_num, f1_train, f1_dev, f1_test, acc_train, acc_dev, acc_test))
-        report.write_epoch_scores(epoch, (loss_sum*100 / iterations_num, f1_train, f1_dev, f1_test, acc_train, acc_dev,
-                                          acc_test))
-
-        f1_train_new, f1_dev_new, f1_test_new = EvaluatorF1Connl.get_evaluation_score_train_dev_test(tagger,
+        train_score, dev_score, test_score, test_msg = evaluator.get_evaluation_score_train_dev_test(tagger,
                                                                                                      datasets_bank,
                                                                                                      batch_size=100)
-
-        print('f1_train_new, f1_dev_new, f1_test_new ', f1_train_new, f1_dev_new, f1_test_new)
-
+        print('\n== eval epoch %d/%d "%s" train / dev / test | %1.2f / %1.2f / %1.2f.' % (epoch, args.epoch_num,
+                                                                                        args.evaluator, train_score,
+                                                                                        dev_score, test_score))
+        report.write_epoch_scores(epoch, (loss_sum*100 / iterations_num, train_score, dev_score, test_score))
         # Save curr tagger if required
         # tagger.save('tagger_NER_epoch_%03d.hdf5' % epoch)
         # Early stopping
-        if f1_dev > best_f1_dev:
-            best_f1_dev = f1_dev
-            best_f1_test = f1_test
+        if dev_score > best_dev_score:
+            best_dev_score = dev_score
+            best_test_score = test_score
             best_epoch = epoch
-            best_test_connl_str = test_connl_str
+            best_test_msg = test_msg
             patience_counter = 0
             if args.save is not None and args.save_best:
                 tagger.save_tagger(args.save)
@@ -185,8 +173,8 @@ if __name__ == "__main__":
             patience_counter += 1
             print('## [no improvement micro-f1 on DEV during the last %d epochs (best_f1_dev=%1.2f), %d seconds].\n' %
                                                                                             (patience_counter,
-                                                                                            best_f1_dev,
-                                                                                            (time.time()-time_start)))
+                                                                                             best_dev_score,
+                                                                                             (time.time()-time_start)))
         if patience_counter > args.patience and epoch > args.min_epoch_num:
             break
     # Save final trained tagger to disk, if it is not already saved according to "save best"
@@ -194,9 +182,9 @@ if __name__ == "__main__":
         tagger.save_tagger(args.save)
     # Show and save the final scores
     if args.save_best:
-        report.write_final_score('Final eval on test, "save best", best epoch on dev 48, micro-f1 test = %d)' %
-                                 best_epoch, best_f1_test)
-        print(best_test_connl_str)
+        report.write_final_score('Final eval on test, "save best", best epoch on dev %d, %s, test = %1.2f)' %
+                                 (best_epoch, args.evaluator, best_test_score))
+        print(best_test_msg)
     else:
-        report.write_final_score('Final eval on test,  micro-f1 test = %d)' % epoch, f1_test)
-        print(test_connl_str)
+        report.write_final_score('Final eval on test, %s test = %1.2f)' % (args.evaluator, test_score))
+        print(test_msg)
