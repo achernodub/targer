@@ -33,8 +33,8 @@ if __name__ == "__main__":
     parser.add_argument('-e', '--epoch_num', type=int, default=100, help='Number of epochs.')
     parser.add_argument('-n', '--min_epoch_num', type=int, default=50, help='Minimum number of epochs.')
     parser.add_argument('-p', '--patience', type=int, default=20, help='Patience for early stopping.')
-    parser.add_argument('-v', '--evaluator', choices=['f1_connl', 'token_acc', 'f1_alpha_match'], default='f1_connl',
-                        help='Evaluation method.')
+    parser.add_argument('-v', '--evaluator', choices=['f1_connl', 'f1_alpha_match_10', 'f1_alpha_match_05', 'token_acc'],
+                        default='f1_connl', help='Evaluation method.')
     parser.add_argument('--save_best', type=str2bool, default=False, help = 'Save best on dev model as a final model.',
                         nargs='?', choices=['yes', True, 'no (default)', False])
     parser.add_argument('-d', '--dropout_ratio', type=float, default=0.5, help='Dropout ratio.')
@@ -65,8 +65,6 @@ if __name__ == "__main__":
     parser.add_argument('--word_len', type=int, default=20, help='Max length of words in characters for char CNNs.')
     parser.add_argument('--dataset_sort', type=str2bool, default=False, help='Sort sequences by length for training.',
                         nargs='?', choices=['yes', True, 'no (default)', False])
-    parser.add_argument('--match_alpha_ratio', type=float, default='0.999',
-                        help='Alpha ratio from non-strict matching, options: 0.999 or 0.5')
     parser.add_argument('--seed_num', type=int, default=42, help='Random seed number, not that 42 is the answer.')
     parser.add_argument('--report_fn', type=str, default='%s_report.txt' % get_datetime_str(), help='Report filename.')
     parser.add_argument('--verbose', type=str2bool, default=True, help='Show additional information.', nargs='?',
