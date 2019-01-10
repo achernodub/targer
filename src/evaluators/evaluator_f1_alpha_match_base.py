@@ -14,7 +14,7 @@ class EvaluatorF1AlphaMatchBase(EvaluatorBase):
         outputs_tag_components_sequences = TagComponent.extract_tag_components_sequences(outputs_tag_sequences)
         f1, precision, recall, (TP, FP, FN) = self.__get_f1_components_from_sequences(targets_tag_components_sequences,
                                                                                       outputs_tag_components_sequences)
-        msg = '*** f1 alpha match, alpha = %1.2f' % self.match_alpha_ratio
+        msg = '*** f1 alpha match, alpha = %1.1f' % self.match_alpha_ratio
         msg += '\n*** f1 = %1.2f, precision = %1.2f, recall = %1.2f' % (f1, precision, recall)
         msg += '\n*** TP = %d, FP = %d, FN = %d' % (TP, FP, FN)
         return f1, msg
