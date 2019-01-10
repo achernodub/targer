@@ -5,7 +5,6 @@ import time
 import numpy as np
 import torch.nn as nn
 from src.classes.data_io import DataIO
-from src.classes.datasets_bank import DatasetsBank, DatasetsBankSorted
 from src.classes.report import Report
 from src.classes.utils import *
 from src.seq_indexers.seq_indexer_word import SeqIndexerWord
@@ -94,14 +93,9 @@ if __name__ == "__main__":
     else:
         word_seq_indexer = SeqIndexerWord(gpu=args.gpu, check_for_lowercase=args.check_for_lowercase,
                                           embeddings_dim=args.emb_dim, verbose=True)
-        if args.emb_load_all:
-            word_seq_indexer.load_items_from_embeddings_file_all(emb_fn=args.emb_fn, emb_delimiter=args.emb_delimiter)
-        else:
-            word_seq_indexer.load_items_from_embeddings_file_and_unique_words_list(emb_fn=args.emb_fn,
-                                                                                   emb_delimiter=args.emb_delimiter,
-                                                                                   emb_load_all=args.emb_load_all,
-                                                                                   unique_words_list=
-                                                                                   datasets_bank.unique_words_list)
+        word_seq_indexer.load_items_from_embeddings(emb_fn=args.emb_fn, emb_delimiter=args.emb_delimiter,
+                                                    unique_words_list=datasets_bank.unique_words_list,
+                                                    emb_load_all=args.emb_load_all)
     if args.word_seq_indexer is not None and not isfile(args.word_seq_indexer):
         torch.save(word_seq_indexer, args.word_seq_indexer)
     # Tag_seq_indexer converts lists of lists of tags to lists of lists of integer indices and back
