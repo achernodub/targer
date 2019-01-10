@@ -7,13 +7,12 @@ import torch.nn as nn
 from src.classes.data_io import DataIO
 from src.classes.report import Report
 from src.classes.utils import *
-from src.seq_indexers.seq_indexer_word import SeqIndexerWord
-from src.seq_indexers.seq_indexer_tag import SeqIndexerTag
 from src.factories.factory_datasets_bank import DatasetsBankFactory
 from src.factories.factory_evaluator import EvaluatorFactory
 from src.factories.factory_optimizer import OptimizerFactory
 from src.factories.factory_tagger import TaggerFactory
-from src.classes.utils import str2bool
+from src.seq_indexers.seq_indexer_tag import SeqIndexerTag
+from src.seq_indexers.seq_indexer_word import SeqIndexerWord
 
 
 if __name__ == "__main__":
@@ -82,7 +81,7 @@ if __name__ == "__main__":
     word_sequences_train, tag_sequences_train = DataIO.read_CoNNL_universal(args.train, verbose=True)
     word_sequences_dev, tag_sequences_dev = DataIO.read_CoNNL_universal(args.dev, verbose=True)
     word_sequences_test, tag_sequences_test = DataIO.read_CoNNL_universal(args.test, verbose=True)
-    # DatasetsBank provides storing the different dataset subsets (train/dev/test) and sampling batches from them
+    # DatasetsBank provides storing the different dataset subsets (train/dev/test) and sampling batches
     datasets_bank = DatasetsBankFactory.create(args)
     datasets_bank.add_train_sequences(word_sequences_train, tag_sequences_train)
     datasets_bank.add_dev_sequences(word_sequences_dev, tag_sequences_dev)
