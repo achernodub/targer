@@ -9,6 +9,7 @@ from src.evaluators.evaluator_f1_alpha_match_10 import EvaluatorF1AlphaMatch10
 from src.evaluators.evaluator_f1_alpha_match_05 import EvaluatorF1AlphaMatch05
 from src.evaluators.evaluator_token_acc import EvaluatorTokenAcc
 
+
 class EvaluatorFactory():
     @staticmethod
     def create(args):
