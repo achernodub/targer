@@ -55,14 +55,10 @@ class SeqIndexerWord(SeqIndexerBaseEmbeddings):
                 self.add_item(emb_word.capitalize())
                 self.add_emb_vector(emb_vec)
                 self.capitalize_word_num += 1
-                print(' ++ capitalize_word_num = %d, word = %s, capitalize_word = %s' % (self.capitalize_word_num,
-                      emb_word, emb_word.capitalize()))
             if emb_word.upper() not in embeddings_words_list:
                 self.add_item(emb_word.upper())
                 self.add_emb_vector(emb_vec)
                 self.uppercase_word_num += 1
-                print(' ++ uppercase_word_num = %d, word = %s, uppercase_word = %s' % (self.uppercase_word_num, emb_word,
-                      emb_word.upper()))
         print(' ++ original_words_num = %d' % self.original_words_num)
         print(' ++ capitalize_word_num = %d' % self.capitalize_word_num)
         print(' ++ uppercase_word_num = %d' % self.uppercase_word_num)
