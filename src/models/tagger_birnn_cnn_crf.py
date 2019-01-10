@@ -95,10 +95,16 @@ class TaggerBiRNNCNNCRF(TaggerBase):
         return idx_sequences
 
     def predict_tags_from_words(self, word_sequences, batch_size=-1):
+
         if batch_size == -1:
             batch_size = self.batch_size
         print('\n')
-        batch_num = math.floor(len(word_sequences) / batch_size)
+        if len(word_sequences) >0 & len(word_sequences) < batch_size:
+            batch_num = 1
+        else:
+            batch_num = math.floor(len(word_sequences) / batch_size)
+
+
         output_tag_sequences = list()
         for n in range(batch_num):
             i = n*batch_size
