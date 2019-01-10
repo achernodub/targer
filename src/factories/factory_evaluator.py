@@ -21,4 +21,4 @@ class EvaluatorFactory():
         elif args.evaluator == 'token_acc':
             return EvaluatorTokenAcc()
         else:
-            raise ValueError('Unknown evaluator, must be one of "f1_connl"/"token_acc".')
+            raise ValueError('Unknown evaluator.')
