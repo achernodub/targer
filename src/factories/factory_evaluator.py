@@ -5,14 +5,16 @@
 .. moduleauthor:: Artem Chernodub
 """
 from src.evaluators.evaluator_f1_connl import EvaluatorF1Connl
+from src.evaluators.evaluator_f1_alpha_match import EvaluatorF1AlphaMatch
 from src.evaluators.evaluator_token_acc import EvaluatorTokenAcc
-
 
 class EvaluatorFactory():
     @staticmethod
     def create(args):
         if args.evaluator == 'f1_connl':
             return EvaluatorF1Connl()
+        elif args.evaluator == 'f1_alpha_match':
+            return EvaluatorF1AlphaMatch()
         elif args.evaluator == 'token_acc':
             return EvaluatorTokenAcc()
         else:
