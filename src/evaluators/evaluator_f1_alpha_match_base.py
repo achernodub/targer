@@ -1,26 +1,32 @@
+"""
+Isaac Persing and Vincent Ng. End-to-end argumentation mining in student essays. NAACL 2016.
+http://www.aclweb.org/anthology/N16-1164.
+"""
 from src.evaluators.evaluator_base import EvaluatorBase
 
 
-class EvaluatorF1AlphaMatch(EvaluatorBase):
+class EvaluatorF1AlphaMatchBase(EvaluatorBase):
+    def __init__(self, match_alpha_ratio):
+        self.match_alpha_ratio = match_alpha_ratio
+
     def get_evaluation_score(self, targets_tag_sequences, outputs_tag_sequences, word_sequences=None):
         targets_tag_components_sequences = TagComponent.extract_tag_components_sequences(targets_tag_sequences)
         outputs_tag_components_sequences = TagComponent.extract_tag_components_sequences(outputs_tag_sequences)
         f1, precision, recall, (TP, FP, FN) = self.__get_f1_components_from_sequences(targets_tag_components_sequences,
-                                                                                      outputs_tag_components_sequences,
-                                                                                      match_alpha_ratio=0.5)
-        msg = '*** f1 = %1.2f, precision = %1.2f, recall = %1.2f ***' % (f1, precision, recall)
-        msg += '*** TP = %d, FP = %d, FN = %d ***' % (TP, FP, FN)
+                                                                                      outputs_tag_components_sequences)
+        msg = '*** f1 alpha match, alpha = %1.2f' % self.match_alpha_ratio
+        msg += '\n*** f1 = %1.2f, precision = %1.2f, recall = %1.2f' % (f1, precision, recall)
+        msg += '\n*** TP = %d, FP = %d, FN = %d' % (TP, FP, FN)
         return f1, msg
 
-    def __get_f1_components_from_sequences(self, targets_tag_components_sequences, outputs_tag_components_sequences,
-                                           match_alpha_ratio):
+    def __get_f1_components_from_sequences(self, targets_tag_components_sequences, outputs_tag_components_sequences):
         TP, FN, FP = 0, 0, 0
         for targets_tag_components, outputs_tag_components in zip(targets_tag_components_sequences,
                                                                   outputs_tag_components_sequences):
             for target_tc in targets_tag_components:
                 found = False
                 for output_tc in outputs_tag_components:
-                    if output_tc.is_equal(target_tc, match_alpha_ratio):
+                    if output_tc.is_equal(target_tc, self.match_alpha_ratio):
                         found = True
                         break
                 if found:
@@ -30,7 +36,7 @@ class EvaluatorF1AlphaMatch(EvaluatorBase):
             for output_tc in outputs_tag_components:
                 found = False
                 for target_tc in targets_tag_components:
-                    if target_tc.is_equal(output_tc, match_alpha_ratio):
+                    if target_tc.is_equal(output_tc, self.match_alpha_ratio):
                         found = True
                         break
                 if not found:
@@ -85,7 +91,7 @@ class TagComponent():
         tc1_positions = set(range(tc1.pos_begin, tc1.pos_end + 1))
         tc2_positions = set(range(tc2.pos_begin, tc2.pos_end + 1))
         common_positions = tc1_positions.intersection(tc2_positions)
-        return (float(len(common_positions)) / max(len(tc1_positions), len(tc2_positions)) >= match_ratio)
+        return float(len(common_positions)) / max(len(tc1_positions), len(tc2_positions)) >= match_ratio
 
     @staticmethod
     def extract_tag_components_sequences_debug(word_sequences, tag_sequences):
