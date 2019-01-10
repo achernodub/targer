@@ -8,7 +8,7 @@
 import codecs
 from src.classes.utils import is_number, get_words_num
 
-class DataIO():
+class DataIO_old():
     @staticmethod
     def read_CoNNL_dat_abs(fn, verbose, column_no=-1):
         word_sequences = list()
@@ -91,7 +91,7 @@ class DataIO():
 
     @staticmethod
     def read_CoNNL_universal(fn, verbose=True, column_no=-1):
-        if DataIO.__is_CoNNL_dat_abs(fn):
-            return DataIO.read_CoNNL_dat_abs(fn, verbose, column_no)
+        if DataIO_old.__is_CoNNL_dat_abs(fn):
+            return DataIO_old.read_CoNNL_dat_abs(fn, verbose, column_no)
         else:
-            return DataIO.read_CoNNL_2003(fn, verbose, column_no)
+            return DataIO_old.read_CoNNL_2003(fn, verbose, column_no)

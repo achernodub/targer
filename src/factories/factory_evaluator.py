@@ -13,13 +13,13 @@ from src.evaluators.evaluator_token_acc import EvaluatorTokenAcc
 class EvaluatorFactory():
     @staticmethod
     def create(args):
-        if args.evaluator == 'f1_connl':
+        if args.evaluator == 'f1-connl':
             return EvaluatorF1Connl()
-        elif args.evaluator == 'f1_alpha_match_10':
+        elif args.evaluator == 'f1-alpha-match-10':
             return EvaluatorF1AlphaMatch10()
-        elif args.evaluator == 'f1_alpha_match_05':
+        elif args.evaluator == 'f1-alpha-match-05':
             return EvaluatorF1AlphaMatch05()
-        elif args.evaluator == 'token_acc':
+        elif args.evaluator == 'token-acc':
             return EvaluatorTokenAcc()
         else:
-            raise ValueError('Unknown evaluator.')
+            raise ValueError('Unknown evaluator %s.' % args.evaluator)

@@ -2,10 +2,9 @@ from __future__ import print_function
 
 import argparse
 import fastText as ft
-import numpy as np
 
-from src.classes.data_io import DataIO
-from src.classes.datasets_bank import DatasetsBank, DatasetsBankSorted
+from src.data_io.data_io_connl_2003 import DataIOConnl2003
+from src.classes.datasets_bank import DatasetsBank
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Learning tagging problem using neural networks')
@@ -17,14 +16,12 @@ if __name__ == "__main__":
                         help='Test data in CoNNL-2003 format, it is used to obtain the final accuracy/F1 score.')
     parser.add_argument('--fn_fasttext_emb_bin', default='embeddings/wiki.en.bin', help='Fasttext binary model.')
     parser.add_argument('--fn_out', default='out.txt', help='Output file.')
-
     args = parser.parse_args()
-
     # Load CoNNL data as sequences of strings of words and corresponding tags
-    word_sequences_train, tag_sequences_train = DataIO.read_CoNNL_universal(args.fn_train, verbose=False)
-    word_sequences_dev, tag_sequences_dev = DataIO.read_CoNNL_universal(args.fn_dev, verbose=False)
-    word_sequences_test, tag_sequences_test = DataIO.read_CoNNL_universal(args.fn_test, verbose=True)
-
+    data_io = DataIOConnl2003()
+    word_sequences_train, tag_sequences_train = data_io.read(args.fn_train, verbose=False)
+    word_sequences_dev, tag_sequences_dev = data_io.read(args.fn_dev, verbose=False)
+    word_sequences_test, tag_sequences_test = data_io.read(args.fn_test, verbose=True)
     # DatasetsBank provides storing the different dataset subsets (train/dev/test) and sampling batches from them
     datasets_bank = DatasetsBank(verbose=True)
     datasets_bank.add_train_sequences(word_sequences_train, tag_sequences_train)
@@ -32,7 +29,6 @@ if __name__ == "__main__":
     datasets_bank.add_test_sequences(word_sequences_test, tag_sequences_test)
     # Load FastText binary model
     ft_bin_model = ft.load_model(args.fn_fasttext_emb_bin)
-
     out_file = open(args.fn_out, 'w')
     for n, word in enumerate(datasets_bank.unique_words_list):
         emb_vector = ft_bin_model.get_word_vector(word)

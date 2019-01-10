@@ -4,9 +4,9 @@ from os.path import isfile
 import time
 import numpy as np
 import torch.nn as nn
-from src.classes.data_io import DataIO
 from src.classes.report import Report
 from src.classes.utils import *
+from src.factories.factory_data_io import DataIOFactory
 from src.factories.factory_datasets_bank import DatasetsBankFactory
 from src.factories.factory_evaluator import EvaluatorFactory
 from src.factories.factory_optimizer import OptimizerFactory
@@ -26,47 +26,49 @@ if __name__ == "__main__":
     parser.add_argument('--gpu', type=int, default=0, help='GPU device number, -1  means CPU.')
     parser.add_argument('--model', help='Tagger model.', choices=['BiRNN', 'BiRNNCNN', 'BiRNNCRF', 'BiRNNCNNCRF'],
                         default='BiRNNCNNCRF')
+    parser.add_argument('-d', '--data-io', choices=['connl-abs', 'connl-2003'], default='connl-2003',
+                        help='Data read/write file format.')
     parser.add_argument('--load', default=None, help='Path to load from the trained model.')
     parser.add_argument('--save', default='%s_tagger.hdf5' % get_datetime_str(), help='Path to save the trained model.')
-    parser.add_argument('-w', '--word_seq_indexer', type=str, default=None,
+    parser.add_argument('-w', '--word-seq-indexer', type=str, default=None,
                         help='Load word_seq_indexer object from hdf5 file.')
-    parser.add_argument('-e', '--epoch_num', type=int, default=100, help='Number of epochs.')
-    parser.add_argument('-n', '--min_epoch_num', type=int, default=50, help='Minimum number of epochs.')
+    parser.add_argument('-e', '--epoch-num', type=int, default=100, help='Number of epochs.')
+    parser.add_argument('-n', '--min-epoch-num', type=int, default=50, help='Minimum number of epochs.')
     parser.add_argument('-p', '--patience', type=int, default=20, help='Patience for early stopping.')
-    parser.add_argument('-v', '--evaluator', choices=['f1_connl', 'f1_alpha_match_10', 'f1_alpha_match_05', 'token_acc'],
-                        default='f1_connl', help='Evaluation method.')
-    parser.add_argument('--save_best', type=str2bool, default=False, help = 'Save best on dev model as a final model.',
+    parser.add_argument('-v', '--evaluator', choices=['f1-connl', 'f1-alpha-match-10', 'f1-alpha-match-05', 'token-acc'],
+                        default='f1-connl', help='Evaluation method.')
+    parser.add_argument('--save-best', type=str2bool, default=False, help = 'Save best on dev model as a final model.',
                         nargs='?', choices=['yes', True, 'no (default)', False])
-    parser.add_argument('-d', '--dropout_ratio', type=float, default=0.5, help='Dropout ratio.')
-    parser.add_argument('-b', '--batch_size', type=int, default=10, help='Batch size, samples.')
-    parser.add_argument('-o', '--opt_method', help='Optimization method.', choices=['sgd', 'adam'], default='sgd')
+    parser.add_argument('-r', '--dropout-ratio', type=float, default=0.5, help='Dropout ratio.')
+    parser.add_argument('-b', '--batch-size', type=int, default=10, help='Batch size, samples.')
+    parser.add_argument('-o', '--opt-method', help='Optimization method.', choices=['sgd', 'adam'], default='sgd')
     parser.add_argument('-l', '--lr', type=float, default=0.01, help='Learning rate.')
-    parser.add_argument('-c', '--lr_decay', type=float, default=0.05, help='Learning decay rate.')
+    parser.add_argument('-c', '--lr-decay', type=float, default=0.05, help='Learning decay rate.')
     parser.add_argument('-m', '--momentum', type=float, default=0.9, help='Learning momentum rate.')
-    parser.add_argument('--clip_grad', type=float, default=5, help='Clipping gradients maximum L2 norm.')
-    parser.add_argument('--rnn_type', help='RNN cell units type.', choices=['Vanilla', 'LSTM', 'GRU'], default='LSTM')
-    parser.add_argument('--rnn_hidden_dim', type=int, default=100, help='Number hidden units in the recurrent layer.')
-    parser.add_argument('--emb_fn', default='embeddings/glove.6B.100d.txt', help='Path to word embeddings file.')
-    parser.add_argument('--emb_dim', type=int, default=100, help='Dimension of word embeddings file.')
-    parser.add_argument('--emb_delimiter', default=' ', help='Delimiter for word embeddings file.')
-    parser.add_argument('--emb_load_all', type=str2bool, default=False, help='Load all embeddings to model.', nargs='?',
+    parser.add_argument('--clip-grad', type=float, default=5, help='Clipping gradients maximum L2 norm.')
+    parser.add_argument('--rnn-type', help='RNN cell units type.', choices=['Vanilla', 'LSTM', 'GRU'], default='LSTM')
+    parser.add_argument('--rnn-hidden-dim', type=int, default=100, help='Number hidden units in the recurrent layer.')
+    parser.add_argument('--emb-fn', default='embeddings/glove.6B.100d.txt', help='Path to word embeddings file.')
+    parser.add_argument('--emb-dim', type=int, default=100, help='Dimension of word embeddings file.')
+    parser.add_argument('--emb-delimiter', default=' ', help='Delimiter for word embeddings file.')
+    parser.add_argument('--emb-load-all', type=str2bool, default=False, help='Load all embeddings to model.', nargs='?',
                         choices = ['yes', True, 'no (default)', False])
-    parser.add_argument('--freeze_word_embeddings', type=str2bool, default=False,
+    parser.add_argument('--freeze-word-embeddings', type=str2bool, default=False,
                         help='False to continue training the word embeddings.', nargs='?',
                         choices=['yes', True, 'no (default)', False])
-    parser.add_argument('--check_for_lowercase', type=str2bool, default=True, help='Read characters caseless.',
+    parser.add_argument('--check-for-lowercase', type=str2bool, default=True, help='Read characters caseless.',
                         nargs='?', choices=['yes (default)', True, 'no', False])
-    parser.add_argument('--char_embeddings_dim', type=int, default=25, help='Char embeddings dim, only for char CNNs.')
-    parser.add_argument('--char_cnn_filter_num', type=int, default=30, help='Number of filters in Char CNN.')
-    parser.add_argument('--char_window_size', type=int, default=3, help='Convolution1D size.')
-    parser.add_argument('--freeze_char_embeddings', type=str2bool, default=False,
+    parser.add_argument('--char-embeddings-dim', type=int, default=25, help='Char embeddings dim, only for char CNNs.')
+    parser.add_argument('--char-cnn_filter-num', type=int, default=30, help='Number of filters in Char CNN.')
+    parser.add_argument('--char-window-size', type=int, default=3, help='Convolution1D size.')
+    parser.add_argument('--freeze-char-embeddings', type=str2bool, default=False,
                         choices=['yes', True, 'no (default)', False], nargs='?',
                         help='False to continue training the char embeddings.')
-    parser.add_argument('--word_len', type=int, default=20, help='Max length of words in characters for char CNNs.')
-    parser.add_argument('--dataset_sort', type=str2bool, default=False, help='Sort sequences by length for training.',
+    parser.add_argument('--word-len', type=int, default=20, help='Max length of words in characters for char CNNs.')
+    parser.add_argument('--dataset-sort', type=str2bool, default=False, help='Sort sequences by length for training.',
                         nargs='?', choices=['yes', True, 'no (default)', False])
-    parser.add_argument('--seed_num', type=int, default=42, help='Random seed number, not that 42 is the answer.')
-    parser.add_argument('--report_fn', type=str, default='%s_report.txt' % get_datetime_str(), help='Report filename.')
+    parser.add_argument('--seed-num', type=int, default=42, help='Random seed number, not that 42 is the answer.')
+    parser.add_argument('--report-fn', type=str, default='%s_report.txt' % get_datetime_str(), help='Report filename.')
     parser.add_argument('--verbose', type=str2bool, default=True, help='Show additional information.', nargs='?',
                         choices=['yes (default)', True, 'no', False])
     args = parser.parse_args()
@@ -75,10 +77,12 @@ if __name__ == "__main__":
     if args.gpu >= 0:
         torch.cuda.set_device(args.gpu)
         torch.cuda.manual_seed(args.seed_num)
+    # Create DataIO object
+    data_io = DataIOFactory.create(args)
     # Load text data as lists of lists of words (sequences) and corresponding list of lists of tags
-    word_sequences_train, tag_sequences_train = DataIO.read_CoNNL_universal(args.train, verbose=True)
-    word_sequences_dev, tag_sequences_dev = DataIO.read_CoNNL_universal(args.dev, verbose=True)
-    word_sequences_test, tag_sequences_test = DataIO.read_CoNNL_universal(args.test, verbose=True)
+    word_sequences_train, tag_sequences_train = data_io.read(args.train, verbose=True)
+    word_sequences_dev, tag_sequences_dev = data_io.read(args.dev, verbose=True)
+    word_sequences_test, tag_sequences_test = data_io.read(args.test, verbose=True)
     # DatasetsBank provides storing the different dataset subsets (train/dev/test) and sampling batches
     datasets_bank = DatasetsBankFactory.create(args)
     datasets_bank.add_train_sequences(word_sequences_train, tag_sequences_train)

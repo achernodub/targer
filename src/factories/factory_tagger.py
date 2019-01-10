@@ -17,7 +17,7 @@ class TaggerFactory():
     def load(checkpoint_fn, gpu=-1):
         if not os.path.isfile(checkpoint_fn):
             raise ValueError('Can''t find tagger in file "%s". Please, run the main script with non-empty \
-                             "--save_best_path" param to create it.' % checkpoint_fn)
+                             "--save-best-path" param to create it.' % checkpoint_fn)
         tagger = torch.load(checkpoint_fn)
         tagger.gpu = gpu
         tagger.self_ensure_gpu()
