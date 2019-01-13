@@ -78,7 +78,7 @@ class TaggerBiRNNCRF(TaggerBase):
         if batch_size == -1:
             batch_size = self.batch_size
         print('\n')
-        if len(word_sequences) > 0 & len(word_sequences) < batch_size: 
+        if len(word_sequences) > 0 and len(word_sequences) < batch_size: 
             batch_num = 1 
         else: 
             batch_num = math.floor(len(word_sequences) / batch_size)
