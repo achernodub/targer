@@ -52,12 +52,10 @@ class SeqIndexerWord(SeqIndexerBaseEmbeddings):
             self.add_emb_vector(emb_vec)
             self.original_words_num += 1
             if emb_word.capitalize() not in embeddings_words_list:
-                self.add_item(emb_word.capitalize())
-                self.add_emb_vector(emb_vec)
+                self.add_or_replace_word_emb_vec(word=emb_word.capitalize(), emb_vec=emb_vec)
                 self.capitalize_word_num += 1
             if emb_word.upper() not in embeddings_words_list:
-                self.add_item(emb_word.upper())
-                self.add_emb_vector(emb_vec)
+                self.add_or_replace_word_emb_vec(word=emb_word.upper(), emb_vec=emb_vec)
                 self.uppercase_word_num += 1
         print(' ++ original_words_num = %d' % self.original_words_num)
         print(' ++ capitalize_word_num = %d' % self.capitalize_word_num)
@@ -85,8 +83,7 @@ class SeqIndexerWord(SeqIndexerBaseEmbeddings):
                                                                                     verbose=True):
             if emb_word in emb_word_dict2unique_word_list:
                 for unique_word in emb_word_dict2unique_word_list[emb_word]:
-                    self.add_item(unique_word)
-                    self.add_emb_vector(emb_vec)
+                    self.add_word_emb_vec(unique_word, emb_vec)
         if self.verbose:
             print('\nload_vocabulary_from_embeddings_file_and_unique_words_list:')
             print('    First 50 OOV words:')
@@ -115,6 +112,16 @@ class SeqIndexerWord(SeqIndexerBaseEmbeddings):
                 print('n = %d/%d (%d) %s' % (n, len(self.get_items_list), cnt, word))
         return list(unique_characters_set)
 
+    def add_word_emb_vec(self, word, emb_vec):
+        self.add_item(word)
+        self.add_emb_vector(emb_vec)
+
+    def add_or_replace_word_emb_vec(self, word, emb_vec):
+        if self.item_exists(word):
+            idx = self.item2idx_dict[word]
+            self.embedding_vectors_list[idx] = emb_vec
+        else:
+            self.add_word_emb_vec(word, emb_vec)
 
 '''    def load_items_from_embeddings_file_and_unique_words_list(self, emb_fn, emb_delimiter, emb_load_all,
                                                               unique_words_list):
