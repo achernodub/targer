@@ -7,7 +7,7 @@ et. al., 2016](https://arxiv.org/pdf/1603.01360.pdf) and [Ma et. al., 2016](http
 
 ## Requirements
 
-- python 3.5
+- python 3.5.2 of higher
 - [pytorch 1.0.0](http://pytorch.org/)
 - numpy 1.15.1
 - scipy 1.1.0
