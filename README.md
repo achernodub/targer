@@ -8,10 +8,9 @@ et. al., 2016](https://arxiv.org/pdf/1603.01360.pdf) and [Ma et. al., 2016](http
 ## Requirements
 
 - python 3.6
-- [pytorch 0.4.1](http://pytorch.org/)
+- [pytorch 1.0.0](http://pytorch.org/)
 - numpy 1.15.1
 - scipy 1.1.0
-- scikit-learn 0.19.2
 
 ## Benefits
 
