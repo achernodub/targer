@@ -16,6 +16,7 @@ et. al., 2016](https://arxiv.org/pdf/1603.01360.pdf) and [Ma et. al., 2016](http
 
 - native PyTorch implementation;
 - vectorized code for training on batches;
+- easy adding new classes for custom data file formats and evaluation metrics;
 - trustworthy evaluation of f1-score.
  
 ## Project structure
