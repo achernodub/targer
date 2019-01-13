@@ -35,8 +35,8 @@ if __name__ == "__main__":
     parser.add_argument('-e', '--epoch-num', type=int, default=100, help='Number of epochs.')
     parser.add_argument('-n', '--min-epoch-num', type=int, default=50, help='Minimum number of epochs.')
     parser.add_argument('-p', '--patience', type=int, default=20, help='Patience for early stopping.')
-    parser.add_argument('-v', '--evaluator', choices=['f1-connl', 'f1-alpha-match-10', 'f1-alpha-match-05', 'token-acc'],
-                        default='f1-connl', help='Evaluation method.')
+    parser.add_argument('-v', '--evaluator', default='f1-connl', help='Evaluation method.',
+                        choices=['f1-connl', 'f1-alpha-match-10', 'f1-alpha-match-05', 'f1-macro', 'token-acc'])
     parser.add_argument('--save-best', type=str2bool, default=False, help = 'Save best on dev model as a final model.',
                         nargs='?', choices=['yes', True, 'no (default)', False])
     parser.add_argument('-r', '--dropout-ratio', type=float, default=0.5, help='Dropout ratio.')
