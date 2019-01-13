@@ -58,6 +58,8 @@ class TaggerBase(nn.Module):
             batch_size = self.batch_size
         print('\n')
         batch_num = math.floor(len(word_sequences) / batch_size)
+        if len(word_sequences) > 0 and len(word_sequences) < batch_size:
+            batch_num = 1
         output_tag_sequences = list()
         for n in range(batch_num):
             i = n*batch_size
