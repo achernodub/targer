@@ -1,13 +1,9 @@
-"""
-.. module:: DatasetsBankFactory
-    :synopsis: DatasetsBankFactory contains wrappers to create DatasetsBank
-
-.. moduleauthor:: Artem Chernodub
-"""
+"""creates various datasets banks"""
 from src.classes.datasets_bank import DatasetsBank, DatasetsBankSorted
 
 
 class DatasetsBankFactory():
+    """DatasetsBankFactory contains wrappers to create various datasets banks."""
     @staticmethod
     def create(args):
         if args.dataset_sort:

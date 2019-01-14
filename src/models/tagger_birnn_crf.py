@@ -1,9 +1,4 @@
-"""
-.. module:: TaggerBiRNNCRF
-    :synopsis: TaggerBiRNNCRF is a model for sequences tagging that includes recurrent network + CRF.
-
-.. moduleauthor:: Artem Chernodub
-"""
+"""BiLSTM/BiGRU + CRF tagger model"""
 import math
 import torch
 import torch.nn as nn
@@ -16,6 +11,7 @@ from src.layers.layer_crf import LayerCRF
 
 
 class TaggerBiRNNCRF(TaggerBase):
+    """TaggerBiRNNCRF is a model for sequences tagging that includes recurrent network + CRF."""
     def __init__(self, word_seq_indexer, tag_seq_indexer, class_num, batch_size=1, rnn_hidden_dim=100,
                  freeze_word_embeddings=False, dropout_ratio=0.5, rnn_type='GRU', gpu=-1):
         super(TaggerBiRNNCRF, self).__init__(word_seq_indexer, tag_seq_indexer, gpu, batch_size)

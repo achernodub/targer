@@ -1,12 +1,8 @@
-"""
-.. module:: Report
-    :synopsis: Report stores evaluation results as text files.
-
-.. moduleauthor:: Artem Chernodub
-"""
+"""stores evaluation results during the training process as text files"""
 
 class Report():
     def __init__(self, fn, args, score_names):
+        """Report stores evaluation results during the training process as text files."""
         self.fn = fn
         self.args = args
         self.score_num = len(score_names)

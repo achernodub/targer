@@ -1,9 +1,4 @@
-"""
-.. module:: TaggerFactory
-    :synopsis: TaggerFactory contains wrappers to create and load tagger models
-
-.. moduleauthor:: Artem Chernodub
-"""
+"""creates various tagger models"""
 import os.path
 import torch
 from src.models.tagger_birnn import TaggerBiRNN
@@ -13,6 +8,7 @@ from src.models.tagger_birnn_cnn_crf import TaggerBiRNNCNNCRF
 
 
 class TaggerFactory():
+    """TaggerFactory contains wrappers to create various tagger models."""
     @staticmethod
     def load(checkpoint_fn, gpu=-1):
         if not os.path.isfile(checkpoint_fn):

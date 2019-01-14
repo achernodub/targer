@@ -1,3 +1,4 @@
+"""f1-micro averaging evaluator for tag components, standard CoNNL perl script"""
 import os
 import random
 import time
@@ -6,6 +7,7 @@ from src.evaluators.evaluator_base import EvaluatorBase
 
 
 class EvaluatorF1Connl(EvaluatorBase):
+    """EvaluatorF1Connl is f1-micro averaging evaluator for tag components, standard CoNNL perl script."""
     def get_evaluation_score(self, targets_tag_sequences, outputs_tag_sequences, word_sequences):
         fn_out = 'out_temp_%04d.txt' % random.randint(0, 10000)
         if os.path.isfile(fn_out):

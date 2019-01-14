@@ -1,9 +1,4 @@
-"""
-.. module:: Utils
-    :synopsis: Utils
-
-.. moduleauthor:: Artem Chernodub
-"""
+"""several auxiliary functions"""
 
 import argparse
 import datetime

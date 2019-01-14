@@ -1,14 +1,10 @@
-"""
-.. module:: OptimizerFactory
-    :synopsis: OptimizerFactory contains wrappers to create optimizers
-
-.. moduleauthor:: Artem Chernodub
-"""
+"""creates various optimizers"""
 import torch.optim as optim
 from torch.optim.lr_scheduler import LambdaLR
 
 
 class OptimizerFactory():
+    """OptimizerFactory contains wrappers to create various optimizers."""
     @staticmethod
     def create(args, tagger):
         if args.opt_method == 'sgd':

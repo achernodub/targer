@@ -1,7 +1,9 @@
+"""macro-F1 scores evaluator for each class of BOI-like tags"""
 from src.evaluators.evaluator_base import EvaluatorBase
 
 
 class EvaluatorF1MacroTagComponents(EvaluatorBase):
+    """EvaluatorF1MacroTagComponents is macro-F1 scores evaluator for each class of BOI-like tags."""
     def get_evaluation_score(self, targets_tag_sequences, outputs_tag_sequences, word_sequences=None):
         # Create list of tags
         tag_list = list()

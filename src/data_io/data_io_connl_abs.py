@@ -1,8 +1,13 @@
+"""input/output data wrapper for CoNNL-abs file format"""
 import codecs
 from src.classes.utils import get_words_num
 
 
 class DataIOConnlAbs():
+    """DataIOConnlAbs is an input/output data wrapper for CoNNL-abs file format.
+    Eger, Steffen, Johannes Daxenberger, and Iryna Gurevych. "Neural end-to-end learning for computational argumentation
+    mining." arXiv preprint arXiv:1704.06104 (2017).
+    """
     def read(self, fn, verbose=True, column_no=-1):
         word_sequences = list()
         tag_sequences = list()

@@ -1,15 +1,11 @@
-"""
-.. module:: SeqIndexerWord
-    :synopsis: SeqIndexerWord converts list of lists of words as strings to list of lists of integer indices and back.
-
-.. moduleauthor:: Artem Chernodub
-"""
+"""converts list of lists of words as strings to list of lists of integer indices and back"""
 import string
 import re
 from src.seq_indexers.seq_indexer_base_embeddings import SeqIndexerBaseEmbeddings
 
 
 class SeqIndexerWord(SeqIndexerBaseEmbeddings):
+    """SeqIndexerWord converts list of lists of words as strings to list of lists of integer indices and back."""
     def __init__(self, gpu=-1, check_for_lowercase=True, embeddings_dim=0, verbose=True):
         SeqIndexerBaseEmbeddings.__init__(self, gpu=gpu, check_for_lowercase=check_for_lowercase, zero_digits=True,
                                           pad='<pad>', unk='<unk>', load_embeddings=True, embeddings_dim=embeddings_dim,

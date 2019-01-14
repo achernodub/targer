@@ -1,13 +1,9 @@
-"""
-.. module:: SeqIndexerTag
-    :synopsis: SeqIndexerTag converts list of lists of string tags to list of lists of integer indices and back.
-
-.. moduleauthor:: Artem Chernodub
-"""
+"""converts list of lists of string tags to list of lists of integer indices and back"""
 from src.seq_indexers.seq_indexer_base import SeqIndexerBase
 
 
 class SeqIndexerTag(SeqIndexerBase):
+    """SeqIndexerTag converts list of lists of string tags to list of lists of integer indices and back."""
     def __init__(self, gpu):
         SeqIndexerBase.__init__(self, gpu=gpu, check_for_lowercase=False, zero_digits=False,
                                       pad='<pad>', unk=None, load_embeddings=False, verbose=True)

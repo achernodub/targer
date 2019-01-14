@@ -1,5 +1,5 @@
+"""run the trained tagger model from the checkpoint file"""
 from __future__ import print_function
-
 import argparse
 from src.factories.factory_evaluator import EvaluatorFactory
 from src.factories.factory_data_io import DataIOFactory

@@ -1,8 +1,10 @@
+"""creates various data readers/writers"""
 from src.data_io.data_io_connl_abs import DataIOConnlAbs
 from src.data_io.data_io_connl_2003 import DataIOConnl2003
 
 
 class DataIOFactory():
+    """DataIOFactory contains wrappers to create various data readers/writers."""
     @staticmethod
     def create(args):
         if args.data_io == 'connl-abs':

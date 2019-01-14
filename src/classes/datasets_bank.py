@@ -1,9 +1,4 @@
-"""
-.. module:: DatasetsBank
-    :synopsis: DatasetsBank provides storing the train/dev/test data subsets and sampling batches from the train dataset
-
-.. moduleauthor:: Artem Chernodub
-"""
+"""provides storing the train/dev/test data subsets and sampling batches from the train dataset"""
 
 import numpy as np
 from random import randint
@@ -11,6 +6,7 @@ from src.classes.utils import argsort_sequences_by_lens, get_sequences_by_indice
 
 
 class DatasetsBank():
+    """DatasetsBank provides storing the train/dev/test data subsets and sampling batches from the train dataset."""
     def __init__(self, verbose=True):
         self.verbose = verbose
         self.unique_words_list = list()

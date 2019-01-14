@@ -1,12 +1,8 @@
-"""
-.. module:: EvaluatorBase
-    :synopsis: EvaluatorBase
-
-.. moduleauthor:: Artem Chernodub
-"""
+"""abstract base class for all evaluators"""
 
 
 class EvaluatorBase():
+    """EvaluatorBase is abstract base class for all evaluators"""
     def get_evaluation_score_train_dev_test(self, tagger, datasets_bank, batch_size=-1):
         if batch_size == -1:
             batch_size = tagger.batch_size

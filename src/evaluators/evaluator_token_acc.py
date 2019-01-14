@@ -1,7 +1,9 @@
+"""token-level accuracy evaluator for each class of BOI-like tags"""
 from src.evaluators.evaluator_base import EvaluatorBase
 
 
 class EvaluatorTokenAcc(EvaluatorBase):
+    """EvaluatorTokenAcc is token-level accuracy evaluator for each class of BOI-like tags."""
     def get_evaluation_score(self, targets_tag_sequences, outputs_tag_sequences, word_sequences=None):
         cnt = 0
         match = 0

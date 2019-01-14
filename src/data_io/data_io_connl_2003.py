@@ -1,8 +1,14 @@
+"""input/output data wrapper for CoNNL-2003 Shared Task file format"""
 import codecs
 from src.classes.utils import get_words_num
 
 
 class DataIOConnl2003():
+    """DataIOConnl2003 is an input/output data wrapper for CoNNL-2003 Shared Task file format.
+    Tjong Kim Sang, Erik F., and Fien De Meulder. "Introduction to the CoNLL-2003 shared task: Language-independent
+    named entity recognition." Proceedings of the seventh conference on Natural language learning at HLT-NAACL
+    2003-Volume 4. Association for Computational Linguistics, 2003.
+    """
     def read(self, fn, verbose=True, column_no=-1):
         word_sequences = list()
         tag_sequences = list()

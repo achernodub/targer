@@ -1,11 +1,13 @@
-"""
-Isaac Persing and Vincent Ng. End-to-end argumentation mining in student essays. NAACL 2016.
-http://www.aclweb.org/anthology/N16-1164.
-"""
+"""abstract base class for f1-micro averaging evaluator for tag components"""
 from src.evaluators.evaluator_base import EvaluatorBase
 
 
 class EvaluatorF1AlphaMatchBase(EvaluatorBase):
+    """
+    EvaluatorF1AlphaMatchBase is an abstract base class for f1-micro averaging evaluator for tag components
+    Isaac Persing and Vincent Ng. End-to-end argumentation mining in student essays. NAACL 2016.
+    http://www.aclweb.org/anthology/N16-1164.
+    """
     def __init__(self, match_alpha_ratio):
         self.match_alpha_ratio = match_alpha_ratio
 

@@ -1,14 +1,10 @@
-"""
-.. module:: LayerCharCNN
-    :synopsis: LayerCharCNN implements character-level convolutional 1D layer
-
-.. moduleauthor:: Artem Chernodub
-"""
+"""class implements character-level convolutional 1D layer"""
 import torch
 import torch.nn as nn
 from src.layers.layer_base import LayerBase
 
 class LayerCharCNN(LayerBase):
+    """LayerCharCNN implements character-level convolutional 1D layer."""
     def __init__(self, gpu, char_embeddings_dim, filter_num, char_window_size, word_len):
         super(LayerCharCNN, self).__init__(gpu)
         self.char_embeddings_dim = char_embeddings_dim

@@ -1,18 +1,14 @@
-"""
-.. module:: TaggerBase
-    :synopsis:     TaggerBase is an abstract class for tagger models. It implements the tagging functionality for
-    different types of inputs (sequences of tokens, sequences of integer indices, tensors). Auxiliary class
-    SequencesIndexer is used for input and output data formats conversions. Abstract method `forward` is used in order
-    to make these predictions, it have to be implemented in ancestors.
-
-.. moduleauthor:: Artem Chernodub
-"""
+"""abstract base class for all types of taggers"""
 import math
 import torch
 import torch.nn as nn
 
 
 class TaggerBase(nn.Module):
+    """TaggerBase is an abstract class for tagger models. It implements the tagging functionality for
+    different types of inputs (sequences of tokens, sequences of integer indices, tensors). Auxiliary class
+    SequencesIndexer is used for input and output data formats conversions. Abstract method `forward` is used in order
+    to make these predictions, it have to be implemented in ancestors."""
     def __init__(self,  word_seq_indexer, tag_seq_indexer, gpu, batch_size):
         super(TaggerBase, self).__init__()
         self.word_seq_indexer = word_seq_indexer
