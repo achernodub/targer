@@ -215,7 +215,7 @@ optional arguments:
   --word-len WORD_LEN   Max length of words in characters for char CNNs.
   --dataset-sort [{yes,True,no (default),False}]
                         Sort sequences by length for training.
-  --seed-num SEED_NUM   Random seed number, not that 42 is the answer.
+  --seed-num SEED_NUM   Random seed number, note that 42 is the answer.
   --report-fn REPORT_FN
                         Report filename.
   --verbose [{yes (default),True,no,False}]

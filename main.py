@@ -67,7 +67,7 @@ if __name__ == "__main__":
     parser.add_argument('--word-len', type=int, default=20, help='Max length of words in characters for char CNNs.')
     parser.add_argument('--dataset-sort', type=str2bool, default=False, help='Sort sequences by length for training.',
                         nargs='?', choices=['yes', True, 'no (default)', False])
-    parser.add_argument('--seed-num', type=int, default=42, help='Random seed number, not that 42 is the answer.')
+    parser.add_argument('--seed-num', type=int, default=42, help='Random seed number, note that 42 is the answer.')
     parser.add_argument('--report-fn', type=str, default='%s_report.txt' % get_datetime_str(), help='Report filename.')
     parser.add_argument('--verbose', type=str2bool, default=True, help='Show additional information.', nargs='?',
                         choices=['yes (default)', True, 'no', False])
