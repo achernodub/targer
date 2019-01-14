@@ -23,7 +23,7 @@ def list_files(startpath):
 def read_description(fn):
     with open(fn) as f:
         first_line = f.readline()
-    return first_line.replace('"""', '')
+    return first_line.replace('"""', '').replace('\n', '')
 
 if __name__ == "__main__":
     main_path = os.path.join(os.path.dirname(__file__), '../')
