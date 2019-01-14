@@ -39,8 +39,7 @@ et. al., 2016](https://arxiv.org/pdf/1603.01360.pdf) and [Ma et. al., 2016](http
         |__ get_fasttext_embeddings.sh --> script for downloading Fasttext word embeddings
 |__ pretrained/
         |__ tagger_NER.hdf5 --> tagger for NER, BiLSTM+CNN+CRF trained on NER-2003 shared task, English
-src/
-|__.DS_Store --> 
+|__src/
 |__data_io/
    |__data_io_connl_2003.py --> input/output data wrapper for CoNNL-2003 Shared Task file format
    |__data_io_connl_abs.py --> input/output data wrapper for CoNNL-abs file format
@@ -126,106 +125,122 @@ accuracy:  97.92%; precision:  90.61%; recall:  91.11%; FB1:  90.86
 To train/evaluate/save trained tagger model, please run the `main.py` script.
 
 ```
-usage: main.py [-h] [--seed_num SEED_NUM] [--model MODEL]
-               [--fn_train FN_TRAIN] [--fn_dev FN_DEV] [--fn_test FN_TEST]
-               [--load LOAD] [--save SAVE] [--wsi WSI] [--emb_fn EMB_FN]
-               [--emb_dim EMB_DIM] [--emb_delimiter EMB_DELIMITER]
-               [--freeze_word_embeddings FREEZE_WORD_EMBEDDINGS]
-               [--freeze_char_embeddings FREEZE_CHAR_EMBEDDINGS] [--gpu GPU]
-               [--check_for_lowercase CHECK_FOR_LOWERCASE]
-               [--epoch_num EPOCH_NUM] [--min_epoch_num MIN_EPOCH_NUM]
-               [--patience PATIENCE] [--rnn_type RNN_TYPE]
-               [--rnn_hidden_dim RNN_HIDDEN_DIM]
-               [--char_embeddings_dim CHAR_EMBEDDINGS_DIM]
-               [--word_len WORD_LEN]
-               [--char_cnn_filter_num CHAR_CNN_FILTER_NUM]
-               [--char_window_size CHAR_WINDOW_SIZE]
-               [--dropout_ratio DROPOUT_RATIO] [--dataset_sort DATASET_SORT]
-               [--clip_grad CLIP_GRAD] [--opt_method OPT_METHOD]
-               [--batch_size BATCH_SIZE] [--lr LR] [--lr_decay LR_DECAY]
-               [--momentum MOMENTUM] [--verbose VERBOSE]
-               [--match_alpha_ratio MATCH_ALPHA_RATIO] [--save_best SAVE_BEST]
-               [--report_fn REPORT_FN]
+usage: main.py [-h] [--train TRAIN] [--dev DEV] [--test TEST] [--gpu GPU]
+               [--model {BiRNN,BiRNNCNN,BiRNNCRF,BiRNNCNNCRF}]
+               [-d {connl-abs,connl-2003}] [--load LOAD] [--save SAVE]
+               [-w WORD_SEQ_INDEXER] [-e EPOCH_NUM] [-n MIN_EPOCH_NUM]
+               [-p PATIENCE]
+               [-v {f1-connl,f1-alpha-match-10,f1-alpha-match-05,f1-macro,token-acc}]
+               [--save-best [{yes,True,no default),False}]] [-r DROPOUT_RATIO]
+               [-b BATCH_SIZE] [-o {sgd,adam}] [-l LR] [-c LR_DECAY]
+               [-m MOMENTUM] [--clip-grad CLIP_GRAD]
+               [--rnn-type {Vanilla,LSTM,GRU}]
+               [--rnn-hidden-dim RNN_HIDDEN_DIM] [--emb-fn EMB_FN]
+               [--emb-dim EMB_DIM] [--emb-delimiter EMB_DELIMITER]
+               [--emb-load-all [{yes,True,no (default),False}]]
+               [--freeze-word-embeddings [{yes,True,no (default),False}]]
+               [--check-for-lowercase [{yes (default),True,no,False}]]
+               [--char-embeddings-dim CHAR_EMBEDDINGS_DIM]
+               [--char-cnn_filter-num CHAR_CNN_FILTER_NUM]
+               [--char-window-size CHAR_WINDOW_SIZE]
+               [--freeze-char-embeddings [{yes,True,no (default),False}]]
+               [--word-len WORD_LEN]
+               [--dataset-sort [{yes,True,no (default),False}]]
+               [--seed-num SEED_NUM] [--report-fn REPORT_FN]
+               [--verbose [{yes (default,True,no,False}]]
 
-Learning tagging problem using neural networks
+Learning tagger using neural networks
 
 optional arguments:
   -h, --help            show this help message and exit
-  --seed_num SEED_NUM   Random seed number, you may use any but 42 is the
-                        answer.
-  --model MODEL         Tagger model: "BiRNN", "BiRNNCNN", "BiRNNCRF",
-                        "BiRNNCNNCRF".
-  --fn_train FN_TRAIN   Train data in CoNNL-2003 format.
-  --fn_dev FN_DEV       Dev data in CoNNL-2003 format, it is used to find best
+  --train TRAIN         Train data in CoNNL-2003 format.
+  --dev DEV             Dev data in CoNNL-2003 format, it is used to find best
                         model during the training.
-  --fn_test FN_TEST     Test data in CoNNL-2003 format, it is used to obtain
+  --test TEST           Test data in CoNNL-2003 format, it is used to obtain
                         the final accuracy/F1 score.
+  --gpu GPU             GPU device number, -1 means CPU.
+  --model {BiRNN,BiRNNCNN,BiRNNCRF,BiRNNCNNCRF}
+                        Tagger model.
+  -d {connl-abs,connl-2003}, --data-io {connl-abs,connl-2003}
+                        Data read/write file format.
   --load LOAD           Path to load from the trained model.
   --save SAVE           Path to save the trained model.
-  --wsi WSI             Load word_seq_indexer object from hdf5 file.
-  --emb_fn EMB_FN       Path to word embeddings file.
-  --emb_dim EMB_DIM     Dimension of word embeddings file.
-  --emb_delimiter EMB_DELIMITER
-                        Delimiter for word embeddings file.
-  --freeze_word_embeddings FREEZE_WORD_EMBEDDINGS
-                        False to continue training the \ word embeddings.
-  --freeze_char_embeddings FREEZE_CHAR_EMBEDDINGS
-                        False to continue training the char embeddings.
-  --gpu GPU             GPU device number, 0 by default, -1 means CPU.
-  --check_for_lowercase CHECK_FOR_LOWERCASE
-                        Read characters caseless.
-  --epoch_num EPOCH_NUM
+  -w WORD_SEQ_INDEXER, --word-seq-indexer WORD_SEQ_INDEXER
+                        Load word_seq_indexer object from hdf5 file.
+  -e EPOCH_NUM, --epoch-num EPOCH_NUM
                         Number of epochs.
-  --min_epoch_num MIN_EPOCH_NUM
+  -n MIN_EPOCH_NUM, --min-epoch-num MIN_EPOCH_NUM
                         Minimum number of epochs.
-  --patience PATIENCE   Patience for early stopping.
-  --rnn_type RNN_TYPE   RNN cell units type: "Vanilla", "LSTM", "GRU".
-  --rnn_hidden_dim RNN_HIDDEN_DIM
-                        Number hidden units in the recurrent layer.
-  --char_embeddings_dim CHAR_EMBEDDINGS_DIM
-                        Char embeddings dim, only for char CNNs.
-  --word_len WORD_LEN   Max length of words in characters for char CNNs.
-  --char_cnn_filter_num CHAR_CNN_FILTER_NUM
-                        Number of filters in Char CNN.
-  --char_window_size CHAR_WINDOW_SIZE
-                        Convolution1D size.
-  --dropout_ratio DROPOUT_RATIO
-                        Dropout ratio.
-  --dataset_sort DATASET_SORT
-                        Sort sequences by length for training.
-  --clip_grad CLIP_GRAD
-                        Clipping gradients maximum L2 norm.
-  --opt_method OPT_METHOD
-                        Optimization method: "sgd", "adam".
-  --batch_size BATCH_SIZE
-                        Batch size, samples.
-  --lr LR               Learning rate.
-  --lr_decay LR_DECAY   Learning decay rate.
-  --momentum MOMENTUM   Learning momentum rate.
-  --verbose VERBOSE     Show additional information.
-  --match_alpha_ratio MATCH_ALPHA_RATIO
-                        Alpha ratio from non-strict matching, options: 0.999
-                        or 0.5
-  --save_best SAVE_BEST
+  -p PATIENCE, --patience PATIENCE
+                        Patience for early stopping.
+  -v {f1-connl,f1-alpha-match-10,f1-alpha-match-05,f1-macro,token-acc}, --evaluator {f1-connl,f1-alpha-match-10,f1-alpha-match-05,f1-macro,token-acc}
+                        Evaluation method.
+  --save-best [{yes,True,no (default),False}]
                         Save best on dev model as a final model.
-  --report_fn REPORT_FN
+  -r DROPOUT_RATIO, --dropout-ratio DROPOUT_RATIO
+                        Dropout ratio.
+  -b BATCH_SIZE, --batch-size BATCH_SIZE
+                        Batch size, samples.
+  -o {sgd,adam}, --opt-method {sgd,adam}
+                        Optimization method.
+  -l LR, --lr LR        Learning rate.
+  -c LR_DECAY, --lr-decay LR_DECAY
+                        Learning decay rate.
+  -m MOMENTUM, --momentum MOMENTUM
+                        Learning momentum rate.
+  --clip-grad CLIP_GRAD
+                        Clipping gradients maximum L2 norm.
+  --rnn-type {Vanilla,LSTM,GRU}
+                        RNN cell units type.
+  --rnn-hidden-dim RNN_HIDDEN_DIM
+                        Number hidden units in the recurrent layer.
+  --emb-fn EMB_FN       Path to word embeddings file.
+  --emb-dim EMB_DIM     Dimension of word embeddings file.
+  --emb-delimiter EMB_DELIMITER
+                        Delimiter for word embeddings file.
+  --emb-load-all [{yes,True,no (default),False}]
+                        Load all embeddings to model.
+  --freeze-word-embeddings [{yes,True,no (default),False}]
+                        False to continue training the word embeddings.
+  --check-for-lowercase [{yes (default),True,no,False}]
+                        Read characters caseless.
+  --char-embeddings-dim CHAR_EMBEDDINGS_DIM
+                        Char embeddings dim, only for char CNNs.
+  --char-cnn_filter-num CHAR_CNN_FILTER_NUM
+                        Number of filters in Char CNN.
+  --char-window-size CHAR_WINDOW_SIZE
+                        Convolution1D size.
+  --freeze-char-embeddings [{yes,True,no (default),False}]
+                        False to continue training the char embeddings.
+  --word-len WORD_LEN   Max length of words in characters for char CNNs.
+  --dataset-sort [{yes,True,no (default),False}]
+                        Sort sequences by length for training.
+  --seed-num SEED_NUM   Random seed number, not that 42 is the answer.
+  --report-fn REPORT_FN
                         Report filename.
+  --verbose [{yes (default),True,no,False}]
+                        Show additional information.
 ```
 
 ### Run trained model
 
 ```
-usage: run_tagger.py [-h] [--fn FN] [--checkpoint_fn CHECKPOINT_FN]
-                             [--gpu GPU]
+usage: run_tagger.py [-h] [--fn FN] [-d {connl-abs,connl-2003}]
+                     [--checkpoint_fn CHECKPOINT_FN] [--gpu GPU]
+                     [-v {f1-connl,f1-alpha-match-10,f1-alpha-match-05,token-acc}]
 
 Run trained tagger from the checkpoint file
 
 optional arguments:
   -h, --help            show this help message and exit
   --fn FN               Train data in CoNNL-2003 format.
+  -d {connl-abs,connl-2003}, --data-io {connl-abs,connl-2003}
+                        Data read/write file format.
   --checkpoint_fn CHECKPOINT_FN
                         Path to load the trained model.
   --gpu GPU             GPU device number, 0 by default, -1 means CPU.
+  -v {f1-connl,f1-alpha-match-10,f1-alpha-match-05,token-acc}, --evaluator {f1-connl,f1-alpha-match-10,f1-alpha-match-05,token-acc}
+                        Evaluation method.
 ```
 
 ### Example of output report
