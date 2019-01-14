@@ -1,4 +1,4 @@
-""""generate predefined FastText embeddings for dataset"""
+"""generate predefined FastText embeddings for dataset"""
 from __future__ import print_function
 import argparse
 import fastText as ft
