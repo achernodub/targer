@@ -22,63 +22,76 @@ et. al., 2016](https://arxiv.org/pdf/1603.01360.pdf) and [Ma et. al., 2016](http
 ## Project structure
 
 ```
-|__ articles/ --> collection of papers related to the tagging, argument mining, etc. 
-|__ classes/
-        |__ data_io.py --> class for reading/writing data in different CoNNL file formats
-        |__ datasets_bank.py --> class for storing the train/dev/test data subsets and sampling batches 
-                                 from the train dataset 
-        dataset
-        |__ evaluator.py --> class for evaluation of F1 scores and token-level accuracies
-        |__ report.py --> class for storing the evaluation results as text files
-        |__ tag_components.py --> class for extracting tag components from BOI encodings 
-        |__ utils.py --> several auxiliary utils and functions
-|__ data/
-        |__ NER/ --> Datasets for Named Entity Recognition 
-            |__ CoNNL_2003_shared_task/ --> data for NER CoNLL-2003 shared task (English) in BOI-2 
-                                            CoNNL format, from E.F. Tjong Kim Sang and F. De Meulder, 
-                                            Introduction to the CoNLL-2003 Shared Task:  
-                                            Language-Independent Named Entity Recognition, 2003. 
+|__ articles/ --> collection of papers related to the tagging, argument mining, etc.
+|__ data/)
+        |__ NER/ --> Datasets for Named Entity Recognition
+            |__ CoNNL_2003_shared_task/ --> data for NER CoNLL-2003 shared task (English) in BOI-2
+                                            CoNNL format, from E.F. Tjong Kim Sang and F. De Meulder,
+                                            Introduction to the CoNLL-2003 Shared Task:
+                                            Language-Independent Named Entity Recognition, 2003.
         |__ AM/ --> Datasets for Argument Mining
-            |__ persuasive_essays/ --> data for persuasive essays in BOI-2-like CoNNL format, from: 
-                                       Steffen Eger, Johannes Daxenberger, Iryna Gurevych. Neural 
+            |__ persuasive_essays/ --> data for persuasive essays in BOI-2-like CoNNL format, from:
+                                       Steffen Eger, Johannes Daxenberger, Iryna Gurevych. Neural
                                        End-to-End  Learning for Computational Argumentation Mining, 2017
-|__ embeddings/
+|__ docs/ --> documentation)
+|__ embeddings
         |__ get_glove_embeddings.sh --> script for downloading GloVe6B 100-dimensional word embeddings
-|__ layers/
-        |__ layer_base.py --> abstract base class for all types of layers
-        |__ layer_birnn_base.py --> abstract base class for all bidirectional recurrent layers
-        |__ layer_word_embeddings.py --> class implements word embeddings
-        |__ layer_char_embeddings.py --> class implements character-level embeddings
-        |__ layer_char_cnn.py --> class implements character-level convolutional 1D operation
-        |__ layer_bilstm.py --> class implements bidirectional LSTM recurrent layer
-        |__ layer_bigru.py --> class implements bidirectional GRU recurrent layer
-        |__ layer_crf.py --> class implements conditional random field (CRF) 
-|__ models/
-        |__ tagger_base.py --> abstract base class for all types of taggers
-        |__ tagger_io.py --> contains wrappers to create and load tagger models
-        |__ tagger_birnn.py --> vanilla BiLSTM/BiGRU tagger model
-        |__ tagger_birnn_crf.py --> BiLSTM/BiGRU + CRF tagger model
-        |__ tagger_birnn_cnn.py --> BiLSTM/BiGRU + char-level CNN tagger model
-        |__ tagger_birnn_cnn_crf.py --> BiLSTM/BiGRU + char-level CNN  + CRF tagger model
+        |__ get_fasttext_embeddings.sh --> script for downloading Fasttext word embeddings
 |__ pretrained/
-        |__ tagger_NER.hdf5 --> tagger for NER, BiGRU+CNN+CRF trained on NER-2003 shared task, English 
-|__ seq_indexers/
-        |__ seq_indexer_base.py --> abstract class for sequence indexers, they converts list of lists 
-                                    of string items
-    to the list of lists of integer indices and back
-        |__ seq_indexer_base_embeddings.py --> abstract sequence indexer class that implements work 
-                                               with embeddings 
-        |__ seq_indexer_word.py --> converts list of lists of words as strings to list of lists of 
-                                    integer indices and back, has built-in embeddings
-        |__ seq_indexer_char.py --> converts list of lists of characters to list of lists of integer 
-                                    indices and back, has built-in embeddings 
-        |__ seq_indexer_tag.py --> converts list of lists of string tags to list of lists of integer 
-                                    indices and back, doesn't have built-in embeddings 
+        |__ tagger_NER.hdf5 --> tagger for NER, BiLSTM+CNN+CRF trained on NER-2003 shared task, English
+src/
+|__.DS_Store --> 
+|__data_io/
+   |__data_io_connl_2003.py --> input/output data wrapper for CoNNL-2003 Shared Task file format
+   |__data_io_connl_abs.py --> input/output data wrapper for CoNNL-abs file format
+|__layers/
+   |__layer_birnn_base.py --> abstract base class for all bidirectional recurrent layers
+   |__layer_bigru.py --> class implements standard bidirectional GRU recurrent layer
+   |__layer_base.py --> abstract base class for all type of layers
+   |__layer_word_embeddings.py --> class implements word embeddings
+   |__layer_bilstm.py --> class implements standard bidirectional LSTM recurrent layer
+   |__layer_crf.py --> class implements Conditional Random Fields (CRF)
+   |__layer_char_embeddings.py --> class implements character-level embeddings
+   |__layer_bivanilla.py --> class implements standard bidirectional Vanilla recurrent layer
+   |__layer_char_cnn.py --> class implements character-level convolutional 1D layer
+|__classes/
+   |__datasets_bank.py --> provides storing the train/dev/test data subsets and sampling batches from the train dataset
+   |__utils.py --> several auxiliary functions
+   |__report.py --> stores evaluation results during the training process as text files
+|__utils/
+   |__generate tree_description.py --> import os
+   |__generate_ft_emb.py --> generate predefined FastText embeddings for dataset
+|__models/
+   |__tagger_birnn.py --> Vanilla recurrent network model for sequences tagging.
+   |__tagger_birnn_cnn.py --> BiLSTM/BiGRU + char-level CNN tagger model
+   |__tagger_base.py --> abstract base class for all types of taggers
+   |__tagger_birnn_cnn_crf.py --> BiLSTM/BiGRU + char-level CNN  + CRF tagger model
+   |__tagger_birnn_crf.py --> BiLSTM/BiGRU + CRF tagger model
+|__evaluators/
+   |__evaluator_f1_macro_tag_components.py --> macro-F1 scores evaluator for each class of BOI-like tags
+   |__evaluator_token_acc.py --> token-level accuracy evaluator for each class of BOI-like tags
+   |__evaluator_f1_alpha_match_base.py --> abstract base class for f1-micro averaging evaluator for tag components
+   |__evaluator_f1_alpha_match_10.py --> f1-micro averaging evaluator for tag components, alpha = 1.0 (strict)
+   |__evaluator_base.py --> abstract base class for all evaluators
+   |__evaluator_f1_alpha_match_05.py --> f1-micro averaging evaluator for tag components, alpha = 0.5
+   |__evaluator_f1_connl.py --> f1-micro averaging evaluator for tag components, standard CoNNL perl script
+|__seq_indexers/
+   |__seq_indexer_base_embeddings.py --> abstract sequence indexer class that implements work  with embeddings
+   |__seq_indexer_word.py --> converts list of lists of words as strings to list of lists of integer indices and back
+   |__seq_indexer_base.py --> base abstract class for sequence indexers
+   |__seq_indexer_tag.py --> converts list of lists of string tags to list of lists of integer indices and back
+   |__seq_indexer_char.py --> converts list of lists of characters to list of lists of integer indices and back
+|__factories/
+   |__factory_tagger.py --> creates various tagger models
+   |__factory_evaluator.py --> creates various evaluators
+   |__factory_optimizer.py --> creates various optimizers
+   |__factory_data_io.py --> creates various data readers/writers
+   |__factory_datasets_bank.py --> creates various datasets banks
 |__ main.py --> main script for training/evaluation/saving tagger models
 |__ run_tagger.py --> run the trained tagger model from the checkpoint file
-|__ conlleval --> "official" Perl script from NER 2003 shared task for evaluating the f1 scores, 
+|__ conlleval --> "official" Perl script from NER 2003 shared task for evaluating the f1 scores,
                    author: Erik Tjong Kim Sang, version: 2004-01-26
-|__ requirements.txt --> file for managing packages requirements    
+|__ requirements.txt --> file for managing packages requirements
 ```
 
 ## Evaluation
