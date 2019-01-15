@@ -23,7 +23,7 @@ et. al., 2016](https://arxiv.org/pdf/1603.01360.pdf) and [Ma et. al., 2016](http
 
 ```
 |__ articles/ --> collection of papers related to the tagging, argument mining, etc.
-|__ data/)
+|__ data/
         |__ NER/ --> Datasets for Named Entity Recognition
             |__ CoNNL_2003_shared_task/ --> data for NER CoNLL-2003 shared task (English) in BOI-2
                                             CoNNL format, from E.F. Tjong Kim Sang and F. De Meulder,
@@ -33,7 +33,7 @@ et. al., 2016](https://arxiv.org/pdf/1603.01360.pdf) and [Ma et. al., 2016](http
             |__ persuasive_essays/ --> data for persuasive essays in BOI-2-like CoNNL format, from:
                                        Steffen Eger, Johannes Daxenberger, Iryna Gurevych. Neural
                                        End-to-End  Learning for Computational Argumentation Mining, 2017
-|__ docs/ --> documentation)
+|__ docs/ --> little a bit documentation
 |__ embeddings
         |__ get_glove_embeddings.sh --> script for downloading GloVe6B 100-dimensional word embeddings
         |__ get_fasttext_embeddings.sh --> script for downloading Fasttext word embeddings
