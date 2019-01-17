@@ -66,8 +66,8 @@ class EvaluatorF1MacroTokenLevel(EvaluatorBase):
             F1[tag] = (2 * TP[tag] / max(2 * TP[tag] + FP[tag] + FN[tag], 1)) * 100
         # Calculate Macro-F1 score and prepare the message
         M_F1, msg = self.__get_M_F1_msg(F1)
-        M_F1_scikitlearn, _ = self.get_evaluation_score_M_F1_scikitlearn(targets_tag_sequences, outputs_tag_sequences)
         print(msg)
+        # M_F1_scikitlearn, _ = self.get_evaluation_score_M_F1_scikitlearn(targets_tag_sequences, outputs_tag_sequences)
         #print('Macro-F1_scikitlearn = %1.3f (for validation)' % M_F1_scikitlearn)
         return M_F1, msg
 
