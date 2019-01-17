@@ -39,7 +39,7 @@ if __name__ == "__main__":
     print('            |__ persuasive_essays/ --> data for persuasive essays in BOI-2-like CoNNL format, from:')
     print('                                       Steffen Eger, Johannes Daxenberger, Iryna Gurevych. Neural')
     print('                                       End-to-End  Learning for Computational Argumentation Mining, 2017')
-    print('|__ docs/ --> documentation)')
+    print('|__ docs/ --> documentation')
     print('|__ embeddings')
     print('        |__ get_glove_embeddings.sh --> script for downloading GloVe6B 100-dimensional word embeddings')
     print('        |__ get_fasttext_embeddings.sh --> script for downloading Fasttext word embeddings')
