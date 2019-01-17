@@ -1,5 +1,4 @@
 """macro-F1 scores evaluator for each class of BOI-like tags"""
-import numpy as np
 from src.evaluators.evaluator_base import EvaluatorBase
 
 
@@ -46,36 +45,6 @@ class EvaluatorF1MacroTokenLevel(EvaluatorBase):
         msg += 'Macro-F1 = %1.3f' % M_F1
         return M_F1, msg
 
-
-    '''
-    from: https://github.com/UKPLab/naacl18-multitask_argument_mining
-    # CHANGED
-    def computeF1(self, modelName, sentences, name):
-        labelKey = self.labelKeys[modelName]
-        model = self.models[modelName]
-        idx2Label = self.idx2Labels[modelName]
-
-        correctLabels = [sentences[idx][labelKey] for idx in range(len(sentences))]
-        predLabels = self.predictLabels(model, sentences) 
-
-        labelKey = self.labelKeys[modelName]
-        encodingScheme = labelKey[labelKey.index('_')+1:]
-
-        correctLabelsFlat = [item for sublist in correctLabels for item in sublist]
-        predLabelsFlat = [item for sublist in predLabels for item in sublist]
-        f1 = sklearn.metrics.f1_score(correctLabelsFlat, predLabelsFlat, average='macro', sample_weight=None)
-        #pre, rec, f1 = BIOF1Validation.compute_f1(predLabels, correctLabels, idx2Label, 'O', encodingScheme)
-        #pre_b, rec_b, f1_b = BIOF1Validation.compute_f1(predLabels, correctLabels, idx2Label, 'B', encodingScheme)
-
-        # if f1_b > f1:
-        #     logging.debug("Setting wrong tags to B- improves from %.4f to %.4f" % (f1, f1_b))
-        #     pre, rec, f1 = pre_b, rec_b, f1_b
-        #
-        #self.writeOutputToFile(sentences, predLabels, name, modelName)
-
-        return f1
-    '''
-
     """EvaluatorF1MacroTagComponents is macro-F1 scores evaluator for each class of BOI-like tags."""
     def get_evaluation_score(self, targets_tag_sequences, outputs_tag_sequences, word_sequences=None):
         # Create list of tags
@@ -99,14 +68,15 @@ class EvaluatorF1MacroTokenLevel(EvaluatorBase):
         M_F1, msg = self.__get_M_F1_msg(F1)
         M_F1_scikitlearn, _ = self.get_evaluation_score_M_F1_scikitlearn(targets_tag_sequences, outputs_tag_sequences)
         print(msg)
-        print('Macro-F1_scikitlearn = %1.3f (for validation)' % M_F1_scikitlearn)
+        #print('Macro-F1_scikitlearn = %1.3f (for validation)' % M_F1_scikitlearn)
         return M_F1, msg
 
-    def get_evaluation_score_M_F1_scikitlearn(self, targets_tag_sequences, outputs_tag_sequences, word_sequences=None):
-        targets_tag_sequences_flat = [t for targets_tag_seq in targets_tag_sequences for t in targets_tag_seq]
-        outputs_tag_sequences_flat = [o for outputs_tag_seq in outputs_tag_sequences for o in outputs_tag_seq]
-        y_true = self.tag_seq_2_idx_list(targets_tag_sequences_flat)
-        y_pred = self.tag_seq_2_idx_list(outputs_tag_sequences_flat)
-        from sklearn.metrics import f1_score
-        M_F1_scikitlearn = f1_score(y_true=y_true, y_pred=y_pred, average='macro', sample_weight=None)*100
-        return M_F1_scikitlearn, ''
+    # for validation
+    #def get_evaluation_score_M_F1_scikitlearn(self, targets_tag_sequences, outputs_tag_sequences, word_sequences=None):
+    #    from sklearn.metrics import f1_score
+    #    targets_tag_sequences_flat = [t for targets_tag_seq in targets_tag_sequences for t in targets_tag_seq]
+    #    outputs_tag_sequences_flat = [o for outputs_tag_seq in outputs_tag_sequences for o in outputs_tag_seq]
+    #    y_true = self.tag_seq_2_idx_list(targets_tag_sequences_flat)
+    #    y_pred = self.tag_seq_2_idx_list(outputs_tag_sequences_flat)
+    #    M_F1_scikitlearn = f1_score(y_true=y_true, y_pred=y_pred, average='macro', sample_weight=None)*100
+    #    return M_F1_scikitlearn, ''
