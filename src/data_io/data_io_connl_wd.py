@@ -12,17 +12,49 @@ class DataIOConnlWd():
     """
     def read_train_dev_test(self, args):
         word_sequences, tag_sequences = self.read_dir(dir=args.train, verbose=args.verbose)
-        i1 = 272
-        i2 = 306
-        word_sequences_train = word_sequences[:i1]
-        tag_sequences_train = tag_sequences[:i1]
-        word_sequences_dev = word_sequences[i1:i2]
-        tag_sequences_dev = tag_sequences[i1:i2]
-        word_sequences_test = word_sequences[i2:]
-        tag_sequences_test = tag_sequences[i2:]
-        return word_sequences_train, tag_sequences_train, word_sequences_dev, tag_sequences_dev, word_sequences_test, tag_sequences_test
-        #if verbose:
-        #    print('Loading from %s: %d samples, %d words.' % (fn, len(word_sequences), get_words_num(word_sequences)))
+        cross_folds = self.get_cross_folds(word_sequences, tag_sequences, args.cross_folds_num)
+        sequences = self.split_cross_folds(cross_folds, args.cross_folds_num, args.cross_fold_id)
+        if args.verbose:
+            print('*** Loading WD data from dir = %s' % args.train)
+            print('*** train : dev : test = %d : %d : %d, cross-fold-id = %d' % (len(sequences[0]), len(sequences[2]),
+                                                                             len(sequences[4]), args.cross_fold_id))
+        return sequences[0], sequences[1], sequences[2], sequences[3], sequences[4], sequences[5]
+
+    def get_cross_folds(self, word_sequences, tag_sequences, cross_folds_num):
+        assert len(word_sequences) == len(tag_sequences)
+        fold_len = len(word_sequences) // cross_folds_num
+        folds = list()
+        for k in range(cross_folds_num):
+            i = k*fold_len
+            j = (k + 1)*fold_len
+            if k == cross_folds_num - 1:
+                j = len(word_sequences)
+            folds.append((word_sequences[i:j], tag_sequences[i:j]))
+        return folds
+
+    def split_cross_folds(self, cross_folds, cross_folds_num, cross_fold_id):
+        dev_cross_fold_id = cross_fold_id - 1
+        test_cross_fold_id = cross_fold_id
+        if cross_fold_id == cross_folds_num:
+            test_cross_fold_id = 0
+        word_sequences_train = list()
+        tag_sequences_train = list()
+        word_sequences_dev = list()
+        tag_sequences_dev = list()
+        word_sequences_test = list()
+        tag_sequences_test = list()
+        for n in range(cross_folds_num):
+            if n == dev_cross_fold_id:
+                word_sequences_dev.extend(cross_folds[n][0])
+                tag_sequences_dev.extend(cross_folds[n][1])
+            elif n == test_cross_fold_id:
+                word_sequences_test.extend(cross_folds[n][0])
+                tag_sequences_test.extend(cross_folds[n][1])
+            else:
+                word_sequences_train.extend(cross_folds[n][0])
+                tag_sequences_train.extend(cross_folds[n][1])
+        return word_sequences_train, tag_sequences_train, word_sequences_dev, tag_sequences_dev, word_sequences_test, \
+               tag_sequences_test
 
     def read_dir(self, dir, verbose=True):
         file_list = glob(join(dir, '*.txt'))
@@ -44,10 +76,3 @@ class DataIOConnlWd():
                 word_seq.append(elements[0])
                 tag_seq.append(elements[1])
         return word_seq, tag_seq
-
-#    def get_train_batches(self, batch_size):
-#        random_indices = np.random.permutation(np.arange(self.train_data_num))
-#        for k in range(self.train_data_num // batch_size): # oh yes, we drop the last batch
-#            batch_indices = random_indices[k:k + batch_size].tolist()
-#            word_sequences_train_batch, tag_sequences_train_batch = self.__get_train_batch(batch_indices)
-#            yield word_sequences_train_batch, tag_sequences_train_batch

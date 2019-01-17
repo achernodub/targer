@@ -70,9 +70,9 @@ if __name__ == "__main__":
     parser.add_argument('--seed-num', type=int, default=42, help='Random seed number, note that 42 is the answer.')
     parser.add_argument('--report-fn', type=str, default='%s_report.txt' % get_datetime_str(), help='Report filename.')
     parser.add_argument('--cross-folds-num', type=int, default=-1,
-                        help='Number of folds for cross-validation (optional, for some kinds of datasets).')
+                        help='Number of folds for cross-validation (optional, for some datasets).')
     parser.add_argument('--cross-fold-id', type=int, default=-1,
-                        help='Id of the current fold in cross-validation (optional, for some kinds of datasets).')
+                        help='Current cross-fold, 1<=cross-fold-id<=cross-folds-num (optional, for some datasets).')
     parser.add_argument('--verbose', type=str2bool, default=True, help='Show additional information.', nargs='?',
                         choices=['yes (default)', True, 'no', False])
     args = parser.parse_args()
