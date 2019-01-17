@@ -1,0 +1,11 @@
+Pray	Claim-B
+at	Claim-I
+home	Claim-I
+.	Claim-I
+School	Premise-B
+is	Premise-I
+a	Premise-I
+place	Premise-I
+of	Premise-I
+learning	Premise-I
+.	Premise-I

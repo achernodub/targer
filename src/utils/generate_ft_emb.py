@@ -2,7 +2,7 @@
 from __future__ import print_function
 import argparse
 import fastText as ft
-from src.data_io.data_io_connl_2003 import DataIOConnl2003
+from src.data_io.data_io_connl_ner_2003 import DataIOConnlNer2003
 from src.classes.datasets_bank import DatasetsBank
 
 if __name__ == "__main__":
@@ -17,7 +17,7 @@ if __name__ == "__main__":
     parser.add_argument('--fn_out', default='out.txt', help='Output file.')
     args = parser.parse_args()
     # Load CoNNL data as sequences of strings of words and corresponding tags
-    data_io = DataIOConnl2003()
+    data_io = DataIOConnlNer2003()
     word_sequences_train, tag_sequences_train = data_io.read(args.train, verbose=False)
     word_sequences_dev, tag_sequences_dev = data_io.read(args.dev, verbose=False)
     word_sequences_test, tag_sequences_test = data_io.read(args.test, verbose=True)

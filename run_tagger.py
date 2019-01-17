@@ -35,6 +35,6 @@ if __name__ == "__main__":
     print('\n\n%s = %1.2f' % (args.evaluator, test_score))
     print(test_msg)
     # Write results to text file
-    data_io.write(fn='out.txt', word_sequences=word_sequences_test, tag_sequences_1=targets_tag_sequences_test,
-                  tag_sequences_2=output_tag_sequences_test)
+    data_io.write_data(fn='out.txt', word_sequences=word_sequences_test, tag_sequences_1=targets_tag_sequences_test,
+                       tag_sequences_2=output_tag_sequences_test)
     print('\nThe end.')

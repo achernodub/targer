@@ -18,16 +18,16 @@ from src.seq_indexers.seq_indexer_word import SeqIndexerWord
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Learning tagger using neural networks')
     parser.add_argument('--train', default='data/NER/CoNNL_2003_shared_task/train.txt',
-                        help='Train data in CoNNL-2003 format.')
+                        help='Train data in format defined by --data-io param.')
     parser.add_argument('--dev', default='data/NER/CoNNL_2003_shared_task/dev.txt',
-                        help='Dev data in CoNNL-2003 format, it is used to find best model during the training.')
+                        help='Development data in format defined by --data-io param.')
     parser.add_argument('--test', default='data/NER/CoNNL_2003_shared_task/test.txt',
-                        help='Test data in CoNNL-2003 format, it is used to obtain the final accuracy/F1 score.')
+                        help='Test data in format defined by --data-io param.')
+    parser.add_argument('-d', '--data-io', choices=['connl-ner-2003', 'connl-pe', 'connl-wd'],
+                        default='connl-ner-2003', help='Data read/write file format.')
     parser.add_argument('--gpu', type=int, default=0, help='GPU device number, -1  means CPU.')
     parser.add_argument('--model', help='Tagger model.', choices=['BiRNN', 'BiRNNCNN', 'BiRNNCRF', 'BiRNNCNNCRF'],
                         default='BiRNNCNNCRF')
-    parser.add_argument('-d', '--data-io', choices=['connl-abs', 'connl-2003'], default='connl-2003',
-                        help='Data read/write file format.')
     parser.add_argument('--load', default=None, help='Path to load from the trained model.')
     parser.add_argument('--save', default='%s_tagger.hdf5' % get_datetime_str(), help='Path to save the trained model.')
     parser.add_argument('-w', '--word-seq-indexer', type=str, default=None,
@@ -69,6 +69,10 @@ if __name__ == "__main__":
                         nargs='?', choices=['yes', True, 'no (default)', False])
     parser.add_argument('--seed-num', type=int, default=42, help='Random seed number, note that 42 is the answer.')
     parser.add_argument('--report-fn', type=str, default='%s_report.txt' % get_datetime_str(), help='Report filename.')
+    parser.add_argument('--cross-folds-num', type=int, default=-1,
+                        help='Number of folds for cross-validation (optional, for some kinds of datasets).')
+    parser.add_argument('--cross-fold-id', type=int, default=-1,
+                        help='Id of the current fold in cross-validation (optional, for some kinds of datasets).')
     parser.add_argument('--verbose', type=str2bool, default=True, help='Show additional information.', nargs='?',
                         choices=['yes (default)', True, 'no', False])
     args = parser.parse_args()
@@ -77,12 +81,9 @@ if __name__ == "__main__":
     if args.gpu >= 0:
         torch.cuda.set_device(args.gpu)
         torch.cuda.manual_seed(args.seed_num)
-    # Create DataIO object
-    data_io = DataIOFactory.create(args)
     # Load text data as lists of lists of words (sequences) and corresponding list of lists of tags
-    word_sequences_train, tag_sequences_train = data_io.read(args.train, verbose=True)
-    word_sequences_dev, tag_sequences_dev = data_io.read(args.dev, verbose=True)
-    word_sequences_test, tag_sequences_test = data_io.read(args.test, verbose=True)
+    data_io = DataIOFactory.create(args)
+    word_sequences_train, tag_sequences_train, word_sequences_dev, tag_sequences_dev, word_sequences_test, tag_sequences_test = data_io.read_train_dev_test(args)
     # DatasetsBank provides storing the different dataset subsets (train/dev/test) and sampling batches
     datasets_bank = DatasetsBankFactory.create(args)
     datasets_bank.add_train_sequences(word_sequences_train, tag_sequences_train)

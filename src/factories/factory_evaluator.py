@@ -1,9 +1,9 @@
 """creates various evaluators"""
-from src.evaluators.evaluator_f1_connl import EvaluatorF1Connl
-from src.evaluators.evaluator_f1_alpha_match_10 import EvaluatorF1AlphaMatch10
-from src.evaluators.evaluator_f1_alpha_match_05 import EvaluatorF1AlphaMatch05
-from src.evaluators.evaluator_f1_macro_tag_components import EvaluatorF1MacroTagComponents
-from src.evaluators.evaluator_token_acc import EvaluatorTokenAcc
+from src.evaluators.evaluator_f1_micro_spans_connl import EvaluatorF1MicroSpansConnl
+from src.evaluators.evaluator_f1_micro_spans_alpha_match_10 import EvaluatorF1MicroSpansAlphaMatch10
+from src.evaluators.evaluator_f1_micro_spans_alpha_match_05 import EvaluatorF1MicroSpansAlphaMatch05
+from src.evaluators.evaluator_f1_macro_token_level import EvaluatorF1MacroTokenLevel
+from src.evaluators.evaluator_acc_token_level import EvaluatorAccuracyTokenLevel
 
 
 class EvaluatorFactory():
@@ -11,14 +11,14 @@ class EvaluatorFactory():
     @staticmethod
     def create(args):
         if args.evaluator == 'f1-connl':
-            return EvaluatorF1Connl()
+            return EvaluatorF1MicroSpansConnl()
         elif args.evaluator == 'f1-alpha-match-10':
-            return EvaluatorF1AlphaMatch10()
+            return EvaluatorF1MicroSpansAlphaMatch10()
         elif args.evaluator == 'f1-alpha-match-05':
-            return EvaluatorF1AlphaMatch05()
+            return EvaluatorF1MicroSpansAlphaMatch05()
         elif args.evaluator == 'f1-macro':
-            return EvaluatorF1MacroTagComponents()
+            return EvaluatorF1MacroTokenLevel()
         elif args.evaluator == 'token-acc':
-            return EvaluatorTokenAcc()
+            return EvaluatorAccuracyTokenLevel()
         else:
             raise ValueError('Unknown evaluator %s.' % args.evaluator)
