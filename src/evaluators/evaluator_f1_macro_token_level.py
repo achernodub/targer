@@ -43,7 +43,7 @@ class EvaluatorF1MacroTokenLevel(EvaluatorBase):
             msg += '%15s = %1.2f\n' % (tag, F1[tag])
         M_F1 = sum_M_F1 / len(F1)
         msg += '-'*24 + '\n'
-        msg += 'Macro-F1 = %1.2f' % M_F1
+        msg += 'Macro-F1 = %1.3f' % M_F1
         return M_F1, msg
 
 
@@ -99,7 +99,7 @@ class EvaluatorF1MacroTokenLevel(EvaluatorBase):
         M_F1, msg = self.__get_M_F1_msg(F1)
         M_F1_scikitlearn, _ = self.get_evaluation_score_M_F1_scikitlearn(targets_tag_sequences, outputs_tag_sequences)
         print(msg)
-        print('Macro-F1_scikitlearn = %1.2f (for validation)' % M_F1_scikitlearn)
+        print('Macro-F1_scikitlearn = %1.3f (for validation)' % M_F1_scikitlearn)
         return M_F1, msg
 
     def get_evaluation_score_M_F1_scikitlearn(self, targets_tag_sequences, outputs_tag_sequences, word_sequences=None):
