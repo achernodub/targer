@@ -7,9 +7,9 @@ class OptimizerFactory():
     """OptimizerFactory contains wrappers to create various optimizers."""
     @staticmethod
     def create(args, tagger):
-        if args.opt_method == 'sgd':
+        if args.opt == 'sgd':
             optimizer = optim.SGD(list(tagger.parameters()), lr=args.lr, momentum=args.momentum)
-        elif args.opt_method == 'adam':
+        elif args.opt == 'adam':
             optimizer = optim.Adam(list(tagger.parameters()), lr=args.lr, betas=(0.9, 0.999))
         else:
             raise ValueError('Unknown optimizer, must be one of "sgd"/"adam".')

@@ -42,7 +42,7 @@ if __name__ == "__main__":
                         nargs='?', choices=['yes', True, 'no (default)', False])
     parser.add_argument('--dropout-ratio', '-r', type=float, default=0.5, help='Dropout ratio.')
     parser.add_argument('--batch-size', '-b', type=int, default=10, help='Batch size, samples.')
-    parser.add_argument('--opt-method', '-o', help='Optimization method.', choices=['sgd', 'adam'], default='sgd')
+    parser.add_argument('--opt', '-o', help='Optimization method.', choices=['sgd', 'adam'], default='sgd')
     parser.add_argument('--lr', type=float, default=0.01, help='Learning rate.')
     parser.add_argument('--lr-decay', type=float, default=0.05, help='Learning decay rate.')
     parser.add_argument('--momentum', '-m', type=float, default=0.9, help='Learning momentum rate.')
