@@ -1,5 +1,7 @@
 """stores evaluation results during the training process as text files"""
 
+from src.classes.utils import get_input_arguments
+
 class Report():
     def __init__(self, fn, args, score_names):
         """Report stores evaluation results during the training process as text files."""
@@ -26,6 +28,7 @@ class Report():
     def write_final_score(self, final_score_str):
         self.text += self.blank_line
         self.text += '\n%s' % final_score_str
+        self.text += '\n\nInput arguments: %s' % get_input_arguments()
         self.__save()
 
     def __save(self):

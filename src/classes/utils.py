@@ -3,6 +3,7 @@
 import argparse
 import datetime
 import itertools
+import sys
 import torch
 
 
@@ -68,3 +69,7 @@ def str2bool(v):
         return False
     else:
         raise argparse.ArgumentTypeError('Boolean value expected.')
+
+
+def get_input_arguments():
+    return 'python3 ' + ' '.join([arg for arg in sys.argv[2:]])
