@@ -372,9 +372,18 @@ Training on Peruassive Essays dataset:
 python3 --train data/AM/persuasive_essays/Essay_Level/train.dat.abs --dev data/AM/persuasive_essays/Essay_Level/dev.dat.abs --test data/AM/persuasive_essays/Essay_Level/test.dat.abs --data-io connl-pe --opt adam --lr 0.001 --save-best yes
 ```
 
-Training on Web Discourse dataset:
+Training on Web Discourse dataset (cross-validation):
 ```
 python3 main.py --train data/AM/web_discourse --evaluator f1-macro --data-io connl-wd --opt adam --lr 0.001 --save-best yes --cross-folds-num 10 --cross-fold-id 1;
+python3 main.py --train data/AM/web_discourse --evaluator f1-macro --data-io connl-wd --opt adam --lr 0.001 --save-best yes --cross-folds-num 10 --cross-fold-id 2;
+python3 main.py --train data/AM/web_discourse --evaluator f1-macro --data-io connl-wd --opt adam --lr 0.001 --save-best yes --cross-folds-num 10 --cross-fold-id 3;
+python3 main.py --train data/AM/web_discourse --evaluator f1-macro --data-io connl-wd --opt adam --lr 0.001 --save-best yes --cross-folds-num 10 --cross-fold-id 4;
+python3 main.py --train data/AM/web_discourse --evaluator f1-macro --data-io connl-wd --opt adam --lr 0.001 --save-best yes --cross-folds-num 10 --cross-fold-id 5;
+python3 main.py --train data/AM/web_discourse --evaluator f1-macro --data-io connl-wd --opt adam --lr 0.001 --save-best yes --cross-folds-num 10 --cross-fold-id 6;
+python3 main.py --train data/AM/web_discourse --evaluator f1-macro --data-io connl-wd --opt adam --lr 0.001 --save-best yes --cross-folds-num 10 --cross-fold-id 7;
+python3 main.py --train data/AM/web_discourse --evaluator f1-macro --data-io connl-wd --opt adam --lr 0.001 --save-best yes --cross-folds-num 10 --cross-fold-id 8;
+python3 main.py --train data/AM/web_discourse --evaluator f1-macro --data-io connl-wd --opt adam --lr 0.001 --save-best yes --cross-folds-num 10 --cross-fold-id 9;
+python3 main.py --train data/AM/web_discourse --evaluator f1-macro --data-io connl-wd --opt adam --lr 0.001 --save-best yes --cross-folds-num 10 --cross-fold-id 10;
 ```
 
 ### Alternative neural taggers
