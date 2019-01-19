@@ -360,6 +360,22 @@ wsi=None
 ---------------------------------------------------------------------------------------------------------
 Final eval on test,  micro-f1 test = 74) = 90.86
 ```
+###
+
+Training on NER-2003 Shared dataset:
+```
+python3 main.py
+```
+
+Training on Peruassive Essays dataset:
+```
+python3 --train data/AM/persuasive_essays/Essay_Level/train.dat.abs --dev data/AM/persuasive_essays/Essay_Level/dev.dat.abs --test data/AM/persuasive_essays/Essay_Level/test.dat.abs --data-io connl-pe --opt adam --lr 0.001 --save-best yes
+```
+
+Training on Web Discourse dataset:
+```
+python3 main.py --train data/AM/web_discourse --evaluator f1-macro --data-io connl-wd --opt adam --lr 0.001 --save-best yes --cross-folds-num 10 --cross-fold-id 1;
+```
 
 ### Alternative neural taggers
 
@@ -371,3 +387,4 @@ Final eval on test,  micro-f1 test = 74) = 90.86
 [https://github.com/UKPLab/emnlp2017-bilstm-cnn-crf](https://github.com/UKPLab/emnlp2017-bilstm-cnn-crf)
 - UKPLab/elmo-bilstm-cnn-crf (Tensorflow & Keras)
 [https://github.com/UKPLab/elmo-bilstm-cnn-crf](https://github.com/UKPLab/elmo-bilstm-cnn-crf)
+
