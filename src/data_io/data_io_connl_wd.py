@@ -1,8 +1,8 @@
 """input/output data wrapper for CoNNL file format used in Web Discourse dataset"""
 import codecs
+import json
 from glob import glob
 from os.path import join
-from src.classes.utils import get_words_num
 
 
 class DataIOConnlWd():
@@ -14,6 +14,8 @@ class DataIOConnlWd():
         word_sequences, tag_sequences = self.read_data(dir=args.train, verbose=args.verbose)
         cross_folds = self.get_cross_folds(word_sequences, tag_sequences, args.cross_folds_num)
         sequences = self.split_cross_folds(cross_folds, args.cross_folds_num, args.cross_fold_id)
+        with open('wd_test_cv_%d.txt' % args.cross_fold_id, 'w') as f:
+            json.dump([sequences[4], sequences[5]], f)
         if args.verbose:
             print('*** Loading WD data from dir = %s' % args.train)
             print('*** train : dev : test = %d : %d : %d, cross-fold-id = %d' % (len(sequences[0]), len(sequences[2]),
