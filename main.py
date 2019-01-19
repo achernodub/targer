@@ -28,23 +28,24 @@ if __name__ == "__main__":
     parser.add_argument('--gpu', type=int, default=0, help='GPU device number, -1  means CPU.')
     parser.add_argument('--model', help='Tagger model.', choices=['BiRNN', 'BiRNNCNN', 'BiRNNCRF', 'BiRNNCNNCRF'],
                         default='BiRNNCNNCRF')
-    parser.add_argument('--load', default=None, help='Path to load from the trained model.')
-    parser.add_argument('--save', default='%s_tagger.hdf5' % get_datetime_str(), help='Path to save the trained model.')
-    parser.add_argument('-w', '--word-seq-indexer', type=str, default=None,
+    parser.add_argument('--load', '-l', default=None, help='Path to load from the trained model.')
+    parser.add_argument('--save', '-s', default='%s_tagger.hdf5' % get_datetime_str(),
+                        help='Path to save the trained model.')
+    parser.add_argument('--word-seq-indexer', '-w', type=str, default=None,
                         help='Load word_seq_indexer object from hdf5 file.')
-    parser.add_argument('-e', '--epoch-num', type=int, default=100, help='Number of epochs.')
-    parser.add_argument('-n', '--min-epoch-num', type=int, default=50, help='Minimum number of epochs.')
-    parser.add_argument('-p', '--patience', type=int, default=20, help='Patience for early stopping.')
-    parser.add_argument('-v', '--evaluator', default='f1-connl', help='Evaluation method.',
+    parser.add_argument('--epoch-num', '-e',  type=int, default=100, help='Number of epochs.')
+    parser.add_argument('--min-epoch-num', '-n', type=int, default=50, help='Minimum number of epochs.')
+    parser.add_argument('--patience', '-p', type=int, default=20, help='Patience for early stopping.')
+    parser.add_argument('--evaluator', '-v', default='f1-connl', help='Evaluation method.',
                         choices=['f1-connl', 'f1-alpha-match-10', 'f1-alpha-match-05', 'f1-macro', 'token-acc'])
     parser.add_argument('--save-best', type=str2bool, default=False, help = 'Save best on dev model as a final model.',
                         nargs='?', choices=['yes', True, 'no (default)', False])
-    parser.add_argument('-r', '--dropout-ratio', type=float, default=0.5, help='Dropout ratio.')
-    parser.add_argument('-b', '--batch-size', type=int, default=10, help='Batch size, samples.')
-    parser.add_argument('-o', '--opt-method', help='Optimization method.', choices=['sgd', 'adam'], default='sgd')
-    parser.add_argument('-l', '--lr', type=float, default=0.01, help='Learning rate.')
-    parser.add_argument('-c', '--lr-decay', type=float, default=0.05, help='Learning decay rate.')
-    parser.add_argument('-m', '--momentum', type=float, default=0.9, help='Learning momentum rate.')
+    parser.add_argument('--dropout-ratio', '-r', type=float, default=0.5, help='Dropout ratio.')
+    parser.add_argument('--batch-size', '-b', type=int, default=10, help='Batch size, samples.')
+    parser.add_argument('--opt-method', '-o', help='Optimization method.', choices=['sgd', 'adam'], default='sgd')
+    parser.add_argument('--lr', type=float, default=0.01, help='Learning rate.')
+    parser.add_argument('--lr-decay', type=float, default=0.05, help='Learning decay rate.')
+    parser.add_argument('--momentum', '-m', type=float, default=0.9, help='Learning momentum rate.')
     parser.add_argument('--clip-grad', type=float, default=5, help='Clipping gradients maximum L2 norm.')
     parser.add_argument('--rnn-type', help='RNN cell units type.', choices=['Vanilla', 'LSTM', 'GRU'], default='LSTM')
     parser.add_argument('--rnn-hidden-dim', type=int, default=100, help='Number hidden units in the recurrent layer.')
