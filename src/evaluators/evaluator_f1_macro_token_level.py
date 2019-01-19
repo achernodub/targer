@@ -16,6 +16,7 @@ class EvaluatorF1MacroTokenLevel(EvaluatorBase):
                 if t not in self.tag_list:
                     self.tag_list.append(t)
                     self.tag2idx[t] = len(self.tag_list)
+        self.tag_list.sort()
 
     def tag_seq_2_idx_list(self, tag_seq):
         return [self.tag2idx[t] for t in tag_seq]
@@ -37,7 +38,7 @@ class EvaluatorF1MacroTokenLevel(EvaluatorBase):
         msg = '\nF1 scores\n'
         msg += '-' * 24 + '\n'
         sum_M_F1 = 0
-        for tag in F1:
+        for tag in self.tag_list:
             sum_M_F1 += F1[tag]
             msg += '%15s = %1.2f\n' % (tag, F1[tag])
         M_F1 = sum_M_F1 / len(F1)
