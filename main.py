@@ -185,4 +185,4 @@ if __name__ == "__main__":
     else:
         report.write_final_score('Final eval on test, %s test = %1.2f)' % (args.evaluator, test_score))
         print(test_msg)
-    print('Input arguments: ' + get_input_arguments())
+    print('Input arguments:\n' + get_input_arguments())
