@@ -110,12 +110,13 @@ Results of training the models with the default settings:
 In order to ensure the consistency of the experiments, for evaluation purposes we use "official" Perl script from NER 2003 shared task, author: Erik Tjong Kim Sang, version: 2004-01-26, example of it's output:
 
 ```
-processed 46435 tokens with 5648 phrases; found: 5679 phrases; correct: 5146.
-accuracy:  97.92%; precision:  90.61%; recall:  91.11%; FB1:  90.86
-              LOC: precision:  91.35%; recall:  93.65%; FB1:  92.48  1710
-             MISC: precision:  78.20%; recall:  82.76%; FB1:  80.42  743
-              ORG: precision:  90.25%; recall:  88.02%; FB1:  89.12  1620
-              PER: precision:  95.95%; recall:  95.30%; FB1:  95.63  1606
+Standard CoNNL perl script (author: Erik Tjong Kim Sang <erikt@uia.ua.ac.be>, version: 2004-01-26):
+processed 46435 tokens with 5648 phrases; found: 5650 phrases; correct: 5108.
+accuracy:  97.96%; precision:  90.41%; recall:  90.44%; FB1:  90.42
+              LOC: precision:  91.99%; recall:  92.99%; FB1:  92.49  1686
+             MISC: precision:  79.29%; recall:  79.06%; FB1:  79.17  700
+              ORG: precision:  88.38%; recall:  87.96%; FB1:  88.17  1653
+              PER: precision:  95.65%; recall:  95.30%; FB1:  95.48  1611
 ``` 
 
 ## Usage
