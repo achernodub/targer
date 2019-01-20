@@ -347,7 +347,9 @@ accuracy:  97.96%; precision:  90.41%; recall:  90.44%; FB1:  90.42
 
 
 Input arguments:
-python3 main.py```
+python3 main.py
+```
+
 ### Training on various datasets
 
 Training on NER-2003 Shared dataset:
@@ -384,4 +386,3 @@ python3 main.py --train data/AM/web_discourse --evaluator f1-macro --data-io con
 [https://github.com/UKPLab/emnlp2017-bilstm-cnn-crf](https://github.com/UKPLab/emnlp2017-bilstm-cnn-crf)
 - UKPLab/elmo-bilstm-cnn-crf (Tensorflow & Keras)
 [https://github.com/UKPLab/elmo-bilstm-cnn-crf](https://github.com/UKPLab/elmo-bilstm-cnn-crf)
-
