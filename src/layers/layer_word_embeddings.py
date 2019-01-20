@@ -1,14 +1,10 @@
-"""
-.. module:: LayerWordEmbeddings
-    :synopsis: LayerWordEmbeddings implements word embeddings
-
-.. moduleauthor:: Artem Chernodub
-"""
-
+"""class implements word embeddings"""
 import torch.nn as nn
 from src.layers.layer_base import LayerBase
 
+
 class LayerWordEmbeddings(LayerBase):
+    """LayerWordEmbeddings implements word embeddings."""
     def __init__(self, word_seq_indexer, gpu, freeze_word_embeddings=False, pad_idx=0):
         super(LayerWordEmbeddings, self).__init__(gpu)
         embeddings_tensor = word_seq_indexer.get_loaded_embeddings_tensor()

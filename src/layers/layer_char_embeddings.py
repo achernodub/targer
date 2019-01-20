@@ -1,10 +1,4 @@
-"""
-.. module:: LayerCharEmbeddings
-    :synopsis: LayerCharEmbeddings implements character-level embeddings
-
-.. moduleauthor:: Artem Chernodub
-"""
-
+"""class implements character-level embeddings"""
 import string
 import torch
 import torch.nn as nn
@@ -13,6 +7,7 @@ from src.seq_indexers.seq_indexer_char import SeqIndexerBaseChar
 
 
 class LayerCharEmbeddings(LayerBase):
+    """LayerCharEmbeddings implements character-level embeddings."""
     def __init__(self, gpu, char_embeddings_dim, freeze_char_embeddings=False, word_len=20, unique_characters_list=None):
         super(LayerCharEmbeddings, self).__init__(gpu)
         self.gpu = gpu

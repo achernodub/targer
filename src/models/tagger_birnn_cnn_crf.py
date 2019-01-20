@@ -1,12 +1,5 @@
-"""
-.. module:: TaggerBiRNNCNNCRF
-    :synopsis: TaggerBiRNNCNNCRF is a model for sequences tagging that includes recurrent network + conv layer + CRF.
-
-.. moduleauthor:: Artem Chernodub
-"""
-
+"""BiLSTM/BiGRU + char-level CNN  + CRF tagger model"""
 import math
-
 import torch
 import torch.nn as nn
 from src.models.tagger_base import TaggerBase
@@ -20,6 +13,7 @@ from src.layers.layer_crf import LayerCRF
 
 
 class TaggerBiRNNCNNCRF(TaggerBase):
+    """TaggerBiRNNCNNCRF is a model for sequences tagging that includes recurrent network + conv layer + CRF."""
     def __init__(self, word_seq_indexer, tag_seq_indexer, class_num, batch_size=1, rnn_hidden_dim=100,
                  freeze_word_embeddings=False, dropout_ratio=0.5, rnn_type='GRU', gpu=-1,
                  freeze_char_embeddings = False, char_embeddings_dim=25, word_len=20, char_cnn_filter_num=30,
@@ -99,6 +93,8 @@ class TaggerBiRNNCNNCRF(TaggerBase):
             batch_size = self.batch_size
         print('\n')
         batch_num = math.floor(len(word_sequences) / batch_size)
+        if len(word_sequences) > 0 and len(word_sequences) < batch_size:
+            batch_num = 1
         output_tag_sequences = list()
         for n in range(batch_num):
             i = n*batch_size

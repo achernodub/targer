@@ -1,16 +1,13 @@
-"""
-.. module:: SeqIndexerBase
-    :synopsis: SeqIndexerBase is a base abstract class for sequence indexers. It converts list of lists of string items
-    to the list of lists of integer indices and back. Items could be either words, tags or characters.
-
-.. moduleauthor:: Artem Chernodub
-"""
-
+"""base abstract class for sequence indexers"""
 import numpy as np
 import torch
 
 
 class SeqIndexerBase():
+    """
+    SeqIndexerBase is a base abstract class for sequence indexers. It converts list of lists of string items
+    to the list of lists of integer indices and back. Items could be either words, tags or characters.
+    """
     def __init__(self, gpu=-1, check_for_lowercase=True, zero_digits=False, pad='<pad>', unk='<unk>',
                  load_embeddings=False, embeddings_dim=0, verbose=False):
         self.gpu = gpu

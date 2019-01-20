@@ -1,13 +1,8 @@
-"""
-.. module:: LayerBase
-    :synopsis: Abstract base class for all type of layers
-
-.. moduleauthor:: Artem Chernodub
-"""
-
+"""abstract base class for all type of layers"""
 import torch.nn as nn
 
 class LayerBase(nn.Module):
+    """Abstract base class for all type of layers."""
     def __init__(self, gpu):
         super(LayerBase, self).__init__()
         self.gpu = gpu

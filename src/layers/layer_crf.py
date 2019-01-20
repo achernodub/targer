@@ -1,10 +1,4 @@
-"""
-.. module:: LayerCRF
-    :synopsis: LayerCRF implements Conditional Random Fields (Ma.et.al., 2016 style)
-
-.. moduleauthor:: Artem Chernodub
-"""
-
+"""class implements Conditional Random Fields (CRF)"""
 import torch
 import torch.nn as nn
 from src.layers.layer_base import LayerBase
@@ -12,6 +6,7 @@ from src.classes.utils import log_sum_exp
 
 
 class LayerCRF(LayerBase):
+    """LayerCRF implements Conditional Random Fields (Ma.et.al., 2016 style)"""
     def __init__(self, gpu, states_num, pad_idx, sos_idx, tag_seq_indexer, verbose=True):
         super(LayerCRF, self).__init__(gpu)
         self.states_num = states_num
