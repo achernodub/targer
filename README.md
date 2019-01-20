@@ -369,7 +369,7 @@ python3 main.py
 
 Training on Peruassive Essays dataset:
 ```
-python3 main.py --train data/AM/persuasive_essays/Essay_Level/train.dat.abs --dev data/AM/persuasive_essays/Essay_Level/dev.dat.abs --test data/AM/persuasive_essays/Essay_Level/test.dat.abs --data-io connl-pe --opt adam --lr 0.001 --lr-decay 0 --save-best yes
+python3 main.py --train data/AM/persuasive_essays/Essay_Level/train.dat.abs --dev data/AM/persuasive_essays/Essay_Level/dev.dat.abs --test data/AM/persuasive_essays/Essay_Level/test.dat.abs --data-io connl-pe --opt adam --lr 0.001 --save-best yes
 ```
 
 Training on Web Discourse dataset (cross-validation):
