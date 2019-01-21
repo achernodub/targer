@@ -33,9 +33,9 @@ if __name__ == "__main__":
                         help='Path to save the trained model.')
     parser.add_argument('--word-seq-indexer', '-w', type=str, default=None,
                         help='Load word_seq_indexer object from hdf5 file.')
-    parser.add_argument('--epoch-num', '-e',  type=int, default=150, help='Number of epochs.')
+    parser.add_argument('--epoch-num', '-e',  type=int, default=100, help='Number of epochs.')
     parser.add_argument('--min-epoch-num', '-n', type=int, default=50, help='Minimum number of epochs.')
-    parser.add_argument('--patience', '-p', type=int, default=30, help='Patience for early stopping.')
+    parser.add_argument('--patience', '-p', type=int, default=15, help='Patience for early stopping.')
     parser.add_argument('--evaluator', '-v', default='f1-connl', help='Evaluation method.',
                         choices=['f1-connl', 'f1-alpha-match-10', 'f1-alpha-match-05', 'f1-macro', 'token-acc'])
     parser.add_argument('--save-best', type=str2bool, default=True, help = 'Save best on dev model as a final model.',
