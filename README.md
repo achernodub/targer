@@ -23,7 +23,7 @@ et. al., 2016](https://arxiv.org/pdf/1603.01360.pdf) and [Ma et. al., 2016](http
 
 ```
 |__ articles/ --> collection of papers related to the tagging, argument mining, etc.
-|__ data/)
+|__ data/
         |__ NER/ --> Datasets for Named Entity Recognition
             |__ CoNNL_2003_shared_task/ --> data for NER CoNLL-2003 shared task (English) in BOI-2
                                             CoNNL format, from E.F. Tjong Kim Sang and F. De Meulder,

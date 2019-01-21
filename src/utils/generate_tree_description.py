@@ -29,7 +29,7 @@ if __name__ == "__main__":
     main_path = os.path.join(os.path.dirname(__file__), '../')
     os.chdir(main_path)
     print('|__ articles/ --> collection of papers related to the tagging, argument mining, etc.')
-    print('|__ data/)')
+    print('|__ data/')
     print('        |__ NER/ --> Datasets for Named Entity Recognition')
     print('            |__ CoNNL_2003_shared_task/ --> data for NER CoNLL-2003 shared task (English) in BOI-2')
     print('                                            CoNNL format, from E.F. Tjong Kim Sang and F. De Meulder,')
