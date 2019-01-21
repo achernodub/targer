@@ -10,7 +10,7 @@ et. al., 2016](https://arxiv.org/pdf/1603.01360.pdf) and [Ma et. al., 2016](http
 - numpy 1.15.1
 - scipy 1.1.0
 - python 3.5.2 or higher
-- [pytorch 1.0.0](http://pytorch.org/)
+- [pytorch 0.4.1](http://pytorch.org/)
 
 ## Benefits
 
