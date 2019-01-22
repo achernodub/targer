@@ -189,3 +189,7 @@ if __name__ == "__main__":
         print(test_msg)
     report.write_input_arguments()
     print('Input arguments:\n' + get_input_arguments())
+    if args.save_best:
+        report.write_final_line_score(best_test_score)
+    else:
+        report.write_final_line_score(test_score)

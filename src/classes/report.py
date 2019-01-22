@@ -43,3 +43,7 @@ class Report():
         if self.fn is not None:
             with open(self.fn, mode='w') as text_file:
                 text_file.write(self.text)
+
+    def write_final_line_score(self, final_score):
+        self.text += '\n%s' % final_score
+        self.__save()
