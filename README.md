@@ -390,16 +390,16 @@ python3 main.py --train data/AM/persuasive_essays/Essay_Level/train.dat.abs --de
 
 Training on Web Discourse dataset (cross-validation):
 ```
-python3 main.py --train data/AM/web_discourse --evaluator f1-macro --data-io connl-wd --opt adam --lr 0.001 --save-best yes -w w_wd --rnn_hidden_dim 150 --cross-folds-num 10 --cross-fold-id 1;
-python3 main.py --train data/AM/web_discourse --evaluator f1-macro --data-io connl-wd --opt adam --lr 0.001 --save-best yes -w w_wd --rnn_hidden_dim 150 --cross-folds-num 10 --cross-fold-id 2;
-python3 main.py --train data/AM/web_discourse --evaluator f1-macro --data-io connl-wd --opt adam --lr 0.001 --save-best yes -w w_wd --rnn_hidden_dim 150 --cross-folds-num 10 --cross-fold-id 3;
-python3 main.py --train data/AM/web_discourse --evaluator f1-macro --data-io connl-wd --opt adam --lr 0.001 --save-best yes -w w_wd --rnn_hidden_dim 150 --cross-folds-num 10 --cross-fold-id 4;
-python3 main.py --train data/AM/web_discourse --evaluator f1-macro --data-io connl-wd --opt adam --lr 0.001 --save-best yes -w w_wd --rnn_hidden_dim 150 --cross-folds-num 10 --cross-fold-id 5;
-python3 main.py --train data/AM/web_discourse --evaluator f1-macro --data-io connl-wd --opt adam --lr 0.001 --save-best yes -w w_wd --rnn_hidden_dim 150 --cross-folds-num 10 --cross-fold-id 6;
-python3 main.py --train data/AM/web_discourse --evaluator f1-macro --data-io connl-wd --opt adam --lr 0.001 --save-best yes -w w_wd --rnn_hidden_dim 150 --cross-folds-num 10 --cross-fold-id 7;
-python3 main.py --train data/AM/web_discourse --evaluator f1-macro --data-io connl-wd --opt adam --lr 0.001 --save-best yes -w w_wd --rnn_hidden_dim 150 --cross-folds-num 10 --cross-fold-id 8;
-python3 main.py --train data/AM/web_discourse --evaluator f1-macro --data-io connl-wd --opt adam --lr 0.001 --save-best yes -w w_wd --rnn_hidden_dim 150 --cross-folds-num 10 --cross-fold-id 9;
-python3 main.py --train data/AM/web_discourse --evaluator f1-macro --data-io connl-wd --opt adam --lr 0.001 --save-best yes -w w_wd --rnn_hidden_dim 150 --cross-folds-num 10 --cross-fold-id 10;
+python3 main.py --train data/AM/web_discourse --evaluator f1-macro --data-io connl-wd --opt adam --lr 0.001 --save-best yes -w w_wd --rnn-hidden-dim 150 --cross-folds-num 10 --cross-fold-id 1;
+python3 main.py --train data/AM/web_discourse --evaluator f1-macro --data-io connl-wd --opt adam --lr 0.001 --save-best yes -w w_wd --rnn-hidden-dim 150 --cross-folds-num 10 --cross-fold-id 2;
+python3 main.py --train data/AM/web_discourse --evaluator f1-macro --data-io connl-wd --opt adam --lr 0.001 --save-best yes -w w_wd --rnn-hidden-dim 150 --cross-folds-num 10 --cross-fold-id 3;
+python3 main.py --train data/AM/web_discourse --evaluator f1-macro --data-io connl-wd --opt adam --lr 0.001 --save-best yes -w w_wd --rnn-hidden-dim 150 --cross-folds-num 10 --cross-fold-id 4;
+python3 main.py --train data/AM/web_discourse --evaluator f1-macro --data-io connl-wd --opt adam --lr 0.001 --save-best yes -w w_wd --rnn-hidden-dim 150 --cross-folds-num 10 --cross-fold-id 5;
+python3 main.py --train data/AM/web_discourse --evaluator f1-macro --data-io connl-wd --opt adam --lr 0.001 --save-best yes -w w_wd --rnn-hidden-dim 150 --cross-folds-num 10 --cross-fold-id 6;
+python3 main.py --train data/AM/web_discourse --evaluator f1-macro --data-io connl-wd --opt adam --lr 0.001 --save-best yes -w w_wd --rnn-hidden-dim 150 --cross-folds-num 10 --cross-fold-id 7;
+python3 main.py --train data/AM/web_discourse --evaluator f1-macro --data-io connl-wd --opt adam --lr 0.001 --save-best yes -w w_wd --rnn-hidden-dim 150 --cross-folds-num 10 --cross-fold-id 8;
+python3 main.py --train data/AM/web_discourse --evaluator f1-macro --data-io connl-wd --opt adam --lr 0.001 --save-best yes -w w_wd --rnn-hidden-dim 150 --cross-folds-num 10 --cross-fold-id 9;
+python3 main.py --train data/AM/web_discourse --evaluator f1-macro --data-io connl-wd --opt adam --lr 0.001 --save-best yes -w w_wd --rnn-hidden-dim 150 --cross-folds-num 10 --cross-fold-id 10;
 ```
 
 ### Alternative neural taggers
