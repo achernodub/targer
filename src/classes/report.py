@@ -36,7 +36,11 @@ class Report():
         self.__save()
 
     def write_input_arguments(self):
-        self.text += '\n\nInput arguments:\n%s' % get_input_arguments()
+        self.text += '\nInput arguments:\n%s' % get_input_arguments()
+        self.__save()
+
+    def write_final_line_score(self, final_score):
+        self.text += '\n\n%1.4f' % final_score
         self.__save()
 
     def __save(self):
@@ -44,6 +48,5 @@ class Report():
             with open(self.fn, mode='w') as text_file:
                 text_file.write(self.text)
 
-    def write_final_line_score(self, final_score):
-        self.text += '\n%s' % final_score
-        self.__save()
+    def make_print(self):
+        print(self.text)

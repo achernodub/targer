@@ -183,13 +183,12 @@ if __name__ == "__main__":
         report.write_final_score('Final eval on test, "save best", best epoch on dev %d, %s, test = %1.2f)' %
                                  (best_epoch, args.evaluator, best_test_score))
         report.write_msg(best_test_msg)
+        report.write_input_arguments()
+        report.write_final_line_score(best_test_score)
     else:
         report.write_final_score('Final eval on test, %s test = %1.2f)' % (args.evaluator, test_score))
         report.write_msg(test_msg)
-        print(test_msg)
-    report.write_input_arguments()
-    print('Input arguments:\n' + get_input_arguments())
-    if args.save_best:
-        report.write_final_line_score(best_test_score)
-    else:
+        report.write_input_arguments()
         report.write_final_line_score(test_score)
+    if args.verbose:
+        report.make_print()
