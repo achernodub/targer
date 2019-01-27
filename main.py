@@ -26,7 +26,8 @@ if __name__ == "__main__":
     parser.add_argument('-d', '--data-io', choices=['connl-ner-2003', 'connl-pe', 'connl-wd'],
                         default='connl-ner-2003', help='Data read/write file format.')
     parser.add_argument('--gpu', type=int, default=0, help='GPU device number, -1  means CPU.')
-    parser.add_argument('--model', help='Tagger model.', choices=['BiRNN', 'BiRNNCNN', 'BiRNNCRF', 'BiRNNCNNCRF'],
+    parser.add_argument('--model', help='Tagger model.', choices=['BiRNN', 'BiRNNCNN', 'BiRNNCRF', 'BiRNNCNNCRF',
+                                                                  'Bert'],
                         default='BiRNNCNNCRF')
     parser.add_argument('--load', '-l', default=None, help='Path to load from the trained model.')
     parser.add_argument('--save', '-s', default='%s_tagger.hdf5' % get_datetime_str(),
