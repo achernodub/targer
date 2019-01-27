@@ -1,6 +1,5 @@
 from __future__ import print_function
 from math import ceil, floor
-from os.path import isfile
 import time
 import numpy as np
 import torch.nn as nn
@@ -11,8 +10,9 @@ from src.factories.factory_datasets_bank import DatasetsBankFactory
 from src.factories.factory_evaluator import EvaluatorFactory
 from src.factories.factory_optimizer import OptimizerFactory
 from src.factories.factory_tagger import TaggerFactory
+from src.factories.factory_word_seq_indexer import WordSeqIndexerFactory
 from src.seq_indexers.seq_indexer_tag import SeqIndexerTag
-from src.seq_indexers.seq_indexer_word import SeqIndexerWord
+from sys import exit
 
 
 if __name__ == "__main__":
@@ -26,9 +26,8 @@ if __name__ == "__main__":
     parser.add_argument('-d', '--data-io', choices=['connl-ner-2003', 'connl-pe', 'connl-wd'],
                         default='connl-ner-2003', help='Data read/write file format.')
     parser.add_argument('--gpu', type=int, default=0, help='GPU device number, -1  means CPU.')
-    parser.add_argument('--model', help='Tagger model.', choices=['BiRNN', 'BiRNNCNN', 'BiRNNCRF', 'BiRNNCNNCRF',
-                                                                  'Bert'],
-                        default='BiRNNCNNCRF')
+    parser.add_argument('--model', help='Tagger model.', choices=['BiRNN', 'BiRNNCNN', 'BiRNNCRF', 'BiRNNCNNCRF'],
+                        default='BiRNN')
     parser.add_argument('--load', '-l', default=None, help='Path to load from the trained model.')
     parser.add_argument('--save', '-s', default='%s_tagger.hdf5' % get_datetime_str(),
                         help='Path to save the trained model.')
@@ -50,6 +49,8 @@ if __name__ == "__main__":
     parser.add_argument('--clip-grad', type=float, default=5, help='Clipping gradients maximum L2 norm.')
     parser.add_argument('--rnn-type', help='RNN cell units type.', choices=['Vanilla', 'LSTM', 'GRU'], default='LSTM')
     parser.add_argument('--rnn-hidden-dim', type=int, default=100, help='Number hidden units in the recurrent layer.')
+    parser.add_argument('--emb-bert', type=str2bool, default=True, help='BERT embeddings.', nargs='?',
+                        choices=['yes', True, 'no (default)', False])
     parser.add_argument('--emb-fn', default='embeddings/glove.6B.100d.txt', help='Path to word embeddings file.')
     parser.add_argument('--emb-dim', type=int, default=100, help='Dimension of word embeddings file.')
     parser.add_argument('--emb-delimiter', default=' ', help='Delimiter for word embeddings file.')
@@ -92,17 +93,7 @@ if __name__ == "__main__":
     datasets_bank.add_dev_sequences(word_sequences_dev, tag_sequences_dev)
     datasets_bank.add_test_sequences(word_sequences_test, tag_sequences_test)
     # Word_seq_indexer converts lists of lists of words to lists of lists of integer indices and back
-    if args.word_seq_indexer is not None and isfile(args.word_seq_indexer):
-        word_seq_indexer = torch.load(args.word_seq_indexer)
-    else:
-        word_seq_indexer = SeqIndexerWord(gpu=args.gpu, check_for_lowercase=args.check_for_lowercase,
-                                          embeddings_dim=args.emb_dim, verbose=True)
-        word_seq_indexer.load_items_from_embeddings_file_and_unique_words_list(emb_fn=args.emb_fn,
-                                                                               emb_delimiter=args.emb_delimiter,
-                                                                               emb_load_all=args.emb_load_all,
-                                                                               unique_words_list=datasets_bank.unique_words_list)
-    if args.word_seq_indexer is not None and not isfile(args.word_seq_indexer):
-        torch.save(word_seq_indexer, args.word_seq_indexer)
+    word_seq_indexer = WordSeqIndexerFactory.create(args)
     # Tag_seq_indexer converts lists of lists of tags to lists of lists of integer indices and back
     tag_seq_indexer = SeqIndexerTag(gpu=args.gpu)
     tag_seq_indexer.load_items_from_tag_sequences(tag_sequences_train)
