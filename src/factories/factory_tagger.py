@@ -31,7 +31,8 @@ class TaggerFactory():
                                  freeze_word_embeddings=args.freeze_word_embeddings,
                                  dropout_ratio=args.dropout_ratio,
                                  rnn_type=args.rnn_type,
-                                 gpu=args.gpu)
+                                 gpu=args.gpu,
+                                 emb_bert=args.emb_bert)
         elif args.model == 'BiRNNCNN':
             tagger = TaggerBiRNNCNN(word_seq_indexer=word_seq_indexer,
                                     tag_seq_indexer=tag_seq_indexer,
