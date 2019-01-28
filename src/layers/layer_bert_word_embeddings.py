@@ -7,7 +7,7 @@ from pytorch_pretrained_bert import BertModel
 
 class LayerBertWordEmbeddings(LayerBase):
     """LayerWordEmbeddings implements word embeddings."""
-    def __init__(self, word_seq_indexer, gpu, output_dim=300, output_bert_num=2):
+    def __init__(self, word_seq_indexer, gpu, output_dim, output_bert_num=1):
         super(LayerBertWordEmbeddings, self).__init__(gpu)
         self.word_seq_indexer = word_seq_indexer
         self.gpu = gpu
@@ -32,7 +32,7 @@ class LayerBertWordEmbeddings(LayerBase):
         elif self.output_bert_num == 2:
             bert_features = torch.cat((y[10], y[11]), dim=2) # 2 x 7 x 3072
         elif self.output_bert_num == 1:
-            bert_features = torch.cat((y[11]), dim=2) # 2 x 7 x 3072
+            bert_features = y[11]
         else:
             raise NotImplementedError()
         compressed_bert_features = self.lin_layer(bert_features) # 2 x 7 x 300
