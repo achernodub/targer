@@ -37,8 +37,7 @@ class TaggerSoftmax(TaggerBase):
         mask = self.get_mask_from_word_sequences(word_sequences)
         z_word_embed = self.word_embeddings_layer(word_sequences)
         z_word_embed_d = self.dropout(z_word_embed)
-        rnn_output_h = self.birnn_layer(z_word_embed_d, mask)
-        z_rnn_out = self.apply_mask(self.lin_layer(rnn_output_h), mask) # shape: batch_size x class_num + 1 x max_seq_len
+        z_rnn_out = self.apply_mask(self.lin_layer(z_word_embed_d), mask) # shape: batch_size x class_num + 1 x max_seq_len
         y = self.log_softmax_layer(z_rnn_out.permute(0, 2, 1))
         return y
 
