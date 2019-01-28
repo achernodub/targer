@@ -26,8 +26,8 @@ if __name__ == "__main__":
     parser.add_argument('-d', '--data-io', choices=['connl-ner-2003', 'connl-pe', 'connl-wd'],
                         default='connl-ner-2003', help='Data read/write file format.')
     parser.add_argument('--gpu', type=int, default=0, help='GPU device number, -1  means CPU.')
-    parser.add_argument('--model', help='Tagger model.', choices=['BiRNN', 'BiRNNCNN', 'BiRNNCRF', 'BiRNNCNNCRF'],
-                        default='BiRNN')
+    parser.add_argument('--model', help='Tagger model.', choices=['BiRNN', 'BiRNNCNN', 'BiRNNCRF', 'BiRNNCNNCRF',
+                                                                  'Softmax'], default='Softmax')
     parser.add_argument('--load', '-l', default=None, help='Path to load from the trained model.')
     parser.add_argument('--save', '-s', default='%s_tagger.hdf5' % get_datetime_str(),
                         help='Path to save the trained model.')
@@ -52,7 +52,7 @@ if __name__ == "__main__":
     parser.add_argument('--emb-bert', type=str2bool, default=True, help='BERT embeddings.', nargs='?',
                         choices=['yes', True, 'no (default)', False])
     parser.add_argument('--emb-fn', default='embeddings/glove.6B.100d.txt', help='Path to word embeddings file.')
-    parser.add_argument('--emb-dim', type=int, default=100, help='Dimension of word embeddings file.')
+    parser.add_argument('--emb-dim', type=int, default=300, help='Dimension of word embeddings file.')
     parser.add_argument('--emb-delimiter', default=' ', help='Delimiter for word embeddings file.')
     parser.add_argument('--emb-load-all', type=str2bool, default=False, help='Load all embeddings to model.', nargs='?',
                         choices = ['yes', True, 'no (default)', False])
