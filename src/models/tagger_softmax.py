@@ -24,8 +24,9 @@ class TaggerSoftmax(TaggerBase):
             self.word_embeddings_layer = LayerBertWordEmbeddings(word_seq_indexer, gpu, emb_dim)
         else:
             raise NotImplementedError()
+        self.dropout = torch.nn.Dropout(p=dropout_ratio)
         # We add an additional class that corresponds to the zero-padded values not to be included to the loss function
-        self.lin_layer = nn.Linear(in_features=self.birnn_layer.output_dim, out_features=class_num + 1)
+        self.lin_layer = nn.Linear(in_features=self.word_embeddings_layer.output_dim, out_features=class_num + 1)
         self.log_softmax_layer = nn.LogSoftmax(dim=1)
         if gpu >= 0:
             self.cuda(device=self.gpu)
