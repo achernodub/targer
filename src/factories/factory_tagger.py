@@ -5,6 +5,7 @@ from src.models.tagger_birnn import TaggerBiRNN
 from src.models.tagger_birnn_cnn import TaggerBiRNNCNN
 from src.models.tagger_birnn_crf import TaggerBiRNNCRF
 from src.models.tagger_birnn_cnn_crf import TaggerBiRNNCNNCRF
+from src.models.tagger_softmax import TaggerSoftmax
 
 
 class TaggerFactory():
@@ -47,7 +48,8 @@ class TaggerFactory():
                                     char_embeddings_dim=args.char_embeddings_dim,
                                     word_len=args.word_len,
                                     char_cnn_filter_num=args.char_cnn_filter_num,
-                                    char_window_size=args.char_window_size)
+                                    char_window_size=args.char_window_size,
+                                    emb_bert=args.emb_bert)
         elif args.model == 'BiRNNCRF':
             tagger = TaggerBiRNNCRF(word_seq_indexer=word_seq_indexer,
                                     tag_seq_indexer=tag_seq_indexer,
@@ -57,7 +59,8 @@ class TaggerFactory():
                                     freeze_word_embeddings=args.freeze_word_embeddings,
                                     dropout_ratio=args.dropout_ratio,
                                     rnn_type=args.rnn_type,
-                                    gpu=args.gpu)
+                                    gpu=args.gpu,
+                                    emb_bert=args.emb_bert)
             tagger.crf_layer.init_transition_matrix_empirical(tag_sequences_train)
         elif args.model == 'BiRNNCNNCRF':
             tagger = TaggerBiRNNCNNCRF(word_seq_indexer=word_seq_indexer,
@@ -73,8 +76,18 @@ class TaggerFactory():
                                        char_embeddings_dim=args.char_embeddings_dim,
                                        word_len=args.word_len,
                                        char_cnn_filter_num=args.char_cnn_filter_num,
-                                       char_window_size=args.char_window_size)
+                                       char_window_size=args.char_window_size,
+                                       emb_bert=args.emb_bert)
             tagger.crf_layer.init_transition_matrix_empirical(tag_sequences_train)
+        if args.model == 'Softmax':
+            tagger = TaggerSoftmax(word_seq_indexer=word_seq_indexer,
+                                   tag_seq_indexer=tag_seq_indexer,
+                                   class_num=tag_seq_indexer.get_class_num(),
+                                   batch_size=args.batch_size,
+                                   emb_dim=args.emb_dim,
+                                   dropout_ratio=args.dropout_ratio,
+                                   gpu=args.gpu,
+                                   emb_bert=args.emb_bert)
         else:
             raise ValueError('Unknown tagger model, must be one of "BiRNN"/"BiRNNCNN"/"BiRNNCRF"/"BiRNNCNNCRF".')
         return tagger

@@ -11,9 +11,9 @@ class LayerBertWordEmbeddings(LayerBase):
         super(LayerBertWordEmbeddings, self).__init__(gpu)
         self.word_seq_indexer = word_seq_indexer
         self.gpu = gpu
-        self.embeddings_dim = 768*4
+        self.bert_dim = 768 * 4
         self.output_dim = output_dim
-        self.lin_layer = nn.Linear(in_features=self.embeddings_dim, out_features=output_dim)
+        self.lin_layer = nn.Linear(in_features=self.bert_dim, out_features=output_dim)
         self.bert_model = BertModel.from_pretrained('bert-base-cased')
 
     def is_cuda(self):
