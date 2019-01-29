@@ -17,12 +17,10 @@ class SeqIndexerWordBert():
         idx_sequences = list()
         for word_seq in word_sequences:
             idx_seq = list()
-            #print('----------------')
             for w in word_seq:
                 w_tokenized = [self.bert_tokenizer.tokenize(w)[0]]
                 idx = self.bert_tokenizer.convert_tokens_to_ids(w_tokenized)
                 idx_seq.extend(idx)
-                #sprint('w =', w, 'w_tokenized =', w_tokenized, 'idx =', idx, 'idx_seq =', idx_seq)
             idx_sequences.append(idx_seq)
         return self.idx2tensor(idx_sequences)
 
@@ -35,4 +33,3 @@ class SeqIndexerWordBert():
         if self.gpu >= 0:
             tensor = tensor.cuda(device=self.gpu)
         return tensor
-
