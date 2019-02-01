@@ -15,11 +15,12 @@ class LayerBertWordEmbeddings(LayerBase):
         self.bert_dim = 768 * output_bert_num
         self.output_dim = output_dim
         self.lin_layer = nn.Linear(in_features=self.bert_dim, out_features=output_dim)
+        self.feature_cache = dict()
 
     def is_cuda(self):
         return self.lin_layer.weight.is_cuda
 
-    def forward(self, word_sequences):
+    def get_bert_feature(self, word_sequences):
         tokens_tensor = self.tensor_ensure_gpu(self.word_seq_indexer.items2tensor(word_sequences)) # shape: batch_size x max_seq_len
         segments_tensor = self.tensor_ensure_gpu(torch.zeros(tokens_tensor.shape, dtype=torch.long))
         bert_model = BertModel.from_pretrained('bert-base-cased')
@@ -39,3 +40,16 @@ class LayerBertWordEmbeddings(LayerBase):
             raise NotImplementedError()
         compressed_bert_features = self.lin_layer(bert_features) # 2 x 7 x 300
         return compressed_bert_features
+
+    def forward(self, word_sequences):
+        batch_size = len(word_sequences)
+        max_seq_len = max([len(word_seq) for word_seq in word_sequences])
+        bert_features = self.tensor_ensure_gpu(torch.zeros(batch_size, max_seq_len, self.output_dim))
+        for n, word_seq in enumerate(word_sequences):
+            word_seq_key = '-'.join(word_seq)
+            if word_seq_key in self.feature_cache:
+                feature = self.feature_cache[word_seq_key]
+            else:
+                feature = self.get_bert_feature([word_seq])
+            bert_features[n, :, :] = feature
+        return bert_features
