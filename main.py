@@ -117,7 +117,7 @@ if __name__ == "__main__":
     best_test_msg = 'N\A'
     patience_counter = 0
     print('\nStart training...\n')
-    for epoch in range(1, args.epoch_num + 1):
+    for epoch in range(0, args.epoch_num + 1):
         time_start = time.time()
         loss_sum = 0
         if epoch > 0:
