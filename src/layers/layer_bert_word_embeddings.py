@@ -16,8 +16,6 @@ class LayerBertWordEmbeddings(LayerBase):
         self.output_dim = output_dim
         self.lin_layer = nn.Linear(in_features=self.bert_dim, out_features=output_dim)
         self.feature_cache = dict()
-        self.bert_model = BertModel.from_pretrained('bert-base-cased')
-        self.bert_model.cpu()
 
     def is_cuda(self):
         return self.lin_layer.weight.is_cuda
@@ -30,7 +28,9 @@ class LayerBertWordEmbeddings(LayerBase):
         #    bert_model.cuda()
         tokens_tensor = self.word_seq_indexer.items2tensor(word_sequences).cpu() # shape: batch_size x max_seq_len
         segments_tensor = torch.zeros(tokens_tensor.shape, dtype=torch.long).cpu()
-        self.bert_model.eval()
+        bert_model = BertModel.from_pretrained('bert-base-cased')
+        bert_model.cpu()
+        bert_model.eval()
         y, _ = self.bert_model(tokens_tensor, segments_tensor)  # y : batch_size x max_seq_len x dim
         if self.output_bert_num == 4:
             bert_features = torch.cat((y[8], y[9], y[10], y[11]), dim=2) # 2 x 7 x 3072
