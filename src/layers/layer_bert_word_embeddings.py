@@ -23,6 +23,8 @@ class LayerBertWordEmbeddings(LayerBase):
         tokens_tensor = self.tensor_ensure_gpu(self.word_seq_indexer.items2tensor(word_sequences)) # shape: batch_size x max_seq_len
         segments_tensor = self.tensor_ensure_gpu(torch.zeros(tokens_tensor.shape, dtype=torch.long))
         bert_model = BertModel.from_pretrained('bert-base-cased')
+        if self.is_cuda():
+            bert_model.cuda()
         bert_model.eval()
         y, _ = bert_model(tokens_tensor, segments_tensor)  # y : batch_size x max_seq_len x dim
         if self.output_bert_num == 4:
