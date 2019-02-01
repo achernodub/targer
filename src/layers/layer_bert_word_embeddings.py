@@ -52,10 +52,10 @@ class LayerBertWordEmbeddings(LayerBase):
         for n, word_seq in enumerate(word_sequences):
             word_seq_key = '-'.join(word_seq)
             if word_seq_key in self.feature_cache:
-                feature = self.feature_cache[word_seq_key]
+                feature = self.tensor_ensure_gpu(self.feature_cache[word_seq_key])
             else:
-                feature = self.get_bert_feature([word_seq])
+                feature = self.tensor_ensure_gpu(self.get_bert_feature([word_seq]))
             #print('bert_features.shape', bert_features.shape)
             #print('feature.shape', feature.shape)
-            bert_features[n, :feature.shape[1], :] = self.tensor_ensure_gpu(feature)
+            bert_features[n, :feature.shape[1], :] = feature
         return bert_features
