@@ -21,11 +21,15 @@ class LayerBertWordEmbeddings(LayerBase):
         return self.lin_layer.weight.is_cuda
 
     def get_bert_feature(self, word_sequences):
-        tokens_tensor = self.tensor_ensure_gpu(self.word_seq_indexer.items2tensor(word_sequences)) # shape: batch_size x max_seq_len
-        segments_tensor = self.tensor_ensure_gpu(torch.zeros(tokens_tensor.shape, dtype=torch.long))
+        #tokens_tensor = self.tensor_ensure_gpu(self.word_seq_indexer.items2tensor(word_sequences)) # shape: batch_size x max_seq_len
+        #segments_tensor = self.tensor_ensure_gpu(torch.zeros(tokens_tensor.shape, dtype=torch.long))
+        #bert_model = BertModel.from_pretrained('bert-base-cased')
+        #if self.is_cuda():
+        #    bert_model.cuda()
+        tokens_tensor = self.word_seq_indexer.items2tensor(word_sequences) # shape: batch_size x max_seq_len
+        segments_tensor = torch.zeros(tokens_tensor.shape, dtype=torch.long)
         bert_model = BertModel.from_pretrained('bert-base-cased')
-        if self.is_cuda():
-            bert_model.cuda()
+        bert_model.cpu()
         bert_model.eval()
         y, _ = bert_model(tokens_tensor, segments_tensor)  # y : batch_size x max_seq_len x dim
         if self.output_bert_num == 4:
@@ -53,5 +57,5 @@ class LayerBertWordEmbeddings(LayerBase):
                 feature = self.get_bert_feature([word_seq])
             #print('bert_features.shape', bert_features.shape)
             #print('feature.shape', feature.shape)
-            bert_features[n, :feature.shape[1], :] = feature
+            bert_features[n, :feature.shape[1], :] = self.tensor_ensure_gpu(feature)
         return bert_features
