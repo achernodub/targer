@@ -42,8 +42,7 @@ class LayerBertWordEmbeddings(LayerBase):
             bert_features = y[11]
         else:
             raise NotImplementedError()
-        compressed_bert_features = self.lin_layer(bert_features) # 2 x 7 x 300
-        return compressed_bert_features
+        return bert_features
 
     def forward(self, word_sequences):
         batch_size = len(word_sequences)
@@ -58,4 +57,5 @@ class LayerBertWordEmbeddings(LayerBase):
             #print('bert_features.shape', bert_features.shape)
             #print('feature.shape', feature.shape)
             bert_features[n, :feature.shape[1], :] = feature
-        return bert_features
+        compressed_bert_features = self.lin_layer(bert_features)  # 2 x 7 x 300
+        return compressed_bert_features
