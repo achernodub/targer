@@ -31,7 +31,7 @@ class LayerBertWordEmbeddings(LayerBase):
         bert_model = BertModel.from_pretrained('bert-base-cased')
         bert_model.cpu()
         bert_model.eval()
-        y, _ = self.bert_model(tokens_tensor, segments_tensor)  # y : batch_size x max_seq_len x dim
+        y, _ = bert_model(tokens_tensor, segments_tensor)  # y : batch_size x max_seq_len x dim
         if self.output_bert_num == 4:
             bert_features = torch.cat((y[8], y[9], y[10], y[11]), dim=2) # 2 x 7 x 3072
         elif self.output_bert_num == 3:
