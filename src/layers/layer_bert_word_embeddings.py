@@ -51,7 +51,7 @@ class LayerBertWordEmbeddings(LayerBase):
                 feature = self.feature_cache[word_seq_key]
             else:
                 feature = self.get_bert_feature([word_seq])
-            print('bert_features.shape', bert_features.shape)
-            print('feature.shape', feature.shape)
-            bert_features[n, :, :] = feature
+            #print('bert_features.shape', bert_features.shape)
+            #print('feature.shape', feature.shape)
+            bert_features[n, :feature.shape[1], :] = feature
         return bert_features
