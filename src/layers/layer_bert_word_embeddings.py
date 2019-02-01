@@ -47,7 +47,7 @@ class LayerBertWordEmbeddings(LayerBase):
     def forward(self, word_sequences):
         batch_size = len(word_sequences)
         max_seq_len = max([len(word_seq) for word_seq in word_sequences])
-        bert_features = self.tensor_ensure_gpu(torch.zeros(batch_size, max_seq_len, self.output_dim))
+        bert_features = self.tensor_ensure_gpu(torch.zeros(batch_size, max_seq_len, self.bert_dim))
         for n, word_seq in enumerate(word_sequences):
             word_seq_key = '-'.join(word_seq)
             if word_seq_key in self.feature_cache:
