@@ -10,10 +10,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Run trained tagger from the checkpoint file')
     parser.add_argument('load', help='Path to load from the trained model.',
                         default='pretrained/tagger_NER_BiLSTMCNNCRF.hdf5')
-    parser.add_argument('--fn', default='data/NER/CoNNL_2003_shared_task/test.txt',
-                        help='Train data in CoNNL-2003 format.')
     parser.add_argument('-d', '--data-io', choices=['connl-ner-2003', 'connl-pe', 'connl-wd'],
                         default='connl-wd', help='Data read/write file format.')
+    parser.add_argument('--fn', default='data/NER/CoNNL_2003_shared_task/test.txt',
+                        help='Test data.')
     parser.add_argument('--evaluator', '-v', default='f1-connl', help='Evaluation method.',
                         choices=['f1-connl', 'f1-alpha-match-10', 'f1-alpha-match-05', 'f1-macro', 'token-acc'])
     parser.add_argument('--gpu', type=int, default=0, help='GPU device number, 0 by default, -1 means CPU.')
