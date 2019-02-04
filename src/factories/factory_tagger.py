@@ -16,6 +16,11 @@ class TaggerFactory():
                              "--save-best-path" param to create it.' % checkpoint_fn)
         tagger = torch.load(checkpoint_fn)
         tagger.gpu = gpu
+
+        tagger.word_seq_indexer.gpu = gpu # hotfix
+        tagger.tag_seq_indexer.gpu = gpu # hotfix
+        tagger.char_embeddings_layer.char_seq_indexer.gpu = gpu # hotfix
+
         tagger.self_ensure_gpu()
         return tagger
 

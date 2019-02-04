@@ -385,7 +385,7 @@ python3 main.py
 
 Training on Peruassive Essays dataset:
 ```
-python3 main.py data/AM/persuasive_essays/Essay_Level/train.dat.abs --dev data/AM/persuasive_essays/Essay_Level/dev.dat.abs --test data/AM/persuasive_essays/Essay_Level/test.dat.abs --data-io connl-pe --evaluator f1-alpha-match-10 --opt adam --lr 0.001 --save-best yes --patience 20 --rnn-hidden-dim 200
+python3 main.py --train data/AM/persuasive_essays/Paragraph_Level/train.dat.abs --dev data/AM/persuasive_essays/Paragraph_Level/dev.dat.abs --test data/AM/persuasive_essays/Paragraph_Level/test.dat.abs --data-io connl-pe --evaluator f1-alpha-match-10 --opt adam --lr 0.001 --save-best yes --patience 20 --rnn-hidden-dim 200
 ```
 
 Training on Web Discourse dataset (cross-validation):
