@@ -106,7 +106,7 @@ Results of training the models (see the settings [here](#Training-on-various-dat
 | BiLSTM + CNN + CRF  (our)   | NER-2003 shared task (English)                     | 90.59  |          |
 ||||           
 | STag_BLCC, [Eger et. al., 2017](https://arxiv.org/pdf/1704.06104.pdf)   | AM Persuasive Essays, Paragraph Level                     | 64.74 +/- 1.97  |          |
-| BiGRU + CNN + CRF  (our)   | AM Persuasive Essays, Paragraph Level                     | 64.06  |          |
+| BiLSTM + CNN + CRF  (our)   | AM Persuasive Essays, Paragraph Level                     | 64.54  |          |
 
 In order to ensure the consistency of the experiments, for evaluation purposes we use "official" Perl script from NER 2003 shared task, author: Erik Tjong Kim Sang, version: 2004-01-26, example of it's output:
 
