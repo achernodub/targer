@@ -2,7 +2,7 @@
 
 targer is a BiLSTM-CNN-CRF tagger is a PyTorch implementation of "mainstream" neural tagging scheme based on works of [Lample, 
 et. al., 2016](https://arxiv.org/pdf/1603.01360.pdf) and [Ma et. al., 2016](https://arxiv.org/pdf/1603.01354.pdf). It is
-a part of [TArgER: Ready to Use State-of-the-Art Argument Mining](http://ltdemos.informatik.uni-hamburg.de/argsearch/).
+a part of [TARGER: Neural Argument Mining at Your Fingertips](http://ltdemos.informatik.uni-hamburg.de/argsearch/).
 
 <p align="center"><img width="100%" src="docs/scheme.png"/></p> 
 
