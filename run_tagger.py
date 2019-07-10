@@ -10,13 +10,13 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Run trained model')
     parser.add_argument('load', help='Path to load from the trained model.',
                         default='pretrained/tagger_NER_BiLSTMCNNCRF.hdf5')
-    parser.add_argument('--input-filename', '-i', help='Input data.')
+    parser.add_argument('input-filename', '-i', help='Input CoNNL.')
+    parser.add_argument('output-filename', '-o', help='Output JSON.',
+                        default='out.json')
     parser.add_argument('--data-io', '-d', choices=['connl-ner-2003',
                                                     'connl-pe',
                                                     'connl-wd'],
                         default='connl-wd', help='Data read file format.')
-    parser.add_argument('--output-json-filename', '-o', help='Input data.',
-                        default='out.json')
     parser.add_argument('--evaluator', '-v', default='f1-connl',
                         help='Evaluation method.',
                         choices=['f1-connl', 'f1-alpha-match-10',
