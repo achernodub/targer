@@ -16,7 +16,7 @@ if __name__ == "__main__":
     parser.add_argument('--data-io', '-d', choices=['connl-ner-2003',
                                                     'connl-pe',
                                                     'connl-wd'],
-                        default='connl-wd', help='Data read file format.')
+                        default='connl-ner-2003', help='Data read file format.')
     parser.add_argument('--evaluator', '-v', default='f1-connl',
                         help='Evaluation method.',
                         choices=['f1-connl', 'f1-alpha-match-10',
