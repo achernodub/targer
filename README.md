@@ -234,24 +234,28 @@ optional arguments:
 ### Run trained model
 
 ```
-usage: run_tagger.py [-h] [--fn FN] [-d {connl-ner-2003,connl-pe,connl-wd}]
+Start run_tagger.py.
+usage: run_tagger.py [-h] [--output-filename OUTPUT_FILENAME]
+                     [--data-io {connl-ner-2003,connl-pe,connl-wd}]
                      [--evaluator {f1-connl,f1-alpha-match-10,f1-alpha-match-05,f1-macro,token-acc}]
                      [--gpu GPU]
-                     load
+                     load input-filename
 
-Run trained tagger from the checkpoint file
+Run trained model
 
 positional arguments:
   load                  Path to load from the trained model.
+  input-filename        Input CoNNL.
 
 optional arguments:
   -h, --help            show this help message and exit
-  --fn FN               Train data in CoNNL-2003 format.
-  -d {connl-ner-2003,connl-pe,connl-wd}, --data-io {connl-ner-2003,connl-pe,connl-wd}
-                        Data read/write file format.
+  --output-filename OUTPUT_FILENAME, -o OUTPUT_FILENAME
+                        Output JSON.
+  --data-io {connl-ner-2003,connl-pe,connl-wd}, -d {connl-ner-2003,connl-pe,connl-wd}
+                        Data read file format.
   --evaluator {f1-connl,f1-alpha-match-10,f1-alpha-match-05,f1-macro,token-acc}, -v {f1-connl,f1-alpha-match-10,f1-alpha-match-05,f1-macro,token-acc}
                         Evaluation method.
-  --gpu GPU             GPU device number, 0 by default, -1 means CPU.
+  --gpu GPU, -g GPU     GPU device number, 0 by default, -1 means CPU.
 ```
 
 ### Example of output report
