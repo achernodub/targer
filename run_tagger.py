@@ -10,8 +10,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Run trained model')
     parser.add_argument('load', help='Path to load from the trained model.',
                         default='pretrained/tagger_NER_BiLSTMCNNCRF.hdf5')
-    parser.add_argument('input-filename', help='Input CoNNL.')
-    parser.add_argument('--output-filename', '-o', help='Output JSON.',
+    parser.add_argument('input', help='Input CoNNL filename.')
+    parser.add_argument('--output', '-o', help='Output JSON filename.',
                         default='out.json')
     parser.add_argument('--data-io', '-d', choices=['connl-ner-2003',
                                                     'connl-pe',
@@ -25,13 +25,13 @@ if __name__ == "__main__":
                         help='GPU device number, 0 by default, -1 means CPU.')
     print('Start run_tagger.py.')
     args = parser.parse_args()
+    # Load tagger model
+    tagger = TaggerFactory.load(args.load, args.gpu)
     # Create DataIO object
     data_io = DataIOFactory.create(args)
     # Read data in CoNNL-2003 file format format
     word_sequences, targets_tag_sequences_test = \
-        data_io.read_data(args.input_filename)
-    # Load tagger model
-    tagger = TaggerFactory.load(args.load, args.gpu)
+        data_io.read_data(args.input)
     # Create evaluator
     evaluator = EvaluatorFactory.create(args)
     # Get tags as sequences of strings
@@ -45,6 +45,6 @@ if __name__ == "__main__":
     print('\n\n%s = %1.2f' % (args.evaluator, test_score))
     print(test_msg)
     # Write results to text file
-    with open(args.output_filename, 'w') as f:
+    with open(args.output, 'w') as f:
         json.dump(output_tag_sequences_test, f)
     print('\nThe end.')
