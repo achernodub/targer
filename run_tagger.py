@@ -45,6 +45,6 @@ if __name__ == "__main__":
     print('\n\n%s = %1.2f' % (args.evaluator, test_score))
     print(test_msg)
     # Write results to text file
-    with open(args.output_json_filename, 'w') as f:
+    with open(args.output_filename, 'w') as f:
         json.dump(output_tag_sequences_test, f)
     print('\nThe end.')
