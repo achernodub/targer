@@ -235,22 +235,22 @@ optional arguments:
 
 ```
 Start run_tagger.py.
-usage: run_tagger.py [-h] [--output-filename OUTPUT_FILENAME]
+usage: run_tagger.py [-h] [--output OUTPUT]
                      [--data-io {connl-ner-2003,connl-pe,connl-wd}]
                      [--evaluator {f1-connl,f1-alpha-match-10,f1-alpha-match-05,f1-macro,token-acc}]
                      [--gpu GPU]
-                     load input-filename
+                     load input
 
 Run trained model
 
 positional arguments:
   load                  Path to load from the trained model.
-  input-filename        Input CoNNL.
+  input                 Input CoNNL filename.
 
 optional arguments:
   -h, --help            show this help message and exit
-  --output-filename OUTPUT_FILENAME, -o OUTPUT_FILENAME
-                        Output JSON.
+  --output OUTPUT, -o OUTPUT
+                        Output JSON filename.
   --data-io {connl-ner-2003,connl-pe,connl-wd}, -d {connl-ner-2003,connl-pe,connl-wd}
                         Data read file format.
   --evaluator {f1-connl,f1-alpha-match-10,f1-alpha-match-05,f1-macro,token-acc}, -v {f1-connl,f1-alpha-match-10,f1-alpha-match-05,f1-macro,token-acc}
