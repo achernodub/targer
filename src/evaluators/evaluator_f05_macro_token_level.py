@@ -34,16 +34,22 @@ class EvaluatorF05MacroTokenLevel(EvaluatorBase):
             dict[tag] /= d
         return dict
 
-    def __get_M_F05_msg(self, F05):
-        msg = '\nF05 scores\n'
+    def __get_M_F05_P_R_msg(self, F05, P, R):
+        msg = '\nScores\n'
         msg += '-' * 24 + '\n'
+        sum_M_P = 0
+        sum_M_R = 0
         sum_M_F05 = 0
         for tag in self.tag_list:
+            sum_M_P += P[tag]
+            sum_M_R += R[tag]
             sum_M_F05 += F05[tag]
-            msg += '%15s = %1.2f\n' % (tag, F05[tag])
+            msg += '%15s: P=%1.2f, R=%1.2f, Macro-F05=%1.2f\n' % (tag, P[tag], R[tag], F05[tag])
+        M_P = sum_M_P / len(P)
+        M_R = sum_M_R / len(R)
         M_F05 = sum_M_F05 / len(F05)
         msg += '-'*24 + '\n'
-        msg += 'Macro-F05 = %1.3f' % M_F05
+        msg += 'P=%1.2f, R=%1.2f, Macro-F05=%1.2f' % (M_P, M_R, M_F05)
         return M_F05, msg
 
     def __add_to_dict(self, dict_in, tag, val):
@@ -56,6 +62,11 @@ class EvaluatorF05MacroTokenLevel(EvaluatorBase):
     def __get_f_beta(self, tp, fn, fp, beta=0.5):
         return (1 + beta*beta)*tp*100.0 / max((1 + beta*beta)*tp + (beta*beta)*fn + fp, 1)
 
+    def __get_p_r(self, tp, fn, fp):
+        p = tp / (tp + fp)
+        r = tp / (tp + fn)
+        return p, r
+
     """EvaluatorF05MacroTagComponents is macro-F05 scores evaluator for each class of BOI-like tags."""
     def get_evaluation_score(self, targets_tag_sequences, outputs_tag_sequences, word_sequences=None):
         # Create list of tags
@@ -65,6 +76,8 @@ class EvaluatorF05MacroTokenLevel(EvaluatorBase):
         FP = self.__get_zeros_tag_dict()
         FN = self.__get_zeros_tag_dict()
         F05 = self.__get_zeros_tag_dict()
+        P = self.__get_zeros_tag_dict()
+        R = self.__get_zeros_tag_dict()
         for targets_seq, outputs_tag_seq in zip(targets_tag_sequences, outputs_tag_sequences):
             for t, o in zip(targets_seq, outputs_tag_seq):
                 if t == o:
@@ -76,8 +89,9 @@ class EvaluatorF05MacroTokenLevel(EvaluatorBase):
         for tag in self.tag_list:
             #F05[tag] = (2 * TP[tag] / max(2 * TP[tag] + FP[tag] + FN[tag], 1)) * 100
             F05[tag] = self.__get_f_beta(TP[tag], FN[tag], FP[tag], beta=0.5)
+            P[tag], R[tag] = self.__get_p_r(TP[tag], FN[tag], FP[tag])
         # Calculate Macro-F05 score and prepare the message
-        M_F05, msg = self.__get_M_F05_msg(F05)
+        M_F05, msg = self.__get_M_F05_P_R_msg(F05, P, R)
         print(msg)
         #self.validate_M_F05_scikitlearn( targets_tag_sequences, outputs_tag_sequences)
         return M_F05, msg
