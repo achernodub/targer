@@ -72,4 +72,4 @@ def str2bool(v):
 
 
 def get_input_arguments():
-    return 'python3 main.py ' + ' '.join([arg for arg in sys.argv[2:]])
+    return 'python3 main.py ' + ' '.join([arg for arg in sys.argv[1:]])
