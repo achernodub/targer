@@ -63,8 +63,8 @@ class EvaluatorF05MacroTokenLevel(EvaluatorBase):
         return (1 + beta*beta)*tp*100.0 / max((1 + beta*beta)*tp + (beta*beta)*fn + fp, 1)
 
     def __get_p_r(self, tp, fn, fp):
-        p = tp / (tp + fp)
-        r = tp / (tp + fn)
+        p = tp / max(tp + fp, 1)
+        r = tp / max(tp + fn, 1)
         return p, r
 
     """EvaluatorF05MacroTagComponents is macro-F05 scores evaluator for each class of BOI-like tags."""
