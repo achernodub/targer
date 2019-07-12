@@ -19,8 +19,8 @@ class TaggerFactory():
 
         tagger.word_seq_indexer.gpu = gpu # hotfix
         tagger.tag_seq_indexer.gpu = gpu # hotfix
-        tagger.char_embeddings_layer.char_seq_indexer.gpu = gpu # hotfix
-
+        if hasattr(tagger, 'char_embeddings_layer'):# very hot hotfix
+            tagger.char_embeddings_layer.char_seq_indexer.gpu = gpu # hotfix
         tagger.self_ensure_gpu()
         return tagger
 
