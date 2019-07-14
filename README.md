@@ -2,9 +2,13 @@
 
 This page contains code of the neural tagging library _targer_, which is a part of 
 the [TARGER](http://ltdemos.informatik.uni-hamburg.de/argsearch/) project. 
-The code and data related to the following paper:
+The code and data are related to the following paper:
 
-Artem Chernodub, Oleksiy Oliynyk, Philipp Heidenreich, Alexander Bondarenko, Matthias Hagen, Chris Biemann, and Alexander Panchenko (2019): [TARGER: Neural Argument Mining at Your Fingertips](https://www.inf.uni-hamburg.de/en/inst/ab/lt/publications/2019-chernodubetal-acl19demo-targer.pdf). In Proceedings of the 57th Annual Meeting of the Association of Computational Linguistics (ACL'2019). Florence, Italy. 
+_Artem Chernodub, Oleksiy Oliynyk, Philipp Heidenreich, Alexander Bondarenko, 
+Matthias Hagen, Chris Biemann, and Alexander Panchenko (2019): 
+[TARGER: Neural Argument Mining at Your Fingertips](https://www.inf.uni-hamburg.de/en/inst/ab/lt/publications/2019-chernodubetal-acl19demo-targer.pdf). 
+In Proceedings of the 57th Annual Meeting of the Association of Computational 
+Linguistics (ACL'2019). Florence, Italy._ 
 
 If you use the demo or would like to refer to it, please cite the paper mentioned above. You can also use the following BibTex information for citation: 
 
