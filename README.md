@@ -48,9 +48,9 @@ and [Ma et. al., 2016](https://arxiv.org/pdf/1603.01354.pdf).
 
 ## Benefits
 
-- Native PyTorch implementation
-- Vectorized code for training on batches
-- Easy addition of new classes for custom data file formats and evaluation metrics
+- Native PyTorch implementation.
+- Vectorized code for training on batches.
+- Easy addition of new classes for custom data file formats and evaluation metrics.
  
 ## Project structure
 
