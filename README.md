@@ -31,8 +31,9 @@ URL for accessing TARGER web-application and web-service online: http://ltdemos.
 
 # Design
 
-_targer_ is a PyTorch implementation of "mainstream" BiLSTM-CNN-CRF neural tagging scheme based on works of [Lample, 
-et. al., 2016](https://arxiv.org/pdf/1603.01360.pdf) and [Ma et. al., 2016](https://arxiv.org/pdf/1603.01354.pdf). 
+_targer_ is a PyTorch implementation of "mainstream" BiLSTM-CNN-CRF neural tagging 
+method based on works of [Lample, et. al., 2016](https://arxiv.org/pdf/1603.01360.pdf) 
+and [Ma et. al., 2016](https://arxiv.org/pdf/1603.01354.pdf). 
 
 <p align="center"><img width="100%" src="docs/scheme.png"/></p> 
 
