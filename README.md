@@ -1,17 +1,44 @@
 # targer
 
-targer is a BiLSTM-CNN-CRF tagger is a PyTorch implementation of "mainstream" neural tagging scheme based on works of [Lample, 
-et. al., 2016](https://arxiv.org/pdf/1603.01360.pdf) and [Ma et. al., 2016](https://arxiv.org/pdf/1603.01354.pdf). It is
-a part of [TARGER: Neural Argument Mining at Your Fingertips](http://ltdemos.informatik.uni-hamburg.de/argsearch/).
+This page contains code of the neural tagging library _targer_, which is a part of 
+the [TARGER](http://ltdemos.informatik.uni-hamburg.de/argsearch/) project. 
+The code and data related to the following paper:
+
+Artem Chernodub, Oleksiy Oliynyk, Philipp Heidenreich, Alexander Bondarenko, Matthias Hagen, Chris Biemann, and Alexander Panchenko (2019): [TARGER: Neural Argument Mining at Your Fingertips](https://www.inf.uni-hamburg.de/en/inst/ab/lt/publications/2019-chernodubetal-acl19demo-targer.pdf). In Proceedings of the 57th Annual Meeting of the Association of Computational Linguistics (ACL'2019). Florence, Italy. 
+
+If you use the demo or would like to refer to it, please cite the paper mentioned above. You can also use the following BibTex information for citation: 
+
+```
+@inproceedings{chernodub2019targer,
+  title={TARGER: Neural Argument Mining at Your Fingertips},
+  author={Chernodub, Artem and Oliynyk, Oleksiy and Heidenreich, Philipp and Bondarenko, Alexander and Hagen, Matthias and Biemann, Chris  and Panchenko, Alexander},
+  booktitle={Proceedings of the 57th Annual Meeting of the Association of Computational Linguistics (ACL'2019)},
+  year={2019},
+  address={Florence, Italy}
+}
+```
+
+You can access the code for web application and web service at https://github.com/uhh-lt/targer. 
+This web applcation lives in a separate repository from the but is also part of the TARGER project.
+There you will find instructions on how to run this web application locally. 
+Alternatively you can just access it using the following URL: http://ltdemos.informatik.uni-hamburg.de/targer/.   
+
+
+# Design
+
+_targer_ is a PyTorch implementation of "mainstream" BiLSTM-CNN-CRF neural tagging scheme based on works of [Lample, 
+et. al., 2016](https://arxiv.org/pdf/1603.01360.pdf) and [Ma et. al., 2016](https://arxiv.org/pdf/1603.01354.pdf). 
 
 <p align="center"><img width="100%" src="docs/scheme.png"/></p> 
 
+
 ## Requirements
 
-- numpy 1.15.1
-- scipy 1.1.0
+- NumPy 1.15.1
+- SciPy 1.1.0
+- [Pytorch >= 0.4.1](http://pytorch.org/)
 - python 3.5.2 or higher
-- [pytorch >= 0.4.1](http://pytorch.org/)
+
 
 ## Benefits
 
