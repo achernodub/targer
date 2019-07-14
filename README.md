@@ -36,7 +36,7 @@ et. al., 2016](https://arxiv.org/pdf/1603.01360.pdf) and [Ma et. al., 2016](http
 
 - NumPy 1.15.1
 - SciPy 1.1.0
-- [Pytorch >= 0.4.1](http://pytorch.org/)
+- [PyTorch >= 0.4.1](http://pytorch.org/)
 - python 3.5.2 or higher
 
 
@@ -44,8 +44,7 @@ et. al., 2016](https://arxiv.org/pdf/1603.01360.pdf) and [Ma et. al., 2016](http
 
 - native PyTorch implementation;
 - vectorized code for training on batches;
-- easy adding new classes for custom data file formats and evaluation metrics;
-- trustworthy evaluation of f1-score.
+- easy addition of new classes for custom data file formats and evaluation metrics.
  
 ## Project structure
 
