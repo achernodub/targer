@@ -25,7 +25,8 @@ If you use the demo or would like to refer to it, please cite the paper mentione
 Web application lives in a separate repository but is also part of the TARGER project,
 you can access the code at https://github.com/uhh-lt/targer. There you will find 
 instructions on how to run this web application locally. 
-On-line demo URL: http://ltdemos.informatik.uni-hamburg.de/targer/.   
+
+URL for accessing web-application and web-service online: http://ltdemos.informatik.uni-hamburg.de/targer/.   
 
 
 # Design
