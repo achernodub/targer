@@ -40,10 +40,10 @@ and [Ma et. al., 2016](https://arxiv.org/pdf/1603.01354.pdf).
 
 ## Requirements
 
+- Python 3.5.2 or higher
 - NumPy 1.15.1
 - SciPy 1.1.0
 - [PyTorch >= 0.4.1](http://pytorch.org/)
-- python 3.5.2 or higher
 
 
 ## Benefits
