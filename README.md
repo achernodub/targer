@@ -18,10 +18,10 @@ If you use the demo or would like to refer to it, please cite the paper mentione
 }
 ```
 
-You can access the code for web application and web service at https://github.com/uhh-lt/targer. 
-This web applcation lives in a separate repository from the but is also part of the TARGER project.
-There you will find instructions on how to run this web application locally. 
-Alternatively you can just access it using the following URL: http://ltdemos.informatik.uni-hamburg.de/targer/.   
+Web application lives in a separate repository but is also part of the TARGER project,
+you can access the code at https://github.com/uhh-lt/targer. There you will find 
+instructions on how to run this web application locally. Alternatively you can 
+just access it using the following URL: http://ltdemos.informatik.uni-hamburg.de/targer/.   
 
 
 # Design
