@@ -26,7 +26,7 @@ Web application lives in a separate repository but is also part of the TARGER pr
 you can access the code at https://github.com/uhh-lt/targer. There you will find 
 instructions on how to run this web application locally. 
 
-URL for accessing web-application and web-service online: http://ltdemos.informatik.uni-hamburg.de/targer/.   
+URL for accessing TARGER web-application and web-service online: http://ltdemos.informatik.uni-hamburg.de/targer/.   
 
 
 # Design
